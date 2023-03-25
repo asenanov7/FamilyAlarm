@@ -1,4 +1,6 @@
-package com.example.familyalarm.domain
+package com.example.familyalarm.domain.usecases
+
+import com.example.familyalarm.domain.Repository
 
 class SetAlarmForGroupUseCase(private val repository: Repository) {
     operator fun invoke(time:Int, userGroupId: String){

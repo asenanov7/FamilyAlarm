@@ -20,7 +20,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        auth.createUserWithEmailAndPassword("test@gmail.com", "123456")
+     /*   auth.createUserWithEmailAndPassword("test@gmail.com", "123456")
+            .addOnSuccessListener { Log.d("ARSEN", "onCreate: success") }
+            .addOnFailureListener { Log.d("ARSEN", "Fail $it")}*/
+
+        auth.sendPasswordResetEmail("test@gmail.com")
             .addOnSuccessListener { Log.d("ARSEN", "onCreate: success") }
             .addOnFailureListener { Log.d("ARSEN", "Fail $it")}
     }

@@ -1,4 +1,4 @@
-package com.example.familyalarm.domain
+package com.example.familyalarm.domain.entities
 
 data class User(
     val id: String,
