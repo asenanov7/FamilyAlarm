@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "223780209006",
+    "project_id": "waketeam-75be8",
+    "storage_bucket": "waketeam-75be8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:223780209006:android:682d203a0deeaa5d47417f",
+        "android_client_info": {
+          "package_name": "com.example.familyalarm"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "223780209006-1g6m10rm7fbbm7ae5gbg7drres30meao.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.familyalarm",
+            "certificate_hash": "779339f6fe5e90c531197fb5cacd4b3f549b2465"
+          }
+        },
+        {
+          "client_id": "223780209006-fab02eksdh01mcic7414ot9q19m16tni.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAP9aFMMDDGcT9ScVn6xPgbSbcFf0NtR8c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "223780209006-fab02eksdh01mcic7414ot9q19m16tni.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
