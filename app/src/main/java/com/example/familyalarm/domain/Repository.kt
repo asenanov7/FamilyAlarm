@@ -3,8 +3,13 @@ package com.example.familyalarm.domain
 import com.example.familyalarm.domain.entities.Alarm
 import com.example.familyalarm.domain.entities.User
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 interface Repository {
+
+    fun login(email:String, password:String): StateFlow<Any>
+
+    fun register(email:String, password:String): StateFlow<Any>
 
     fun inviteUserInTheGroup(userId: String, userGroupId: String)
 
