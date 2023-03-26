@@ -1,7 +1,7 @@
 package com.example.familyalarm.data.impl_repositories
 
-import com.example.familyalarm.data.Utils
 import com.example.familyalarm.domain.repositories.AuthRepository
+import com.example.familyalarm.utils.Utils
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.tasks.await
 

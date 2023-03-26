@@ -1,4 +1,4 @@
-package com.example.familyalarm.data
+package com.example.familyalarm.utils
 
 import android.text.TextUtils
 

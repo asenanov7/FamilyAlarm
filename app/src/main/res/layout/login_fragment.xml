@@ -1,6 +1,155 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <Space
+        android:id="@+id/space"
+        android:layout_width="2dp"
+        android:layout_height="2dp"
+        app:layout_constraintBottom_toBottomOf="@id/textView_dontHaveAccount"
+        app:layout_constraintEnd_toStartOf="@+id/textView_signIn"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/textView_dontHaveAccount"
+        app:layout_constraintTop_toBottomOf="@id/textView_dontHaveAccount"
+        tools:layout_editor_absoluteY="616dp" />
+
+
+    <ImageView
+        android:id="@+id/imageView_logo"
+        android:layout_width="220dp"
+        android:layout_height="241dp"
+        android:elevation="8dp"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/logo"
+        app:layout_constraintBottom_toTopOf="@id/textView_greetings"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:srcCompat="@drawable/alarm_clock_clock_svgrepo_com" />
+
+    <TextView
+        android:id="@+id/textView_greetings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="20dp"
+        android:fontFamily="helvetica"
+        android:text="@string/startDayTogether"
+        android:textColor="@color/black"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/textInputLayout_email"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView_logo" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout_email"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="330dp"
+        android:layout_height="wrap_content"
+        app:errorEnabled="true"
+        app:errorTextAppearance="@style/error_appearance"
+        app:hintEnabled="false"
+        app:hintTextColor="@color/black"
+        app:layout_constraintBottom_toTopOf="@id/textInputLayout_password"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView_greetings"
+        app:startIconDrawable="@android:drawable/sym_action_email">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/textInputEditText_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints="emailAddress"
+            android:background="@drawable/input"
+            android:fontFamily="helvetica"
+            android:hint="@string/_email"
+            android:inputType="textEmailAddress"
+            android:textSize="16sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout_password"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="330dp"
+        android:layout_height="wrap_content"
+        app:errorTextAppearance="@style/error_appearance"
+        app:hintEnabled="false"
+        app:layout_constraintBottom_toTopOf="@id/button_signUp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textInputLayout_email"
+        app:passwordToggleEnabled="true"
+        app:startIconDrawable="@android:drawable/ic_lock_idle_lock">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/textInputEditText_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints="password"
+            android:background="@drawable/input"
+            android:fontFamily="helvetica"
+            android:hint="@string/_password"
+            android:inputType="textPassword"
+            android:textSize="16sp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/button_signUp"
+        android:layout_width="140dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/circle"
+        android:backgroundTint="@color/black"
+        android:elevation="6dp"
+        android:fontFamily="helvetica"
+        android:text="@string/sign_up"
+        android:textStyle="bold"
+        android:theme="@style/Theme.AppCompat"
+        app:layout_constraintBottom_toTopOf="@id/textView_dontHaveAccount"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout_password" />
+
+
+    <TextView
+        android:id="@+id/textView_dontHaveAccount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:fontFamily="helvetica"
+        android:text="@string/_don_t_have_an_account"
+        android:textColor="#000000"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/space"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_signUp" />
+
+    <TextView
+        android:id="@+id/textView_signIn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="helvetica"
+        android:text="@string/_sign_in"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/space"
+        app:layout_constraintTop_toTopOf="@+id/textView_dontHaveAccount" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

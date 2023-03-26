@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="error_appearance">
+        <![CDATA[<resources>     <style name="error_appearance" parent="@android:style/TextAppearance">         <item name="android:textColor">@android:color/holo_red_light</item>         <item name="android:textSize">12sp</item>         <item name="android:textStyle">bold</item>     </style>  </resources>]]></style>
+</resources>

@@ -28,7 +28,7 @@ class RegisterFragment: Fragment(){
     }
 
     companion object{
-        fun launchRegisterFragment(): RegisterFragment {
+        fun makeRegisterFragment(): RegisterFragment {
             return RegisterFragment()
         }
     }
