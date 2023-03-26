@@ -5,7 +5,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.StateFlow
 
 class ResetPassUseCase(private val repository: AuthRepository) {
-     operator fun invoke(email:String): StateFlow<AuthRepository.AuthStates> {
+     suspend operator fun invoke(email:String): AuthRepository.AuthStates {
         return repository.resetPassword(email)
     }
 }

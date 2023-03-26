@@ -21,10 +21,8 @@ class MainActivity : AppCompatActivity() {
 
         val authRepositoryImpl = AuthRepositoryImpl()
         lifecycleScope.launch {
-                authRepositoryImpl.login("test@gmail.com", "123456")
-                    .collect{
-                        Log.d("ARSEN", "State: $it")
-                        }
+            val result = authRepositoryImpl.login("test@gmail.com", "123456")
+                        Log.d("ARSEN", "State: $result")
             }
     }
 }
