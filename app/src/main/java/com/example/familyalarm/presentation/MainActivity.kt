@@ -3,8 +3,10 @@ package com.example.familyalarm.presentation
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.example.familyalarm.data.impl_repositories.AuthRepositoryImpl
 import com.example.familyalarm.databinding.ActivityMainBinding
-import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -12,20 +14,17 @@ class MainActivity : AppCompatActivity() {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
-    private  val auth by lazy {
-        FirebaseAuth.getInstance()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-     /*   auth.createUserWithEmailAndPassword("test@gmail.com", "123456")
-            .addOnSuccessListener { Log.d("ARSEN", "onCreate: success") }
-            .addOnFailureListener { Log.d("ARSEN", "Fail $it")}*/
-
-        auth.sendPasswordResetEmail("test@gmail.com")
-            .addOnSuccessListener { Log.d("ARSEN", "onCreate: success") }
-            .addOnFailureListener { Log.d("ARSEN", "Fail $it")}
+        val authRepositoryImpl = AuthRepositoryImpl()
+        lifecycleScope.launch {
+                authRepositoryImpl.login("test@gmail.com", "123456")
+                    .collect{
+                        Log.d("ARSEN", "State: $it")
+                        }
+            }
     }
 }
