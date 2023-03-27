@@ -10,10 +10,11 @@ import com.example.familyalarm.data.impl_repositories.AuthRepositoryImpl
 import com.example.familyalarm.databinding.ActivityMainBinding
 import com.example.familyalarm.presentation.fragments.LoginFragment
 import com.example.familyalarm.presentation.fragments.MainFragment
+import com.example.familyalarm.presentation.fragments.ResetPasswordFragment
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ResetPasswordFragment.ShouldCloseFragmentListener {
 
     private val binding by lazy{
         ActivityMainBinding.inflate(layoutInflater)
@@ -47,5 +48,9 @@ class MainActivity : AppCompatActivity() {
         }
 
 
+    }
+
+    override fun shouldCloseFragment() {
+        fragmentManager.popBackStack()
     }
 }

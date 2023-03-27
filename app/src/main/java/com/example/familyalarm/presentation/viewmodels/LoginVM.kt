@@ -11,6 +11,8 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.suspendCoroutine
@@ -19,18 +21,20 @@ class LoginVM : ViewModel() {
 
     private val authRepository = AuthRepositoryImpl()
 
-    val stateFlow: MutableStateFlow<LoginVMState> = MutableStateFlow(LoginVMState.Normal)
+    private val _stateFlow: MutableStateFlow<LoginVMState> = MutableStateFlow(LoginVMState.Normal)
+    val stateFlow: StateFlow<LoginVMState>
+    get() = _stateFlow.asStateFlow()
 
     private suspend fun login(email: String, password: String) {
         Log.d("ARSEN", "login: ")
-        stateFlow.value = LoginVMState.Loading
+        _stateFlow.value = LoginVMState.Loading
         val result = authRepository.login(email, password)
         if (result) {
             Log.d("ARSEN", "login: result = true")
-            stateFlow.value = LoginVMState.Success
+            _stateFlow.value = LoginVMState.Success
         } else {
             Log.d("ARSEN", "login: result = true")
-            stateFlow.value = LoginVMState.Failure
+            _stateFlow.value = LoginVMState.Failure
         }
     }
 
@@ -42,13 +46,13 @@ class LoginVM : ViewModel() {
     ): Boolean {
         if (!Utils.isEmailValid(textInputEditTextEmail.text.toString())) {
             textInputLayoutEmail.error = "Bad email"
-            stateFlow.value = LoginVMState.Failure
+            _stateFlow.value = LoginVMState.Failure
         } else {
             textInputLayoutEmail.error = null
         }
 
         if (textInputEditTextPassword.text.toString().length < 7) {
-            stateFlow.value = LoginVMState.Failure
+            _stateFlow.value = LoginVMState.Failure
             textInputLayoutPassword.error = "Short password"
         } else {
             textInputLayoutPassword.error = null

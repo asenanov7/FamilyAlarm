@@ -48,7 +48,6 @@ class LoginFragment : Fragment() {
         }
 
         binding.buttonSignUp.setOnClickListener {
-
             lifecycleScope.launch {
                vm.checkErrorsAndLogin(
                    binding.textInputEditTextEmail,
@@ -57,6 +56,10 @@ class LoginFragment : Fragment() {
                    binding.textInputLayoutPassword
                )
             }
+        }
+
+        binding.forgotPass.setOnClickListener{
+            launchResetPasswordFragment()
         }
     }
 
@@ -84,12 +87,24 @@ class LoginFragment : Fragment() {
         }
     }
 
+    private fun launchResetPasswordFragment(){
+        val fragment = ResetPasswordFragment.makeResetPasswordFragment()
+
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainerView, fragment)
+            .addToBackStack(NAME)
+            .commit()
+
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
     companion object {
+        const val NAME = "LoginFragment"
+
         fun makeLoginFragment(): LoginFragment {
             return LoginFragment()
         }

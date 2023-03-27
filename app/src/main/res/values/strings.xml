@@ -9,4 +9,8 @@
     <string name="_sign_in">Регистрация</string>
     <string name="error_please_enter_valid_email">Введите корректный Email</string>
     <string name="error_short_pass">Слишком короткий пароль</string>
+    <string name="reset_pas">Сброс пароля</string>
+    <string name="reset">Сбросить</string>
+    <string name="forgot_password">Забыли пароль?</string>
+    <string name="sended">Отправлено</string>
 </resources>

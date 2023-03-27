@@ -13,10 +13,9 @@ class AuthRepositoryImpl : AuthRepository {
         val result:Boolean =
             try {
                 auth.signInWithEmailAndPassword(email, password).await()
-                Log.d("ARSEN", "loginInRep: true ")
                 true
             } catch (e: Exception) {
-                Log.d("ARSEN", "loginInRep: false ")
+                Log.d("ARSEN", "resetPassword: ${e.message}")
                 false
             }
         return result
@@ -32,6 +31,7 @@ class AuthRepositoryImpl : AuthRepository {
                     true
                 }
             }catch (e: Exception){
+                Log.d("ARSEN", "resetPassword: ${e.message}")
                 false
             }
         return result
@@ -42,6 +42,7 @@ class AuthRepositoryImpl : AuthRepository {
             try {
                 true
             }catch (e:Exception){
+                Log.d("ARSEN", "resetPassword: ${e.message}")
                 false
             }
         return result
@@ -57,6 +58,7 @@ class AuthRepositoryImpl : AuthRepository {
                     false
                 }
             }catch (e: Exception){
+                Log.d("ARSEN", "resetPassword: ${e.message}")
                 false
             }
         return result
