@@ -2,7 +2,7 @@ package com.example.familyalarm.utils
 
 import android.text.TextUtils
 
-class Utils {
+class Validation {
     companion object {
         fun isEmailValid(target: CharSequence): Boolean {
             return if (TextUtils.isEmpty(target)) {

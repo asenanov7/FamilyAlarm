@@ -1,27 +1,19 @@
 package com.example.familyalarm.presentation.fragments
 
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.view.isVisible
-import androidx.core.widget.doBeforeTextChanged
-import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.familyalarm.R
 import com.example.familyalarm.databinding.LoginFragmentBinding
 import com.example.familyalarm.presentation.viewmodels.LoginVM
-import com.example.familyalarm.presentation.viewmodels.LoginVMState
-import com.example.familyalarm.utils.Utils
-import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.Dispatchers
+import com.example.familyalarm.utils.UiState.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class LoginFragment : Fragment() {
 
@@ -43,18 +35,24 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        vm.clearErrorOnInputChanged(
+            binding.textInputEditTextEmail,
+            binding.textInputEditTextPassword
+        )
+
         lifecycleScope.launch {
            observeVmState()
         }
 
         binding.buttonSignUp.setOnClickListener {
+
             lifecycleScope.launch {
-               vm.checkErrorsAndLogin(
-                   binding.textInputEditTextEmail,
-                   binding.textInputLayoutEmail,
-                   binding.textInputEditTextPassword,
-                   binding.textInputLayoutPassword
-               )
+                val email = binding.textInputEditTextEmail.text.toString().trim()
+                val password = binding.textInputEditTextPassword.text.toString()
+
+                if (email.isNotEmpty() && password.isNotEmpty()) {
+                    vm.login(email, password)
+                }
             }
         }
 
@@ -65,23 +63,26 @@ class LoginFragment : Fragment() {
 
     private suspend fun observeVmState(){
         vm.stateFlow.collect {
-            Log.d("ARSEN", "LoginVmState: $it")
+            Log.d("SENANOV", "observeVmState: $it")
             when (it) {
-                LoginVMState.Normal -> {
+                Init -> {
+                    binding.textInputLayoutEmail.error = null
+                    binding.textInputLayoutPassword.error = null
                     binding.progressBar.isVisible = false
                     binding.buttonSignUp.isEnabled = true
                 }
-                LoginVMState.Loading -> {
+                Loading -> {
                     binding.progressBar.isVisible = true
                     binding.buttonSignUp.isEnabled = false
                 }
-                LoginVMState.Success -> {
+                is Success -> {
                     binding.progressBar.isVisible = false
                     binding.buttonSignUp.isEnabled = true
                 }
-                LoginVMState.Failure -> {
+                is Failure -> {
                     binding.progressBar.isVisible = false
                     binding.buttonSignUp.isEnabled = true
+                    binding.textInputLayoutPassword.error = it.error
                 }
             }
         }

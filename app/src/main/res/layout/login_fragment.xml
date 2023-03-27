@@ -82,6 +82,7 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="330dp"
         android:layout_height="wrap_content"
+        app:errorIconDrawable="@null"
         app:errorTextAppearance="@style/error_appearance"
         app:hintEnabled="false"
         app:layout_constraintBottom_toTopOf="@id/button_signUp"

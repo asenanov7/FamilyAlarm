@@ -7,15 +7,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.view.isVisible
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.familyalarm.R
 import com.example.familyalarm.databinding.ResetPasswordFragmentBinding
 import com.example.familyalarm.presentation.viewmodels.ResetPasswordVM
-import com.example.familyalarm.presentation.viewmodels.ResetPasswordVMState
-import com.example.familyalarm.presentation.viewmodels.ResetPasswordVMState.*
-import kotlinx.coroutines.delay
+import com.example.familyalarm.utils.UiState.*
 import kotlinx.coroutines.launch
 
 class ResetPasswordFragment : Fragment() {
@@ -54,10 +53,14 @@ class ResetPasswordFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        vm.clearErrorsOnInputChanged(binding.textInputEditTextEmail)
+
         lifecycleScope.launch {
             vm.stateFlow.collect {
                 when (it) {
-                    Normal -> {
+                    Init -> {
+                        binding.textInputLayoutEmail.error = null
                         binding.progressBar.isVisible = false
                         binding.buttonReset.isEnabled = true
                     }
@@ -65,7 +68,7 @@ class ResetPasswordFragment : Fragment() {
                         binding.progressBar.isVisible = true
                         binding.buttonReset.isEnabled = false
                     }
-                    Success -> {
+                    is Success -> {
                         binding.progressBar.isVisible = false
                         binding.buttonReset.isEnabled = true
                         Toast.makeText(
@@ -75,20 +78,26 @@ class ResetPasswordFragment : Fragment() {
                         ).show()
                         shouldCloseFragmentBridge.shouldCloseFragment()
                     }
-                    Failure -> {
+                    is Failure -> {
                         binding.progressBar.isVisible = false
                         binding.buttonReset.isEnabled = true
+                        binding.textInputLayoutEmail.error = it.error
                     }
                 }
             }
         }
 
         binding.buttonReset.setOnClickListener {
-            lifecycleScope.launch {
-                vm.checkValidAndReset(binding.textInputEditTextEmail, binding.textInputLayoutEmail)
+            val email = binding.textInputEditTextEmail.text.toString().trim()
+            if (email.isNotEmpty()) {
+                lifecycleScope.launch {
+                    vm.reset(email)
+                }
             }
         }
     }
+
+
 
 
     override fun onDestroyView() {
