@@ -7,17 +7,25 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.core.widget.doBeforeTextChanged
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.familyalarm.R
 import com.example.familyalarm.databinding.LoginFragmentBinding
+import com.example.familyalarm.presentation.viewmodels.LoginVM
+import com.example.familyalarm.presentation.viewmodels.LoginVMState
 import com.example.familyalarm.utils.Utils
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class LoginFragment : Fragment() {
 
-    private val auth by lazy { FirebaseAuth.getInstance() }
+    private val vm by lazy { ViewModelProvider(this)[LoginVM::class.java] }
 
     private var _binding: LoginFragmentBinding? = null
     private val binding: LoginFragmentBinding
@@ -35,64 +43,50 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setValidListener()
+        lifecycleScope.launch {
+           observeVmState()
+        }
 
         binding.buttonSignUp.setOnClickListener {
 
-            val email = binding.textInputEditTextEmail.text.toString().trim()
-            val password = binding.textInputEditTextPassword.text.toString().trim()
+            lifecycleScope.launch {
+               vm.checkErrorsAndLogin(
+                   binding.textInputEditTextEmail,
+                   binding.textInputLayoutEmail,
+                   binding.textInputEditTextPassword,
+                   binding.textInputLayoutPassword
+               )
+            }
+        }
+    }
 
-            if (email.isEmpty() || password.isEmpty()) { return@setOnClickListener }
-
-            auth.signInWithEmailAndPassword(email, password)
-                .addOnFailureListener {Toast.makeText(requireContext(), it.message, Toast.LENGTH_SHORT).show() }
+    private suspend fun observeVmState(){
+        vm.stateFlow.collect {
+            Log.d("ARSEN", "LoginVmState: $it")
+            when (it) {
+                LoginVMState.Normal -> {
+                    binding.progressBar.isVisible = false
+                    binding.buttonSignUp.isEnabled = true
+                }
+                LoginVMState.Loading -> {
+                    binding.progressBar.isVisible = true
+                    binding.buttonSignUp.isEnabled = false
+                }
+                LoginVMState.Success -> {
+                    binding.progressBar.isVisible = false
+                    binding.buttonSignUp.isEnabled = true
+                }
+                LoginVMState.Failure -> {
+                    binding.progressBar.isVisible = false
+                    binding.buttonSignUp.isEnabled = true
+                }
+            }
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    private fun setValidListener() {
-        val timerAndValidEmail = object : CountDownTimer(1000, 1000) {
-            override fun onTick(p0: Long) {}
-            override fun onFinish() {
-                val email = binding.textInputEditTextEmail.text.toString().trim()
-                if (Utils.isEmailValid(email) || email.isEmpty()) {
-                    return
-                } else {
-                    binding.textInputLayoutEmail.error =
-                        getString(R.string.error_please_enter_valid_email)
-                    //Если нет, вывод ошибки
-                }
-            }
-        }
-        val timerAndValidPassword = object : CountDownTimer(1500, 1000) {
-            override fun onTick(p0: Long) {}
-            override fun onFinish() {
-                val password = binding.textInputEditTextPassword.text.toString().trim()
-                if (password.length > 7 || password.isEmpty()) {
-                    return
-                } else {
-                    binding.textInputLayoutPassword.error = getString(R.string.error_short_pass)
-                    //Если нет, вывод ошибки
-                }
-            }
-        }
-
-        with(binding) {
-            textInputEditTextEmail.doOnTextChanged { text, start, before, count -> timerAndValidEmail.start() }
-            textInputEditTextEmail.doBeforeTextChanged { text, start, count, after -> textInputLayoutEmail.error = null }
-            textInputEditTextPassword.doOnTextChanged { text, start, before, count -> timerAndValidPassword.start() }
-            textInputEditTextPassword.doBeforeTextChanged { text, start, count, after -> textInputLayoutPassword.error = null }
-        }
-    }
-
-    private fun checkErrors(){
-        if (binding.textInputLayoutEmail.error!=null||binding.textInputLayoutPassword.error!=null){
-            binding.buttonSignUp.isEnabled = false
-        }
     }
 
     companion object {

@@ -2,18 +2,13 @@ package com.example.familyalarm.domain.repositories
 
 interface AuthRepository {
 
-    suspend fun login(email:String, password:String): AuthStates
+    suspend fun login(email:String, password:String): Boolean
 
-    suspend fun register(email:String, password:String): AuthStates
+    suspend fun register(email:String, password:String): Boolean
 
-    suspend fun logOut(): AuthStates
+    suspend fun logOut(): Boolean
 
-    suspend fun resetPassword(email:String): AuthStates
+    suspend fun resetPassword(email:String): Boolean
 
-
-    sealed class AuthStates(){
-        data class Success(val result: String): AuthStates()
-        data class Failure(val exMessage: String): AuthStates()
-    }
 
 }

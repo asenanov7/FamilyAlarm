@@ -23,22 +23,29 @@ class MainActivity : AppCompatActivity() {
         FirebaseAuth.getInstance()
     }
 
+    private val fragmentManager = supportFragmentManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        auth.signOut()
+
+
+        if (auth.currentUser!=null) {
+            auth.signOut()
+        }
         auth.addAuthStateListener {
-            val fragment = if (it.currentUser != null){
-                MainFragment.makeMainFragment()
-            }else{
+            val fragment = if (it.currentUser == null){
                 LoginFragment.makeLoginFragment()
+            }else{
+                MainFragment.makeMainFragment()
             }
 
-            supportFragmentManager.beginTransaction()
+            fragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainerView, fragment)
                 .commit()
         }
+
 
     }
 }

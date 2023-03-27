@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 class RegisterUseCase(private val repository: AuthRepository) {
-     suspend operator fun invoke(email: String, password: String): AuthRepository.AuthStates {
+     suspend operator fun invoke(email: String, password: String): Boolean{
        return repository.register(email, password)
     }
 }

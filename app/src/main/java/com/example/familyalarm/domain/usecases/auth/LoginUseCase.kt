@@ -7,7 +7,7 @@ import com.google.firebase.auth.AuthResult
 import kotlinx.coroutines.flow.StateFlow
 
 class LoginUseCase(private val repository: AuthRepository) {
-     suspend operator fun invoke(email:String, password: String): AuthRepository.AuthStates {
+     suspend operator fun invoke(email:String, password: String): Boolean {
        return repository.login(email, password)
     }
 }

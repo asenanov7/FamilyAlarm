@@ -1,5 +1,6 @@
 package com.example.familyalarm.data.impl_repositories
 
+import android.util.Log
 import com.example.familyalarm.domain.repositories.AuthRepository
 import com.example.familyalarm.utils.Utils
 import com.google.firebase.auth.FirebaseAuth
@@ -8,53 +9,55 @@ import kotlinx.coroutines.tasks.await
 class AuthRepositoryImpl : AuthRepository {
 
     private val auth by lazy { FirebaseAuth.getInstance() }
-    override suspend fun login(email: String, password: String): AuthRepository.AuthStates {
-        val result: AuthRepository.AuthStates =
+    override suspend fun login(email: String, password: String): Boolean {
+        val result:Boolean =
             try {
                 auth.signInWithEmailAndPassword(email, password).await()
-                AuthRepository.AuthStates.Success("Login Success")
+                Log.d("ARSEN", "loginInRep: true ")
+                true
             } catch (e: Exception) {
-                AuthRepository.AuthStates.Failure("Fail: ${e.message}")
+                Log.d("ARSEN", "loginInRep: false ")
+                false
             }
         return result
     }
 
-    override suspend fun register(email: String, password: String): AuthRepository.AuthStates {
-        val result: AuthRepository.AuthStates  =
+    override suspend fun register(email: String, password: String): Boolean{
+        val result: Boolean =
             try {
                 if (Utils.isEmailValid(email)) {
                     auth.createUserWithEmailAndPassword(email, password).await()
-                    AuthRepository.AuthStates.Success("Register Success")
+                    true
                 } else {
-                    AuthRepository.AuthStates.Failure("Email Not valid")
+                    true
                 }
             }catch (e: Exception){
-                AuthRepository.AuthStates.Failure("Fail: ${e.message}")
+                false
             }
         return result
     }
 
-    override suspend fun logOut(): AuthRepository.AuthStates {
-        val result: AuthRepository.AuthStates =
+    override suspend fun logOut(): Boolean {
+        val result: Boolean =
             try {
-                AuthRepository.AuthStates.Success("logOut Success")
+                true
             }catch (e:Exception){
-                AuthRepository.AuthStates.Failure("logOut Fail: ${e.message}")
+                false
             }
         return result
     }
 
-    override suspend fun resetPassword(email: String): AuthRepository.AuthStates {
-        val result: AuthRepository.AuthStates =
+    override suspend fun resetPassword(email: String): Boolean {
+        val result: Boolean =
             try {
                 if (Utils.isEmailValid(email)){
                     auth.sendPasswordResetEmail(email).await()
-                    AuthRepository.AuthStates.Success("Reset password Success")
+                    true
                 }else{
-                    AuthRepository.AuthStates.Failure("Email not valid")
+                    false
                 }
             }catch (e: Exception){
-                AuthRepository.AuthStates.Failure("Reset password failure: ${e.message}")
+                false
             }
         return result
     }
