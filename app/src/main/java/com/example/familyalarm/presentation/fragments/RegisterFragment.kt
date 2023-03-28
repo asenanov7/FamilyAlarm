@@ -28,6 +28,8 @@ class RegisterFragment: Fragment(){
     }
 
     companion object{
+        const val NAME: String = "RegisterFragment"
+
         fun makeRegisterFragment(): RegisterFragment {
             return RegisterFragment()
         }

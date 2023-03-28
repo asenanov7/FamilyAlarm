@@ -28,6 +28,8 @@ class MainFragment: Fragment() {
     }
 
     companion object{
+        const val NAME: String = "MainFragment"
+
         fun makeMainFragment():MainFragment {
             return MainFragment()
         }

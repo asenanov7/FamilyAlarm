@@ -7,12 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.view.isVisible
-import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.familyalarm.R
 import com.example.familyalarm.databinding.ResetPasswordFragmentBinding
+import com.example.familyalarm.presentation.Navigation
 import com.example.familyalarm.presentation.viewmodels.ResetPasswordVM
 import com.example.familyalarm.utils.UiState.*
 import kotlinx.coroutines.launch
@@ -27,18 +27,16 @@ class ResetPasswordFragment : Fragment() {
         ViewModelProvider(this)[ResetPasswordVM::class.java]
     }
 
-    interface ShouldCloseFragmentListener {
-        fun shouldCloseFragment()
-    }
 
-    private lateinit var shouldCloseFragmentBridge: ShouldCloseFragmentListener
+
+    private lateinit var navigation: Navigation
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        if (context is ShouldCloseFragmentListener) {
-            shouldCloseFragmentBridge = context
+        if (context is Navigation) {
+            navigation = context
         } else throw Exception(
-            "If Activity use ResetPasswordFragment, activity should implement ShouldCloseFragmentListener"
+            "If Activity use ResetPasswordFragment, activity should implement Navigation"
         )
     }
 
@@ -76,7 +74,7 @@ class ResetPasswordFragment : Fragment() {
                             getString(R.string.sended),
                             Toast.LENGTH_SHORT
                         ).show()
-                        shouldCloseFragmentBridge.shouldCloseFragment()
+                        navigation.shouldCloseFragment()
                     }
                     is Failure -> {
                         binding.progressBar.isVisible = false
@@ -106,6 +104,8 @@ class ResetPasswordFragment : Fragment() {
     }
 
     companion object {
+
+        const val NAME = "ResetPasswordFragment"
         fun makeResetPasswordFragment(): ResetPasswordFragment {
             return ResetPasswordFragment()
         }

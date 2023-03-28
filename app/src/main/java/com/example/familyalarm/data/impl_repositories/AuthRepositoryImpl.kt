@@ -43,7 +43,12 @@ class AuthRepositoryImpl : AuthRepository {
     override suspend fun logOut(): UiState<Boolean> {
         val result: UiState<Boolean> =
             try {
-                UiState.Success(true)
+                if (auth.currentUser!=null) {
+                    auth.signOut()
+                    UiState.Success(true)
+                }else{
+                    throw Exception("currentUser = null")
+                }
             }catch (e:Exception){
                 UiState.Failure("${e.message}")
             }

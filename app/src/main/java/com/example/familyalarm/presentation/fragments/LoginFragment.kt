@@ -1,5 +1,6 @@
 package com.example.familyalarm.presentation.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.familyalarm.R
 import com.example.familyalarm.databinding.LoginFragmentBinding
+import com.example.familyalarm.presentation.Navigation
 import com.example.familyalarm.presentation.viewmodels.LoginVM
 import com.example.familyalarm.utils.UiState.*
 import kotlinx.coroutines.launch
@@ -23,10 +25,21 @@ class LoginFragment : Fragment() {
     private val binding: LoginFragmentBinding
         get() = _binding ?: throw Exception("LoginFragment == null")
 
+    private lateinit var navigation: Navigation
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is Navigation) {
+            navigation = context
+        } else throw Exception(
+            "If Activity use LoginFragment, activity should implement Navigation"
+        )
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?,
+        savedInstanceState: Bundle?
     ): View {
         _binding = LoginFragmentBinding.inflate(inflater, container, false)
         return binding.root
@@ -57,7 +70,19 @@ class LoginFragment : Fragment() {
         }
 
         binding.forgotPass.setOnClickListener{
-            launchResetPasswordFragment()
+            navigation.shouldLaunchFragment(
+                ResetPasswordFragment.makeResetPasswordFragment(),
+                ResetPasswordFragment.NAME,
+                true
+            )
+        }
+
+        binding.textViewRegister.setOnClickListener{
+            navigation.shouldLaunchFragment(
+                RegisterFragment.makeRegisterFragment(),
+                RegisterFragment.NAME,
+                true
+            )
         }
     }
 
@@ -88,15 +113,6 @@ class LoginFragment : Fragment() {
         }
     }
 
-    private fun launchResetPasswordFragment(){
-        val fragment = ResetPasswordFragment.makeResetPasswordFragment()
-
-        requireActivity().supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainerView, fragment)
-            .addToBackStack(NAME)
-            .commit()
-
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -104,6 +120,7 @@ class LoginFragment : Fragment() {
     }
 
     companion object {
+
         const val NAME = "LoginFragment"
 
         fun makeLoginFragment(): LoginFragment {

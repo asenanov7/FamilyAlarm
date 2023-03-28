@@ -14,9 +14,9 @@ import com.example.familyalarm.presentation.fragments.ResetPasswordFragment
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity(), ResetPasswordFragment.ShouldCloseFragmentListener {
+class MainActivity : AppCompatActivity(), Navigation {
 
-    private val binding by lazy{
+    private val binding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
@@ -26,31 +26,55 @@ class MainActivity : AppCompatActivity(), ResetPasswordFragment.ShouldCloseFragm
 
     private val fragmentManager = supportFragmentManager
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(binding.root)
-
-
-
-        if (auth.currentUser!=null) {
-            auth.signOut()
-        }
-        auth.addAuthStateListener {
-            val fragment = if (it.currentUser == null){
-                LoginFragment.makeLoginFragment()
-            }else{
-                MainFragment.makeMainFragment()
-            }
-
-            fragmentManager.beginTransaction()
-                .replace(R.id.fragmentContainerView, fragment)
-                .commit()
-        }
-
-
-    }
 
     override fun shouldCloseFragment() {
         fragmentManager.popBackStack()
     }
+
+    override fun shouldLaunchFragment(fragment: Fragment, name: String, addToBackStack: Boolean) {
+        launchFragment(fragment, name, addToBackStack)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(binding.root)
+
+        isLoggedListener()
+
+    }
+
+    private fun isLoggedListener() {
+        auth.addAuthStateListener {
+            if (it.currentUser == null) {
+                launchFragment(
+                    fragment = LoginFragment.makeLoginFragment(),
+                    name = LoginFragment.NAME,
+                    addToBackStack = false
+                )
+            } else {
+                launchFragment(
+                    fragment = MainFragment.makeMainFragment(),
+                    name = MainFragment.NAME,
+                    addToBackStack = false
+                )
+            }
+
+        }
+    }
+
+    private fun launchFragment(fragment: Fragment, name: String, addToBackStack: Boolean) {
+        if (addToBackStack) {
+            fragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainerView, fragment)
+                .addToBackStack(name)
+                .commit()
+        } else {
+            fragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainerView, fragment)
+                .commit()
+        }
+    }
+
+
+
 }

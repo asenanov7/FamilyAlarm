@@ -13,4 +13,6 @@
     <string name="reset">Сбросить</string>
     <string name="forgot_password">Забыли пароль?</string>
     <string name="sended">Отправлено</string>
+    <string name="_name">Имя</string>
+    <string name="_regis">Регистрация</string>
 </resources>

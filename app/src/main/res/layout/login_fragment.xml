@@ -12,7 +12,7 @@
         android:layout_width="2dp"
         android:layout_height="2dp"
         app:layout_constraintBottom_toBottomOf="@id/textView_dontHaveAccount"
-        app:layout_constraintEnd_toStartOf="@+id/textView_signIn"
+        app:layout_constraintEnd_toStartOf="@+id/textView_register"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/textView_dontHaveAccount"
         app:layout_constraintTop_toBottomOf="@id/textView_dontHaveAccount"
@@ -142,7 +142,7 @@
         app:layout_constraintTop_toBottomOf="@+id/button_signUp" />
 
     <TextView
-        android:id="@+id/textView_signIn"
+        android:id="@+id/textView_register"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="helvetica"

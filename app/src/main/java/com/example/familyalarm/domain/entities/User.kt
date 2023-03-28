@@ -5,6 +5,7 @@ data class User(
     val name: String,
     val email: String,
     val awake: Boolean,
-    val avatarUrl: String?,
-    val groupLink: String?,
+    val personalGroup: Group,
+    val currentGroup: Group,
+    val isLeader: Boolean = currentGroup==personalGroup
 )
