@@ -46,6 +46,8 @@ class LoginFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        Log.d("FRAGMENT", "onViewCreated: ")
         super.onViewCreated(view, savedInstanceState)
 
         vm.clearErrorOnInputChanged(
@@ -86,12 +88,13 @@ class LoginFragment : Fragment() {
         }
     }
 
+
+
     private suspend fun observeVmState(){
         vm.stateFlow.collect {
-            Log.d("SENANOV", "observeVmState: $it")
+            Log.d("SENANOV", "loginVmState: $it")
             when (it) {
                 Init -> {
-                    binding.textInputLayoutEmail.error = null
                     binding.textInputLayoutPassword.error = null
                     binding.progressBar.isVisible = false
                     binding.buttonSignUp.isEnabled = true
@@ -99,10 +102,11 @@ class LoginFragment : Fragment() {
                 Loading -> {
                     binding.progressBar.isVisible = true
                     binding.buttonSignUp.isEnabled = false
+                    binding.textInputLayoutPassword.error = null
                 }
                 is Success -> {
-                    binding.progressBar.isVisible = false
-                    binding.buttonSignUp.isEnabled = true
+                    navigation.shouldLaunchFragment(
+                        MainFragment.makeMainFragment(), MainFragment.NAME, false)
                 }
                 is Failure -> {
                     binding.progressBar.isVisible = false

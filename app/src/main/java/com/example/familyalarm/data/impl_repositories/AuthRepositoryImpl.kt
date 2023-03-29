@@ -70,40 +70,4 @@ class AuthRepositoryImpl : AuthRepository {
         return result
     }
 
-
-/* override fun register(email: String, password: String): AuthStates {
-    val stateFlow: MutableStateFlow<AuthStates> = MutableStateFlow(AuthStates.Loading)
-    if (Utils.isEmailValid(email)) {
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnSuccessListener { stateFlow.value = AuthStates.Success("Success") }
-            .addOnFailureListener { stateFlow.value = AuthStates.Failure("${it.message}") }
-    } else {
-        stateFlow.value = AuthStates.Failure("Not valid")
-    }
-    return stateFlow
-}
-
-override fun logOut(): AuthStates {
-    val stateFlow: MutableStateFlow<AuthStates> = MutableStateFlow(AuthStates.Loading)
-    if (auth.currentUser!=null) {
-        auth.signOut()
-        while (auth.currentUser != null) {
-            stateFlow.value = AuthStates.Loading
-        }
-        stateFlow.value = AuthStates.Success("SignOut: Success")
-    }
-    return stateFlow
-}
-
-override fun resetPassword(email: String): AuthStates {
-    val stateFlow: MutableStateFlow<AuthStates> = MutableStateFlow(AuthStates.Loading)
-        if (Utils.isEmailValid(email)) {
-            auth.sendPasswordResetEmail(email)
-                .addOnSuccessListener { stateFlow.value = AuthStates.Success("Reset: Success") }
-                .addOnFailureListener { stateFlow.value = AuthStates.Failure("Reset: Failure $it") }
-        } else {
-            stateFlow.value = AuthStates.Failure("Not valid")
-        }
-        return stateFlow
-}*/
 }

@@ -27,8 +27,6 @@ class ResetPasswordFragment : Fragment() {
         ViewModelProvider(this)[ResetPasswordVM::class.java]
     }
 
-
-
     private lateinit var navigation: Navigation
 
     override fun onAttach(context: Context) {
@@ -55,34 +53,7 @@ class ResetPasswordFragment : Fragment() {
         vm.clearErrorsOnInputChanged(binding.textInputEditTextEmail)
 
         lifecycleScope.launch {
-            vm.stateFlow.collect {
-                when (it) {
-                    Init -> {
-                        binding.textInputLayoutEmail.error = null
-                        binding.progressBar.isVisible = false
-                        binding.buttonReset.isEnabled = true
-                    }
-                    Loading -> {
-                        binding.progressBar.isVisible = true
-                        binding.buttonReset.isEnabled = false
-                    }
-                    is Success -> {
-                        binding.progressBar.isVisible = false
-                        binding.buttonReset.isEnabled = true
-                        Toast.makeText(
-                            requireContext(),
-                            getString(R.string.sended),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        navigation.shouldCloseFragment()
-                    }
-                    is Failure -> {
-                        binding.progressBar.isVisible = false
-                        binding.buttonReset.isEnabled = true
-                        binding.textInputLayoutEmail.error = it.error
-                    }
-                }
-            }
+            observeVmState()
         }
 
         binding.buttonReset.setOnClickListener {
@@ -96,7 +67,36 @@ class ResetPasswordFragment : Fragment() {
     }
 
 
-
+    private suspend fun observeVmState(){
+        vm.stateFlow.collect {
+            when (it) {
+                Init -> {
+                    binding.textInputLayoutEmail.error = null
+                    binding.progressBar.isVisible = false
+                    binding.buttonReset.isEnabled = true
+                }
+                Loading -> {
+                    binding.progressBar.isVisible = true
+                    binding.buttonReset.isEnabled = false
+                }
+                is Success -> {
+                    binding.progressBar.isVisible = false
+                    binding.buttonReset.isEnabled = true
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.sended),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    navigation.shouldCloseFragment()
+                }
+                is Failure -> {
+                    binding.progressBar.isVisible = false
+                    binding.buttonReset.isEnabled = true
+                    binding.textInputLayoutEmail.error = it.error
+                }
+            }
+        }
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

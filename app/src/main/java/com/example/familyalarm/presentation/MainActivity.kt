@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
 import com.example.familyalarm.R
 import com.example.familyalarm.data.impl_repositories.AuthRepositoryImpl
@@ -24,7 +25,7 @@ class MainActivity : AppCompatActivity(), Navigation {
         FirebaseAuth.getInstance()
     }
 
-    private val fragmentManager = supportFragmentManager
+    private val fragmentManager by lazy { supportFragmentManager }
 
 
     override fun shouldCloseFragment() {
@@ -35,31 +36,37 @@ class MainActivity : AppCompatActivity(), Navigation {
         launchFragment(fragment, name, addToBackStack)
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if ( fragmentManager.fragments.isNotEmpty() ) {
+            outState.putInt("Fragment", fragmentManager.fragments.last().id)
+        }
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        isLoggedListener()
-
-    }
-
-    private fun isLoggedListener() {
         auth.addAuthStateListener {
-            if (it.currentUser == null) {
-                launchFragment(
-                    fragment = LoginFragment.makeLoginFragment(),
-                    name = LoginFragment.NAME,
-                    addToBackStack = false
-                )
+            if (auth.currentUser == null) {
+                Log.d("SENANOV", "currentUser:==null ")
+                //fragmentManager.popBackStackImmediate(LoginFragment.NAME, 0) //Удалить все фрагменты кроме Логина ТЕСТИРОВАТЬ
+                launchFragment(LoginFragment.makeLoginFragment(), LoginFragment.NAME, false)
             } else {
-                launchFragment(
-                    fragment = MainFragment.makeMainFragment(),
-                    name = MainFragment.NAME,
-                    addToBackStack = false
-                )
+                Log.d("SENANOV", "currentUser not null ")
             }
-
         }
+
+      /*  if (savedInstanceState != null) {
+            val fragmentId = savedInstanceState.getInt("Fragment")
+            fragmentManager.findFragmentById(fragmentId)?.let {
+                Log.d("SENANOV", "fragment $it ")
+                launchFragment(it, it.toString(), false)
+            }
+        }else{
+            launchFragment(MainFragment.makeMainFragment(),MainFragment.NAME,false)
+        }*/
     }
 
     private fun launchFragment(fragment: Fragment, name: String, addToBackStack: Boolean) {
@@ -74,7 +81,6 @@ class MainActivity : AppCompatActivity(), Navigation {
                 .commit()
         }
     }
-
 
 
 }

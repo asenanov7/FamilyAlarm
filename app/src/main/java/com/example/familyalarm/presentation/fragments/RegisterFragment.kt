@@ -1,25 +1,99 @@
 package com.example.familyalarm.presentation.fragments
 
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.familyalarm.databinding.RegisterFragmentBinding
+import com.example.familyalarm.presentation.Navigation
+import com.example.familyalarm.presentation.viewmodels.RegisterVM
+import com.example.familyalarm.utils.UiState
+import com.example.familyalarm.utils.UiState.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
-class RegisterFragment: Fragment(){
+class RegisterFragment : Fragment() {
 
     private var _binding: RegisterFragmentBinding? = null
     private val binding: RegisterFragmentBinding
         get() = _binding ?: throw Exception("RegisterFragment == null")
 
+    private val vm by lazy { ViewModelProvider(this)[RegisterVM::class.java] }
+
+    private lateinit var navigation: Navigation
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is Navigation) {
+            navigation = context
+        } else throw Exception(
+            "If Activity use RegisterFragment, activity should implement Navigation"
+        )
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = RegisterFragmentBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        lifecycleScope.launch {
+            observeVmState()
+        }
+
+        vm.clearErrorsOnInputChanged(binding.textInputEditTextPassword)
+
+        binding.buttonReg.setOnClickListener {
+
+            val name = binding.textInputEditTextName.text.toString().trim()
+            val email = binding.textInputEditTextEmail.text.toString().trim()
+            val password = binding.textInputEditTextPassword.text.toString().trim()
+
+            if (name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
+                lifecycleScope.launch {
+                    vm.register(name, email, password)
+                }
+            }
+        }
+
+    }
+
+    private suspend fun observeVmState() {
+        vm.stateFlow.collect {
+            Log.d("SENANOV", "regState: $it ")
+            when (it) {
+                Init -> {
+                    binding.buttonReg.isEnabled = true
+                    binding.progressBar.isVisible = false
+                    binding.textInputLayoutPassword.error = null
+                }
+                Loading -> {
+                    binding.buttonReg.isEnabled = false
+                    binding.progressBar.isVisible = true
+                    binding.textInputLayoutPassword.error = null
+                }
+                is Success -> {
+                    navigation.shouldLaunchFragment(
+                        MainFragment.makeMainFragment(), MainFragment.NAME, false)
+                }
+                is Failure -> {
+                    binding.buttonReg.isEnabled = true
+                    binding.progressBar.isVisible = false
+                    binding.textInputLayoutPassword.error = it.error
+                }
+            }
+        }
     }
 
     override fun onDestroyView() {
@@ -27,7 +101,7 @@ class RegisterFragment: Fragment(){
         _binding = null
     }
 
-    companion object{
+    companion object {
         const val NAME: String = "RegisterFragment"
 
         fun makeRegisterFragment(): RegisterFragment {
