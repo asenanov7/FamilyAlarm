@@ -40,7 +40,7 @@ class RegisterFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        Log.d("SENANOV", "onCreateView: RegisterFragment")
+        Log.d("RegisterFragment", "onCreateView: RegisterFragment")
         _binding = RegisterFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -71,7 +71,7 @@ class RegisterFragment : Fragment() {
 
     private suspend fun observeVmState() {
         vm.stateFlow.collect {
-            Log.d("SENANOV", "regState: $it ")
+            Log.d("RegisterFragment", "regState: $it ")
             when (it) {
                 Init -> {
                     binding.buttonReg.isEnabled = true
@@ -83,7 +83,12 @@ class RegisterFragment : Fragment() {
                     binding.progressBar.isVisible = true
                     binding.textInputLayoutPassword.error = null
                 }
-                is Success -> {/*Listener on activity*/}
+                is Success -> {
+                    navigation.shouldCloseFragment()
+                    navigation.shouldLaunchFragment(
+                        MainFragment.newInstance(), MainFragment.NAME, false
+                    )
+                }
                 is Failure -> {
                     binding.buttonReg.isEnabled = true
                     binding.progressBar.isVisible = false
@@ -94,13 +99,13 @@ class RegisterFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        Log.d("SENANOV", "onDestroyView: RegisterFragment")
+        Log.d("RegisterFragment", "onDestroyView: RegisterFragment")
         super.onDestroyView()
         _binding = null
     }
 
     override fun onDestroy() {
-        Log.d("SENANOV", "onDestroy: RegisterFragment")
+        Log.d("RegisterFragment", "onDestroy: RegisterFragment")
         super.onDestroy()
     }
 

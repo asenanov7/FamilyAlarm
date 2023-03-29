@@ -30,12 +30,6 @@ class MainActivity : AppCompatActivity(), Navigation {
     }
 
     override fun shouldLaunchFragment(fragment: Fragment, name: String, addToBackStack: Boolean) {
-        for (i in 0 until  fragmentManager.backStackEntryCount) {
-            Log.d("SENANOV", "backstack of index i ${fragmentManager.getBackStackEntryAt(i).name} ")
-            Log.d("SENANOV", "backstack of index i ${fragmentManager.getBackStackEntryAt(i).name} ")
-            Log.d("SENANOV", "backstack of index i ${fragmentManager.getBackStackEntryAt(i).name} ")
-        }
-
         if (addToBackStack) {
             fragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainerView, fragment)
@@ -47,7 +41,6 @@ class MainActivity : AppCompatActivity(), Navigation {
                 .commit()
         }
     }
-
 
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -62,27 +55,42 @@ class MainActivity : AppCompatActivity(), Navigation {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        auth.addAuthStateListener {
-            if (auth.currentUser == null) {
-                Log.d("SENANOV", "currentUser:==null : launch LoginFragment ")
-                //fragmentManager.popBackStackImmediate(LoginFragment.NAME, 0) //Удалить все фрагменты кроме Логина ТЕСТИРОВАТЬ
-                shouldLaunchFragment(LoginFragment.newInstance(), LoginFragment.NAME, false)
+        /*    auth.addAuthStateListener {
+                if (auth.currentUser == null) {
+                    Log.d("SENANOV", "currentUser:==null : launch LoginFragment ")
+                    //fragmentManager.popBackStackImmediate(LoginFragment.NAME, 0) //Удалить все фрагменты кроме Логина ТЕСТИРОВАТЬ
+                    shouldLaunchFragment(LoginFragment.newInstance(), LoginFragment.NAME, false)
+                } else {*/
+
+        //Убрать, оно для тестов тут
+        if (auth.currentUser!=null){
+            auth.signOut()
+        } //
+
+        if (auth.currentUser == null) {
+            Log.d("SENANOV", "auth.currentUser == null ")
+            shouldLaunchFragment(LoginFragment.newInstance(), LoginFragment.NAME, false)
+        } else {
+            if (savedInstanceState == null) {
+                shouldLaunchFragment(MainFragment.newInstance(), MainFragment.NAME, false)
+                Log.d(
+                    "SENANOV",
+                    "currentUser not null - savedinstancestate == null : laucnh MainFragment"
+                )
             } else {
-                if (savedInstanceState == null) {
-                    shouldLaunchFragment(MainFragment.newInstance(), MainFragment.NAME, false)
-                    Log.d("SENANOV", "currentUser not null - savedinstancestate == null : laucnh MainFragment")
-                } else {
-                    val fragmentId = savedInstanceState.getInt("Fragment")
-                    fragmentManager.findFragmentById(fragmentId)?.let {
-                        Log.d("SENANOV", "currentUser not null - savedinstancestate !=null : laucnh old fragment $it ")
-                        shouldLaunchFragment(it, it.toString(), true)
-                    }
+                val fragmentId = savedInstanceState.getInt("Fragment")
+                fragmentManager.findFragmentById(fragmentId)?.let {
+                    Log.d(
+                        "SENANOV",
+                        "currentUser not null - savedinstancestate !=null : launch OLD fragment $it "
+                    )
+                    shouldLaunchFragment(it, it.toString(), true)
                 }
             }
         }
-
     }
-
-
-
 }
+
+
+
+

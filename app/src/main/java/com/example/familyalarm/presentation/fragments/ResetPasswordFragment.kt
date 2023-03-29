@@ -44,7 +44,7 @@ class ResetPasswordFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        Log.d("FRAGMENTSLIVE", "onCreateView: ResetFragment")
+        Log.d("ResetPasswordFragment", "onCreateView: ResetFragment")
         _binding = ResetPasswordFragmentBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
@@ -101,13 +101,13 @@ class ResetPasswordFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        Log.d("FRAGMENTSLIVE", "onDestroyView: ResetFragment")
+        Log.d("ResetPasswordFragment", "onDestroyView: ResetFragment")
         super.onDestroyView()
         _binding = null
     }
 
     override fun onDestroy() {
-        Log.d("FRAGMENTSLIVE", "onDestroyView: ResetFragment")
+        Log.d("ResetPasswordFragment", "onDestroyView: ResetFragment")
         super.onDestroy()
     }
 

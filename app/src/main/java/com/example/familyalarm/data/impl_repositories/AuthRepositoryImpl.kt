@@ -11,6 +11,7 @@ class AuthRepositoryImpl : AuthRepository {
 
     private val auth by lazy { FirebaseAuth.getInstance() }
     override suspend fun login(email: String, password: String): UiState<Boolean> {
+        Log.d("SENANOV" ,"login: IMPL LOGIN")
         val result:UiState<Boolean> =
             try {
                 if (Validation.isEmailValid(email) && password.length > 7) {
@@ -26,6 +27,7 @@ class AuthRepositoryImpl : AuthRepository {
     }
 
     override suspend fun register(email: String, password: String): UiState<Boolean>{
+        Log.d("SENANOV" ,"login: IMPL REGISTER")
         val result: UiState<Boolean> =
             try {
                 if (Validation.isEmailValid(email) && password.length > 7) {

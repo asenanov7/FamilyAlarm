@@ -40,7 +40,7 @@ class LoginFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.d("SENANOV", "onCreateView: LoginFragment")
+        Log.d("LoginFragment", "onCreateView: LoginFragment")
         _binding = LoginFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -90,7 +90,7 @@ class LoginFragment : Fragment() {
 
     private suspend fun observeVmState(){
         vm.stateFlow.collect {
-            Log.d("SENANOV", "loginVmState: $it")
+            Log.d("LoginFragment", "loginVmState: $it")
             when (it) {
                 Init -> {
                     binding.textInputLayoutPassword.error = null
@@ -102,7 +102,12 @@ class LoginFragment : Fragment() {
                     binding.buttonSignUp.isEnabled = false
                     binding.textInputLayoutPassword.error = null
                 }
-                is Success -> {/*Listener on activity*/}
+                is Success -> {
+                    navigation.shouldCloseFragment()
+                    navigation.shouldLaunchFragment(
+                        MainFragment.newInstance(), MainFragment.NAME, false
+                )
+                }
                 is Failure -> {
                     binding.progressBar.isVisible = false
                     binding.buttonSignUp.isEnabled = true
@@ -114,13 +119,13 @@ class LoginFragment : Fragment() {
 
 
     override fun onDestroyView() {
-        Log.d("SENANOV", "onDestroyView: LoginFragment")
+        Log.d("LoginFragment", "onDestroyView: LoginFragment")
         super.onDestroyView()
         _binding = null
     }
 
     override fun onDestroy() {
-        Log.d("SENANOV", "onDestroy: LoginFragment")
+        Log.d("LoginFragment", "onDestroy: LoginFragment")
         super.onDestroy()
     }
 

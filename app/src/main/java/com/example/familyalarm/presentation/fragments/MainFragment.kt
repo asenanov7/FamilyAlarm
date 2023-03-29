@@ -33,20 +33,20 @@ class MainFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        Log.d("SENANOV", "onCreateView: MainFragment")
+        Log.d("MainFragment", "onCreateView: MainFragment")
         _binding = MainFragmentBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
 
     override fun onDestroyView() {
-        Log.d("SENANOV", "onDestroyView: MainFragment")
+        Log.d("MainFragment", "onDestroyView: MainFragment")
         super.onDestroyView()
         _binding = null
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d("SENANOV", "onDestroy: MainFragment")
+        Log.d("MainFragment", "onDestroy: MainFragment")
     }
 
     companion object{
