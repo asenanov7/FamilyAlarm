@@ -2,6 +2,7 @@ package com.example.familyalarm.presentation.fragments
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,6 +44,7 @@ class ResetPasswordFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
+        Log.d("FRAGMENTSLIVE", "onCreateView: ResetFragment")
         _binding = ResetPasswordFragmentBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
@@ -99,14 +101,20 @@ class ResetPasswordFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        Log.d("FRAGMENTSLIVE", "onDestroyView: ResetFragment")
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onDestroy() {
+        Log.d("FRAGMENTSLIVE", "onDestroyView: ResetFragment")
+        super.onDestroy()
     }
 
     companion object {
 
         const val NAME = "ResetPasswordFragment"
-        fun makeResetPasswordFragment(): ResetPasswordFragment {
+        fun newInstance(): ResetPasswordFragment {
             return ResetPasswordFragment()
         }
     }

@@ -10,7 +10,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.example.familyalarm.R
 import com.example.familyalarm.databinding.LoginFragmentBinding
 import com.example.familyalarm.presentation.Navigation
 import com.example.familyalarm.presentation.viewmodels.LoginVM
@@ -41,13 +40,12 @@ class LoginFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Log.d("SENANOV", "onCreateView: LoginFragment")
         _binding = LoginFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
-        Log.d("FRAGMENT", "onViewCreated: ")
         super.onViewCreated(view, savedInstanceState)
 
         vm.clearErrorOnInputChanged(
@@ -73,7 +71,7 @@ class LoginFragment : Fragment() {
 
         binding.forgotPass.setOnClickListener{
             navigation.shouldLaunchFragment(
-                ResetPasswordFragment.makeResetPasswordFragment(),
+                ResetPasswordFragment.newInstance(),
                 ResetPasswordFragment.NAME,
                 true
             )
@@ -81,7 +79,7 @@ class LoginFragment : Fragment() {
 
         binding.textViewRegister.setOnClickListener{
             navigation.shouldLaunchFragment(
-                RegisterFragment.makeRegisterFragment(),
+                RegisterFragment.newInstance(),
                 RegisterFragment.NAME,
                 true
             )
@@ -104,10 +102,7 @@ class LoginFragment : Fragment() {
                     binding.buttonSignUp.isEnabled = false
                     binding.textInputLayoutPassword.error = null
                 }
-                is Success -> {
-                    navigation.shouldLaunchFragment(
-                        MainFragment.makeMainFragment(), MainFragment.NAME, false)
-                }
+                is Success -> {/*Listener on activity*/}
                 is Failure -> {
                     binding.progressBar.isVisible = false
                     binding.buttonSignUp.isEnabled = true
@@ -119,15 +114,21 @@ class LoginFragment : Fragment() {
 
 
     override fun onDestroyView() {
+        Log.d("SENANOV", "onDestroyView: LoginFragment")
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onDestroy() {
+        Log.d("SENANOV", "onDestroy: LoginFragment")
+        super.onDestroy()
     }
 
     companion object {
 
         const val NAME = "LoginFragment"
 
-        fun makeLoginFragment(): LoginFragment {
+        fun newInstance(): LoginFragment {
             return LoginFragment()
         }
     }

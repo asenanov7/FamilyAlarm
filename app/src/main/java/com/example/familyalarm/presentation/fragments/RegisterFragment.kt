@@ -8,14 +8,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.familyalarm.databinding.RegisterFragmentBinding
 import com.example.familyalarm.presentation.Navigation
 import com.example.familyalarm.presentation.viewmodels.RegisterVM
-import com.example.familyalarm.utils.UiState
 import com.example.familyalarm.utils.UiState.*
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class RegisterFragment : Fragment() {
@@ -41,6 +40,7 @@ class RegisterFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
+        Log.d("SENANOV", "onCreateView: RegisterFragment")
         _binding = RegisterFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -83,10 +83,7 @@ class RegisterFragment : Fragment() {
                     binding.progressBar.isVisible = true
                     binding.textInputLayoutPassword.error = null
                 }
-                is Success -> {
-                    navigation.shouldLaunchFragment(
-                        MainFragment.makeMainFragment(), MainFragment.NAME, false)
-                }
+                is Success -> {/*Listener on activity*/}
                 is Failure -> {
                     binding.buttonReg.isEnabled = true
                     binding.progressBar.isVisible = false
@@ -97,14 +94,20 @@ class RegisterFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        Log.d("SENANOV", "onDestroyView: RegisterFragment")
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onDestroy() {
+        Log.d("SENANOV", "onDestroy: RegisterFragment")
+        super.onDestroy()
     }
 
     companion object {
         const val NAME: String = "RegisterFragment"
 
-        fun makeRegisterFragment(): RegisterFragment {
+        fun newInstance(): RegisterFragment {
             return RegisterFragment()
         }
     }
