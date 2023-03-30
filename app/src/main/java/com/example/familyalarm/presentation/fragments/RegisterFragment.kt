@@ -40,7 +40,7 @@ class RegisterFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        Log.d("RegisterFragment", "onCreateView: RegisterFragment")
+        Log.d("RegisterFragment", "onCreateView: RegisterFragment $this")
         _binding = RegisterFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -99,13 +99,13 @@ class RegisterFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        Log.d("RegisterFragment", "onDestroyView: RegisterFragment")
+        Log.d("RegisterFragment", "onDestroyView: RegisterFragment $this")
         super.onDestroyView()
         _binding = null
     }
 
     override fun onDestroy() {
-        Log.d("RegisterFragment", "onDestroy: RegisterFragment")
+        Log.d("RegisterFragment", "onDestroy: RegisterFragment $this")
         super.onDestroy()
     }
 

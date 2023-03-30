@@ -27,7 +27,7 @@ class AuthRepositoryImpl : AuthRepository {
     }
 
     override suspend fun register(email: String, password: String): UiState<Boolean>{
-        Log.d("SENANOV" ,"login: IMPL REGISTER")
+        Log.d("SENANOV" ,"register: IMPL REGISTER")
         val result: UiState<Boolean> =
             try {
                 if (Validation.isEmailValid(email) && password.length > 7) {

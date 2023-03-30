@@ -40,7 +40,7 @@ class LoginFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.d("LoginFragment", "onCreateView: LoginFragment")
+        Log.d("LoginFragment", "onCreateView: LoginFragment $this")
         _binding = LoginFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -119,13 +119,13 @@ class LoginFragment : Fragment() {
 
 
     override fun onDestroyView() {
-        Log.d("LoginFragment", "onDestroyView: LoginFragment")
+        Log.d("LoginFragment", "onDestroyView: LoginFragment $this")
         super.onDestroyView()
         _binding = null
     }
 
     override fun onDestroy() {
-        Log.d("LoginFragment", "onDestroy: LoginFragment")
+        Log.d("LoginFragment", "onDestroy: LoginFragment $this")
         super.onDestroy()
     }
 

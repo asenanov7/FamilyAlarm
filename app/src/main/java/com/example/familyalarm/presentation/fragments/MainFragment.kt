@@ -39,14 +39,14 @@ class MainFragment: Fragment() {
     }
 
     override fun onDestroyView() {
-        Log.d("MainFragment", "onDestroyView: MainFragment")
+        Log.d("MainFragment", "onDestroyView: MainFragment $this")
         super.onDestroyView()
         _binding = null
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d("MainFragment", "onDestroy: MainFragment")
+        Log.d("MainFragment", "onDestroy: MainFragment $this")
     }
 
     companion object{
