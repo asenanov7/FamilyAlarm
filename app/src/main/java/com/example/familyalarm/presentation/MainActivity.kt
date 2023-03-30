@@ -80,6 +80,7 @@ class MainActivity : AppCompatActivity(), Navigation {
                     "currentUser not null - savedInstanceState == null : laucnh MainFragment"
                 )
             } else {
+                //Может вообще не нужно (Кажись андроид сам восстанавливает последний фрагмент)
                 val fragmentId = savedInstanceState.getInt("Fragment")
                 fragmentManager.findFragmentById(fragmentId)?.let {
                     Log.d(
