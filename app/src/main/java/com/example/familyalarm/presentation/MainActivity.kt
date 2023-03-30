@@ -69,20 +69,22 @@ class MainActivity : AppCompatActivity(), Navigation {
 
         if (auth.currentUser == null) {
             Log.d("SENANOV", "auth.currentUser == null ")
-            shouldLaunchFragment(LoginFragment.newInstance(), LoginFragment.NAME, false)
+            if (savedInstanceState==null) {
+                shouldLaunchFragment(LoginFragment.newInstance(), LoginFragment.NAME, false)
+            }
         } else {
             if (savedInstanceState == null) {
                 shouldLaunchFragment(MainFragment.newInstance(), MainFragment.NAME, false)
                 Log.d(
                     "SENANOV",
-                    "currentUser not null - savedinstancestate == null : laucnh MainFragment"
+                    "currentUser not null - savedInstanceState == null : laucnh MainFragment"
                 )
             } else {
                 val fragmentId = savedInstanceState.getInt("Fragment")
                 fragmentManager.findFragmentById(fragmentId)?.let {
                     Log.d(
                         "SENANOV",
-                        "currentUser not null - savedinstancestate !=null : launch OLD fragment $it "
+                        "currentUser not null - savedInstanceState !=null : launch OLD fragment $it "
                     )
                     shouldLaunchFragment(it, it.toString(), true)
                 }

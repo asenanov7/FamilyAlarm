@@ -33,7 +33,7 @@ class MainFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        Log.d("MainFragment", "onCreateView: MainFragment")
+        Log.d("MainFragment", "onCreateView: MainFragment $this")
         _binding = MainFragmentBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
