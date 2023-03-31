@@ -9,8 +9,10 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.familyalarm.databinding.RegisterFragmentBinding
 import com.example.familyalarm.presentation.Navigation
 import com.example.familyalarm.presentation.viewmodels.RegisterVM
@@ -62,30 +64,32 @@ class RegisterFragment : Fragment() {
     }
 
     private suspend fun observeVmState() {
-        vm.stateFlow.collect {
-            Log.d("RegisterFragment", "regState: $it ")
-            when (it) {
-                Default -> {
-                    binding.buttonReg.isEnabled = true
-                    binding.progressBar.isVisible = false
-                }
-                Loading -> {
-                    binding.buttonReg.isEnabled = false
-                    binding.progressBar.isVisible = true
-                    Log.d("RegisterFragment", "binding.progressBar.isVisible = true")
-                }
-                is Success -> {
-                    navigation.shouldCloseFragment()
-                    navigation.shouldLaunchFragment(
-                        MainFragment.newInstance(), MainFragment.NAME, false
-                    )
-                }
-                is Failure -> {
-                    binding.buttonReg.isEnabled = true
-                    binding.progressBar.isVisible = false
-                    showErrorWithDisappearance(
-                        binding.textviewErrors, it.exceptionMessage, 5000
-                    )
+        repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            vm.stateFlow.collect {
+                Log.d("RegisterFragment", "regState: $it ")
+                when (it) {
+                    Default -> {
+                        binding.buttonReg.isEnabled = true
+                        binding.progressBar.isVisible = false
+                    }
+                    Loading -> {
+                        binding.buttonReg.isEnabled = false
+                        binding.progressBar.isVisible = true
+                        Log.d("RegisterFragment", "binding.progressBar.isVisible = true")
+                    }
+                    is Success -> {
+                        navigation.shouldCloseFragment()
+                        navigation.shouldLaunchFragment(
+                            MainFragment.newInstance(), MainFragment.NAME, false
+                        )
+                    }
+                    is Failure -> {
+                        binding.buttonReg.isEnabled = true
+                        binding.progressBar.isVisible = false
+                        showErrorWithDisappearance(
+                            binding.textviewErrors, it.exceptionMessage, 5000
+                        )
+                    }
                 }
             }
         }
@@ -102,7 +106,7 @@ class RegisterFragment : Fragment() {
         super.onDestroy()
     }
 
-    private fun register(){
+    private fun register() {
         val name = binding.textInputEditTextName.text.toString().trim()
         val email = binding.textInputEditTextEmail.text.toString().trim()
         val password = binding.textInputEditTextPassword.text.toString().trim()
@@ -113,9 +117,11 @@ class RegisterFragment : Fragment() {
             }
         }
     }
-    private fun hideKeyboard(){
-        val inputMethodManager = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        if (requireActivity().currentFocus !=null){
+
+    private fun hideKeyboard() {
+        val inputMethodManager =
+            requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        if (requireActivity().currentFocus != null) {
             inputMethodManager.hideSoftInputFromWindow(view?.windowToken, 0)
         }
 

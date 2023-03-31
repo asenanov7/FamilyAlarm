@@ -10,8 +10,11 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.familyalarm.databinding.LoginFragmentBinding
 import com.example.familyalarm.presentation.Navigation
 import com.example.familyalarm.presentation.viewmodels.LoginVM
@@ -102,35 +105,37 @@ class LoginFragment : Fragment() {
     }
 
     private suspend fun observeVmState() {
-        vm.stateFlow.collect {
-            Log.d("LoginFragment", "loginVmState: $it")
-            when (it) {
-                Default -> {
-                    binding.progressBar.isVisible = false
-                    binding.buttonSignUp.isEnabled = true
-                    binding.textViewRegister.isEnabled = true
-                    binding.forgotPass.isEnabled = true
-                }
-                Loading -> {
-                    binding.progressBar.isVisible = true
-                    binding.buttonSignUp.isEnabled = false
-                    binding.textViewRegister.isEnabled = false
-                    binding.forgotPass.isEnabled = false
-                }
-                is Success -> {
-                    navigation.shouldCloseFragment()
-                    navigation.shouldLaunchFragment(
-                        MainFragment.newInstance(), MainFragment.NAME, false
-                    )
-                }
-                is Failure -> {
-                    binding.progressBar.isVisible = false
-                    binding.buttonSignUp.isEnabled = true
-                    binding.textViewRegister.isEnabled = true
-                    binding.forgotPass.isEnabled = true
-                    showErrorWithDisappearance(
-                        binding.textviewErrors, it.exceptionMessage, 5000
-                    )
+        repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            vm.stateFlow.collect {
+                Log.d("LoginFragment", "loginVmState: $it")
+                when (it) {
+                    Default -> {
+                        binding.progressBar.isVisible = false
+                        binding.buttonSignUp.isEnabled = true
+                        binding.textViewRegister.isEnabled = true
+                        binding.forgotPass.isEnabled = true
+                    }
+                    Loading -> {
+                        binding.progressBar.isVisible = true
+                        binding.buttonSignUp.isEnabled = false
+                        binding.textViewRegister.isEnabled = false
+                        binding.forgotPass.isEnabled = false
+                    }
+                    is Success -> {
+                        navigation.shouldCloseFragment()
+                        navigation.shouldLaunchFragment(
+                            MainFragment.newInstance(), MainFragment.NAME, false
+                        )
+                    }
+                    is Failure -> {
+                        binding.progressBar.isVisible = false
+                        binding.buttonSignUp.isEnabled = true
+                        binding.textViewRegister.isEnabled = true
+                        binding.forgotPass.isEnabled = true
+                        showErrorWithDisappearance(
+                            binding.textviewErrors, it.exceptionMessage, 5000
+                        )
+                    }
                 }
             }
         }

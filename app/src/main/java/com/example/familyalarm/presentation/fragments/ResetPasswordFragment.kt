@@ -10,8 +10,10 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.familyalarm.R
 import com.example.familyalarm.databinding.ResetPasswordFragmentBinding
 import com.example.familyalarm.presentation.Navigation
@@ -68,33 +70,35 @@ class ResetPasswordFragment : Fragment() {
 
 
     private suspend fun observeVmState(){
-        vm.stateFlow.collect{
-            Log.d("ResetPasswordFragment", "ResetPasswordState: $it ")
-            when (it) {
-                Default -> {
-                    binding.progressBar.isVisible = false
-                    binding.buttonReset.isEnabled = true
-                }
-                Loading -> {
-                    binding.progressBar.isVisible = true
-                    binding.buttonReset.isEnabled = false
-                }
-                is Success -> {
-                    binding.progressBar.isVisible = false
-                    binding.buttonReset.isEnabled = true
-                    Toast.makeText(
-                        requireContext(),
-                        getString(R.string.sended),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    navigation.shouldCloseFragment()
-                }
-                is Failure -> {
-                    binding.progressBar.isVisible = false
-                    binding.buttonReset.isEnabled = true
-                    showErrorWithDisappearance(
-                        binding.textviewErrors, it.exceptionMessage, 5000
-                    )
+        repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            vm.stateFlow.collect {
+                Log.d("ResetPasswordFragment", "ResetPasswordState: $it ")
+                when (it) {
+                    Default -> {
+                        binding.progressBar.isVisible = false
+                        binding.buttonReset.isEnabled = true
+                    }
+                    Loading -> {
+                        binding.progressBar.isVisible = true
+                        binding.buttonReset.isEnabled = false
+                    }
+                    is Success -> {
+                        binding.progressBar.isVisible = false
+                        binding.buttonReset.isEnabled = true
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.sended),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        navigation.shouldCloseFragment()
+                    }
+                    is Failure -> {
+                        binding.progressBar.isVisible = false
+                        binding.buttonReset.isEnabled = true
+                        showErrorWithDisappearance(
+                            binding.textviewErrors, it.exceptionMessage, 5000
+                        )
+                    }
                 }
             }
         }

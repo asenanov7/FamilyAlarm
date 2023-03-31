@@ -9,8 +9,10 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.familyalarm.databinding.MainFragmentBinding
 import com.example.familyalarm.presentation.Navigation
 import com.example.familyalarm.presentation.viewmodels.MainVM
@@ -54,18 +56,32 @@ class MainFragment: Fragment() {
 
 
         binding.textViewExit.setOnClickListener {
-            lifecycleScope.launch {
-                Log.d("MainFragment", "binding.textViewExit.setOnClickListener")
-                vm.logOut(requireContext()).collect {
-                    Log.d("MainFragment", "MainFragmentState: $it ")
-                    when (it) {
-                        UiState.Default -> {binding.progressBarMain.isVisible = false}
-                        UiState.Loading -> {binding.progressBarMain.isVisible = true}
-                        is UiState.Success -> {
-                            navigation.shouldCloseFragment()
-                            navigation.shouldLaunchFragment(LoginFragment.newInstance(), LoginFragment.NAME, false)
+                lifecycleScope.launch {
+                    repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                    Log.d("MainFragment", "binding.textViewExit.setOnClickListener")
+                    vm.logOut(requireContext()).collect {
+                        Log.d("MainFragment", "MainFragmentState: $it ")
+                        when (it) {
+                            UiState.Default -> {
+                                binding.progressBarMain.isVisible = false
+                            }
+                            UiState.Loading -> {
+                                binding.progressBarMain.isVisible = true
+                            }
+                            is UiState.Success -> {
+                                navigation.shouldCloseFragment()
+                                navigation.shouldLaunchFragment(
+                                    LoginFragment.newInstance(),
+                                    LoginFragment.NAME,
+                                    false
+                                )
+                            }
+                            is UiState.Failure -> Toast.makeText(
+                                requireContext(),
+                                "Ошибка",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
-                        is UiState.Failure -> Toast.makeText(requireContext(), "Ошибка", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
