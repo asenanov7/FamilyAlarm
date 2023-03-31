@@ -54,7 +54,7 @@ class MainFragment: Fragment() {
         lifecycleScope.launch {
             vm.stateFlow.collectLatest {
                 when (it) {
-                    UiState.Default -> {binding.progressBarMain.isVisible = true}
+                    UiState.Default -> {binding.progressBarMain.isVisible = false}
                     UiState.Loading -> {binding.progressBarMain.isVisible = true}
                     is UiState.Success -> {
                         navigation.shouldCloseFragment()
