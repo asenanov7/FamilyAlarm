@@ -108,10 +108,12 @@ class LoginFragment : Fragment() {
                 Default -> {
                     binding.progressBar.isVisible = false
                     binding.buttonSignUp.isEnabled = true
+                    binding.textViewRegister.isEnabled = true
                 }
                 Loading -> {
                     binding.progressBar.isVisible = true
                     binding.buttonSignUp.isEnabled = false
+                    binding.textViewRegister.isEnabled = false
                 }
                 is Success -> {
                     navigation.shouldCloseFragment()
@@ -122,6 +124,7 @@ class LoginFragment : Fragment() {
                 is Failure -> {
                     binding.progressBar.isVisible = false
                     binding.buttonSignUp.isEnabled = true
+                    binding.textViewRegister.isEnabled = true
                     showErrorWithDisappearance(
                         binding.textviewErrors, it.exceptionMessage, 5000
                     )
