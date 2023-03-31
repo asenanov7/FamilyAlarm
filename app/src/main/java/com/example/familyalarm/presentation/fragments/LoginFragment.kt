@@ -102,18 +102,20 @@ class LoginFragment : Fragment() {
     }
 
     private suspend fun observeVmState() {
-        vm.stateFlow.collectLatest {
+        vm.stateFlow.collect {
             Log.d("LoginFragment", "loginVmState: $it")
             when (it) {
                 Default -> {
                     binding.progressBar.isVisible = false
                     binding.buttonSignUp.isEnabled = true
                     binding.textViewRegister.isEnabled = true
+                    binding.forgotPass.isEnabled = true
                 }
                 Loading -> {
                     binding.progressBar.isVisible = true
                     binding.buttonSignUp.isEnabled = false
                     binding.textViewRegister.isEnabled = false
+                    binding.forgotPass.isEnabled = false
                 }
                 is Success -> {
                     navigation.shouldCloseFragment()
@@ -125,6 +127,7 @@ class LoginFragment : Fragment() {
                     binding.progressBar.isVisible = false
                     binding.buttonSignUp.isEnabled = true
                     binding.textViewRegister.isEnabled = true
+                    binding.forgotPass.isEnabled = true
                     showErrorWithDisappearance(
                         binding.textviewErrors, it.exceptionMessage, 5000
                     )

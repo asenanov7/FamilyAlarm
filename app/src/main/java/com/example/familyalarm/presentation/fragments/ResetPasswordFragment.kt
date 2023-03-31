@@ -68,7 +68,7 @@ class ResetPasswordFragment : Fragment() {
 
 
     private suspend fun observeVmState(){
-        vm.stateFlow.collectLatest {
+        vm.stateFlow.collect{
             Log.d("ResetPasswordFragment", "ResetPasswordState: $it ")
             when (it) {
                 Default -> {

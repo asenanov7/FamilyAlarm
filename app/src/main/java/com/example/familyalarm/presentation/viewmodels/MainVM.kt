@@ -13,40 +13,37 @@ import com.google.firebase.auth.FirebaseAuthException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flow
 
 class MainVM(application:Application):AndroidViewModel(application) {
 
     private val authRepository = AuthRepositoryImpl()
     private val logOutUseCase = LogOutUseCase(repository = authRepository)
 
-    private val _stateFlow: MutableStateFlow<UiState<Boolean>> = MutableStateFlow(Default)
+   /* private val _stateFlow: MutableStateFlow<UiState<Boolean>> = MutableStateFlow(Default)
     val stateFlow: StateFlow<UiState<Boolean>>
-        get() = _stateFlow.asStateFlow()
+        get() = _stateFlow.asStateFlow()*/
 
-    suspend fun logOut(context: Context){
-        _stateFlow.value = Loading
-        val result: UiState<Boolean> =
-            try {
-                logOutUseCase()
-                Success(true)
-            } catch (exception: Exception) {
-                when (exception) {
-                    is FirebaseAuthException -> {
-                        Failure(
-                            getErrorMessageFromFirebaseErrorCode(exception.errorCode, context)
-                        )
-                    }
-                    is FirebaseTooManyRequestsException -> {
-                        Failure("Слишком много попыток, пожалуйста попробуйте позже")
-                    }
-                    else -> {
-                        Failure(
-                            getErrorMessageFromFirebaseErrorCode(exception.message!!, context)
-                        )
+    suspend fun logOut(context: Context) = flow{
+                try {
+                    logOutUseCase()
+                    emit(Success(true))
+                } catch (exception: Exception) {
+                    when (exception) {
+                        is FirebaseAuthException -> {
+                            emit(Failure(
+                                getErrorMessageFromFirebaseErrorCode(exception.errorCode, context)
+                            ))
+                        }
+                        is FirebaseTooManyRequestsException -> {
+                            emit(Failure("Слишком много попыток, пожалуйста попробуйте позже"))
+                        }
+                        else -> {
+                            emit(Failure(
+                                getErrorMessageFromFirebaseErrorCode(exception.message!!, context)
+                            ))
+                        }
                     }
                 }
-            }
-        _stateFlow.value = result
-        _stateFlow.value = Default
-    }
+        }
 }

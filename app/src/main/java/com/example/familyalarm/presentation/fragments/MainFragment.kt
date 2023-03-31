@@ -51,23 +51,23 @@ class MainFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        lifecycleScope.launch {
-            vm.stateFlow.collectLatest {
-                when (it) {
-                    UiState.Default -> {binding.progressBarMain.isVisible = false}
-                    UiState.Loading -> {binding.progressBarMain.isVisible = true}
-                    is UiState.Success -> {
-                        navigation.shouldCloseFragment()
-                        navigation.shouldLaunchFragment(LoginFragment.newInstance(), LoginFragment.NAME, false)
-                    }
-                    is UiState.Failure -> Toast.makeText(requireContext(), "Ошибка", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
+
 
         binding.textViewExit.setOnClickListener {
             lifecycleScope.launch {
-                vm.logOut(requireContext())
+                Log.d("MainFragment", "binding.textViewExit.setOnClickListener")
+                vm.logOut(requireContext()).collect {
+                    Log.d("MainFragment", "MainFragmentState: $it ")
+                    when (it) {
+                        UiState.Default -> {binding.progressBarMain.isVisible = false}
+                        UiState.Loading -> {binding.progressBarMain.isVisible = true}
+                        is UiState.Success -> {
+                            navigation.shouldCloseFragment()
+                            navigation.shouldLaunchFragment(LoginFragment.newInstance(), LoginFragment.NAME, false)
+                        }
+                        is UiState.Failure -> Toast.makeText(requireContext(), "Ошибка", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
         }
 

@@ -47,7 +47,6 @@ class ResetPasswordVM(application: Application): AndroidViewModel(application) {
                  }
              }
          _stateFlow.value = result
-         _stateFlow.value = Default
     }
 
 

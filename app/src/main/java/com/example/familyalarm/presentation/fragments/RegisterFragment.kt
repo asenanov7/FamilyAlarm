@@ -62,7 +62,7 @@ class RegisterFragment : Fragment() {
     }
 
     private suspend fun observeVmState() {
-        vm.stateFlow.collectLatest {
+        vm.stateFlow.collect {
             Log.d("RegisterFragment", "regState: $it ")
             when (it) {
                 Default -> {
@@ -72,6 +72,7 @@ class RegisterFragment : Fragment() {
                 Loading -> {
                     binding.buttonReg.isEnabled = false
                     binding.progressBar.isVisible = true
+                    Log.d("RegisterFragment", "binding.progressBar.isVisible = true")
                 }
                 is Success -> {
                     navigation.shouldCloseFragment()
