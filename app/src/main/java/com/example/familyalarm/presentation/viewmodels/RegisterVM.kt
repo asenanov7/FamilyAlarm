@@ -26,11 +26,5 @@ class RegisterVM(application: Application): AndroidViewModel(application) {
     }
 
 
-    fun clearErrorsOnInputChanged(
-        textInputEditTextPassword: TextInputEditText
-    ){
-        textInputEditTextPassword.addTextChangedListener{
-            _stateFlow.value = UiState.Init
-        }
-    }
+
 }

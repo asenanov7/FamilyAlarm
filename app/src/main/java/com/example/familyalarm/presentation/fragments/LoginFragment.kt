@@ -51,11 +51,6 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        vm.clearErrorOnInputChanged(
-            binding.textInputEditTextEmail,
-            binding.textInputEditTextPassword
-        )
-
         lifecycleScope.launch {
            observeVmState(savedInstanceState)
         }

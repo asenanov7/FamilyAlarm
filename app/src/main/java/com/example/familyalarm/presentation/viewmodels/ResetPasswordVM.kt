@@ -26,16 +26,6 @@ class ResetPasswordVM(application: Application): AndroidViewModel(application) {
         _stateFlow.value = result
     }
 
-    fun clearErrorsOnInputChanged(
-        textInputEditTextEmail:TextInputEditText
-    ){
-        textInputEditTextEmail.addTextChangedListener{
-            _stateFlow.value = UiState.Init
-        }
-    }
-
-
-
 
 
 }

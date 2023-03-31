@@ -54,8 +54,6 @@ class RegisterFragment : Fragment() {
             observeVmState()
         }
 
-        vm.clearErrorsOnInputChanged(binding.textInputEditTextPassword)
-
         binding.buttonReg.setOnClickListener {
             hideKeyboard()
             register()

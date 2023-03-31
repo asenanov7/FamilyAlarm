@@ -29,20 +29,7 @@ class LoginVM(application: Application) : AndroidViewModel(application) {
             _stateFlow.value = result
     }
 
-    fun clearErrorOnInputChanged(
-        textInputEditTextEmail: TextInputEditText,
-        textInputEditTextPassword: TextInputEditText,
-    ) {
-        Log.d("SENANOV", "clearErrorsOnInputChanged: ")
-        textInputEditTextEmail.addTextChangedListener {
-            _stateFlow.value = Init
-        }
 
-        textInputEditTextPassword.addTextChangedListener {
-            _stateFlow.value = Init
-        }
-
-    }
 
 
 }

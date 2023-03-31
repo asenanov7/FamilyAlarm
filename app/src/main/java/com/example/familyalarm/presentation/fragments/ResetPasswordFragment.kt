@@ -54,7 +54,6 @@ class ResetPasswordFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        vm.clearErrorsOnInputChanged(binding.textInputEditTextEmail)
 
         lifecycleScope.launch {
             observeVmState()
