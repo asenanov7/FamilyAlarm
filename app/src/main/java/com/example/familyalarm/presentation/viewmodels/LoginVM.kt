@@ -47,6 +47,8 @@ class LoginVM(application: Application) : AndroidViewModel(application) {
                  }
              }
          _stateFlow.value = result
+         //Колхоз, костыль велосипед
+         _stateFlow.value = Default
     }
 
 

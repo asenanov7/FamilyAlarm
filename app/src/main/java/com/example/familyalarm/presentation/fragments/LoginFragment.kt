@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -20,7 +19,6 @@ import com.example.familyalarm.presentation.Navigation
 import com.example.familyalarm.presentation.viewmodels.LoginVM
 import com.example.familyalarm.utils.UiState.*
 import com.example.familyalarm.utils.showErrorWithDisappearance
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class LoginFragment : Fragment() {
@@ -132,9 +130,9 @@ class LoginFragment : Fragment() {
                         binding.buttonSignUp.isEnabled = true
                         binding.textViewRegister.isEnabled = true
                         binding.forgotPass.isEnabled = true
-                        showErrorWithDisappearance(
-                            binding.textviewErrors, it.exceptionMessage, 5000
-                        )
+                            showErrorWithDisappearance(
+                                binding.textviewErrors, it.exceptionMessage, 5000
+                            )
                     }
                 }
             }
