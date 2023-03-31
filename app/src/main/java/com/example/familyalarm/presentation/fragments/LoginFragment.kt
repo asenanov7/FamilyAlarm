@@ -17,6 +17,7 @@ import com.example.familyalarm.presentation.Navigation
 import com.example.familyalarm.presentation.viewmodels.LoginVM
 import com.example.familyalarm.utils.UiState.*
 import com.example.familyalarm.utils.showErrorWithDisappearance
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class LoginFragment : Fragment() {
@@ -41,7 +42,7 @@ class LoginFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         Log.d("LoginFragment", "onCreateView: LoginFragment $this")
         _binding = LoginFragmentBinding.inflate(inflater, container, false)
@@ -52,7 +53,7 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         lifecycleScope.launch {
-           observeVmState(savedInstanceState)
+            observeVmState()
         }
 
         binding.buttonSignUp.setOnClickListener {
@@ -60,7 +61,7 @@ class LoginFragment : Fragment() {
             login()
         }
 
-        binding.forgotPass.setOnClickListener{
+        binding.forgotPass.setOnClickListener {
             navigation.shouldLaunchFragment(
                 ResetPasswordFragment.newInstance(),
                 ResetPasswordFragment.NAME,
@@ -68,7 +69,7 @@ class LoginFragment : Fragment() {
             )
         }
 
-        binding.textViewRegister.setOnClickListener{
+        binding.textViewRegister.setOnClickListener {
             navigation.shouldLaunchFragment(
                 RegisterFragment.newInstance(),
                 RegisterFragment.NAME,
@@ -78,9 +79,10 @@ class LoginFragment : Fragment() {
     }
 
 
-    private fun hideKeyboard(){
-        val inputMethodManager = requireActivity().getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        if (requireActivity().currentFocus !=null){
+    private fun hideKeyboard() {
+        val inputMethodManager =
+            requireActivity().getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        if (requireActivity().currentFocus != null) {
             inputMethodManager.hideSoftInputFromWindow(view?.windowToken, 0)
         }
 
@@ -88,7 +90,7 @@ class LoginFragment : Fragment() {
         inputMethodManager.hideSoftInputFromWindow(view?.windowToken, 0)
     }
 
-    private fun login(){
+    private fun login() {
         lifecycleScope.launch {
             val email = binding.textInputEditTextEmail.text.toString().trim()
             val password = binding.textInputEditTextPassword.text.toString()
@@ -99,11 +101,11 @@ class LoginFragment : Fragment() {
         }
     }
 
-    private suspend fun observeVmState(savedInstanceState: Bundle?){
-        vm.stateFlow.collect {
+    private suspend fun observeVmState() {
+        vm.stateFlow.collectLatest {
             Log.d("LoginFragment", "loginVmState: $it")
             when (it) {
-                Init -> {
+                Default -> {
                     binding.progressBar.isVisible = false
                     binding.buttonSignUp.isEnabled = true
                 }
@@ -115,14 +117,14 @@ class LoginFragment : Fragment() {
                     navigation.shouldCloseFragment()
                     navigation.shouldLaunchFragment(
                         MainFragment.newInstance(), MainFragment.NAME, false
-                )
+                    )
                 }
                 is Failure -> {
                     binding.progressBar.isVisible = false
                     binding.buttonSignUp.isEnabled = true
-                        showErrorWithDisappearance(
-                            binding.textviewErrors, it.exceptionMessage, 5000
-                        )
+                    showErrorWithDisappearance(
+                        binding.textviewErrors, it.exceptionMessage, 5000
+                    )
                 }
             }
         }

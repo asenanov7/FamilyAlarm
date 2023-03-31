@@ -18,6 +18,7 @@ import com.example.familyalarm.presentation.Navigation
 import com.example.familyalarm.presentation.viewmodels.ResetPasswordVM
 import com.example.familyalarm.utils.UiState.*
 import com.example.familyalarm.utils.showErrorWithDisappearance
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class ResetPasswordFragment : Fragment() {
@@ -67,9 +68,10 @@ class ResetPasswordFragment : Fragment() {
 
 
     private suspend fun observeVmState(){
-        vm.stateFlow.collect {
+        vm.stateFlow.collectLatest {
+            Log.d("ResetPasswordFragment", "ResetPasswordState: $it ")
             when (it) {
-                Init -> {
+                Default -> {
                     binding.progressBar.isVisible = false
                     binding.buttonReset.isEnabled = true
                 }

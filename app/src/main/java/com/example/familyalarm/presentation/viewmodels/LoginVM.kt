@@ -2,31 +2,24 @@ package com.example.familyalarm.presentation.viewmodels
 
 import android.app.Application
 import android.content.Context
-import android.util.Log
-import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import com.example.familyalarm.data.impl_repositories.AuthRepositoryImpl
 import com.example.familyalarm.domain.usecases.auth.LoginUseCase
 import com.example.familyalarm.utils.UiState
 import com.example.familyalarm.utils.UiState.*
-import com.example.familyalarm.utils.Validation
 import com.example.familyalarm.utils.getErrorMessageFromFirebaseErrorCode
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuthException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.tasks.await
 
 class LoginVM(application: Application) : AndroidViewModel(application) {
 
     private val authRepository = AuthRepositoryImpl()
     private val loginUseCase:LoginUseCase = LoginUseCase(repository = authRepository)
 
-    private val _stateFlow: MutableStateFlow<UiState<Boolean>> = MutableStateFlow(Init)
+    private val _stateFlow: MutableStateFlow<UiState<Boolean>> = MutableStateFlow(Default)
     val stateFlow: StateFlow<UiState<Boolean>>
     get() = _stateFlow.asStateFlow()
 
@@ -54,6 +47,7 @@ class LoginVM(application: Application) : AndroidViewModel(application) {
                  }
              }
          _stateFlow.value = result
+         _stateFlow.value = Default
 
     }
 

@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.familyalarm.databinding.RegisterFragmentBinding
@@ -17,6 +16,7 @@ import com.example.familyalarm.presentation.Navigation
 import com.example.familyalarm.presentation.viewmodels.RegisterVM
 import com.example.familyalarm.utils.UiState.*
 import com.example.familyalarm.utils.showErrorWithDisappearance
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class RegisterFragment : Fragment() {
@@ -62,10 +62,10 @@ class RegisterFragment : Fragment() {
     }
 
     private suspend fun observeVmState() {
-        vm.stateFlow.collect {
+        vm.stateFlow.collectLatest {
             Log.d("RegisterFragment", "regState: $it ")
             when (it) {
-                Init -> {
+                Default -> {
                     binding.buttonReg.isEnabled = true
                     binding.progressBar.isVisible = false
                 }

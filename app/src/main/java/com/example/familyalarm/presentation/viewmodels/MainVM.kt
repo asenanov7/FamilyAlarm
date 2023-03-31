@@ -5,8 +5,8 @@ import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import com.example.familyalarm.data.impl_repositories.AuthRepositoryImpl
 import com.example.familyalarm.domain.usecases.auth.LogOutUseCase
-import com.example.familyalarm.domain.usecases.auth.RegisterUseCase
 import com.example.familyalarm.utils.UiState
+import com.example.familyalarm.utils.UiState.*
 import com.example.familyalarm.utils.getErrorMessageFromFirebaseErrorCode
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuthException
@@ -19,33 +19,34 @@ class MainVM(application:Application):AndroidViewModel(application) {
     private val authRepository = AuthRepositoryImpl()
     private val logOutUseCase = LogOutUseCase(repository = authRepository)
 
-    private val _stateFlow: MutableStateFlow<UiState<Boolean>> = MutableStateFlow(UiState.Init)
+    private val _stateFlow: MutableStateFlow<UiState<Boolean>> = MutableStateFlow(Default)
     val stateFlow: StateFlow<UiState<Boolean>>
         get() = _stateFlow.asStateFlow()
 
     suspend fun logOut(context: Context){
-        _stateFlow.value = UiState.Loading
+        _stateFlow.value = Loading
         val result: UiState<Boolean> =
             try {
                 logOutUseCase()
-                UiState.Success(true)
+                Success(true)
             } catch (exception: Exception) {
                 when (exception) {
                     is FirebaseAuthException -> {
-                        UiState.Failure(
+                        Failure(
                             getErrorMessageFromFirebaseErrorCode(exception.errorCode, context)
                         )
                     }
                     is FirebaseTooManyRequestsException -> {
-                        UiState.Failure("Слишком много попыток, пожалуйста попробуйте позже")
+                        Failure("Слишком много попыток, пожалуйста попробуйте позже")
                     }
                     else -> {
-                        UiState.Failure(
+                        Failure(
                             getErrorMessageFromFirebaseErrorCode(exception.message!!, context)
                         )
                     }
                 }
             }
         _stateFlow.value = result
+        _stateFlow.value = Default
     }
 }

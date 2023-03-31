@@ -15,7 +15,7 @@ import com.example.familyalarm.databinding.MainFragmentBinding
 import com.example.familyalarm.presentation.Navigation
 import com.example.familyalarm.presentation.viewmodels.MainVM
 import com.example.familyalarm.utils.UiState
-import com.example.familyalarm.utils.showErrorWithDisappearance
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class MainFragment: Fragment() {
@@ -52,9 +52,9 @@ class MainFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         lifecycleScope.launch {
-            vm.stateFlow.collect {
+            vm.stateFlow.collectLatest {
                 when (it) {
-                    UiState.Init -> {binding.progressBarMain.isVisible = true}
+                    UiState.Default -> {binding.progressBarMain.isVisible = true}
                     UiState.Loading -> {binding.progressBarMain.isVisible = true}
                     is UiState.Success -> {
                         navigation.shouldCloseFragment()
