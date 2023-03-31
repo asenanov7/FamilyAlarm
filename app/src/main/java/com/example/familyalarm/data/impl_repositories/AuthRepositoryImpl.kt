@@ -1,43 +1,50 @@
 package com.example.familyalarm.data.impl_repositories
 
+import android.content.Context
 import android.util.Log
 import com.example.familyalarm.domain.repositories.AuthRepository
 import com.example.familyalarm.utils.UiState
-import com.example.familyalarm.utils.Validation
+import com.example.familyalarm.utils.getErrorMessageFromFirebaseErrorCode
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
 import kotlinx.coroutines.tasks.await
 
-class AuthRepositoryImpl : AuthRepository {
+class AuthRepositoryImpl(private val context: Context) : AuthRepository {
 
     private val auth by lazy { FirebaseAuth.getInstance() }
+
     override suspend fun login(email: String, password: String): UiState<Boolean> {
-        Log.d("SENANOV" ,"login: IMPL LOGIN")
-        val result:UiState<Boolean> =
+        Log.d("SENANOV", "login: IMPL LOGIN")
+        val result: UiState<Boolean> =
             try {
-                if (Validation.isEmailValid(email) && password.length > 7) {
-                    auth.signInWithEmailAndPassword(email, password).await()
-                    UiState.Success(true)
+                auth.signInWithEmailAndPassword(email, password).await()
+                UiState.Success(true)
+            } catch (exception: Exception) {
+                if ( exception is FirebaseAuthException) {
+                    UiState.Failure(
+                        getErrorMessageFromFirebaseErrorCode(exception.errorCode, context)
+                    )
                 }else{
-                    UiState.Failure("Too short password or wrong email")
+                    UiState.Failure("Слишком много попыток, пожалуйста попробуйте позже")
                 }
-            } catch (e: Exception) {
-                UiState.Failure("${e.message}")
             }
         return result
     }
 
-    override suspend fun register(email: String, password: String): UiState<Boolean>{
-        Log.d("SENANOV" ,"register: IMPL REGISTER")
+    override suspend fun register(email: String, password: String): UiState<Boolean> {
+        Log.d("SENANOV", "register: IMPL REGISTER")
         val result: UiState<Boolean> =
             try {
-                if (Validation.isEmailValid(email) && password.length > 7) {
-                    auth.createUserWithEmailAndPassword(email, password).await()
-                    UiState.Success(true)
-                } else {
-                    UiState.Failure("Too short password or wrong email")
+                auth.createUserWithEmailAndPassword(email, password).await()
+                UiState.Success(true)
+            } catch (exception: Exception) {
+                if ( exception is FirebaseAuthException) {
+                    UiState.Failure(
+                        getErrorMessageFromFirebaseErrorCode(exception.errorCode, context)
+                    )
+                }else{
+                    UiState.Failure("Слишком много попыток, пожалуйста попробуйте позже")
                 }
-            }catch (e: Exception){
-                UiState.Failure("${e.message}")
             }
         return result
     }
@@ -45,14 +52,20 @@ class AuthRepositoryImpl : AuthRepository {
     override suspend fun logOut(): UiState<Boolean> {
         val result: UiState<Boolean> =
             try {
-                if (auth.currentUser!=null) {
+                if (auth.currentUser != null) {
                     auth.signOut()
                     UiState.Success(true)
-                }else{
+                } else {
                     throw Exception("currentUser = null")
                 }
-            }catch (e:Exception){
-                UiState.Failure("${e.message}")
+            } catch (exception: Exception) {
+                if ( exception is FirebaseAuthException) {
+                    UiState.Failure(
+                        getErrorMessageFromFirebaseErrorCode(exception.errorCode, context)
+                    )
+                }else{
+                    UiState.Failure("Слишком много попыток, пожалуйста попробуйте позже")
+                }
             }
         return result
     }
@@ -60,14 +73,16 @@ class AuthRepositoryImpl : AuthRepository {
     override suspend fun resetPassword(email: String): UiState<Boolean> {
         val result: UiState<Boolean> =
             try {
-                if (Validation.isEmailValid(email)){
-                    auth.sendPasswordResetEmail(email).await()
-                    UiState.Success(true)
+                auth.sendPasswordResetEmail(email).await()
+                UiState.Success(true)
+            } catch (exception: Exception) {
+                if ( exception is FirebaseAuthException) {
+                    UiState.Failure(
+                        getErrorMessageFromFirebaseErrorCode(exception.errorCode, context)
+                    )
                 }else{
-                    UiState.Failure("Wrong email")
+                    UiState.Failure("Слишком много попыток, пожалуйста попробуйте позже")
                 }
-            }catch (e: Exception){
-                UiState.Failure("${e.message}")
             }
         return result
     }

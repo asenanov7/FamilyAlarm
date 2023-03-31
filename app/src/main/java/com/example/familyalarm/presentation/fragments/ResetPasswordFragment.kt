@@ -94,7 +94,7 @@ class ResetPasswordFragment : Fragment() {
                 is Failure -> {
                     binding.progressBar.isVisible = false
                     binding.buttonReset.isEnabled = true
-                    binding.textInputLayoutEmail.error = it.error
+                    binding.textInputLayoutEmail.error = it.exceptionMessage
                 }
             }
         }

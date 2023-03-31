@@ -15,4 +15,5 @@
     <string name="sended">Отправлено</string>
     <string name="_name">Имя</string>
     <string name="_regis">Регистрация</string>
+    <string name="unknownError">Неизвестная ошибка</string>
 </resources>

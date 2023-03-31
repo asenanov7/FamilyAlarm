@@ -92,7 +92,7 @@ class RegisterFragment : Fragment() {
                 is Failure -> {
                     binding.buttonReg.isEnabled = true
                     binding.progressBar.isVisible = false
-                    binding.textInputLayoutPassword.error = it.error
+                    binding.textInputLayoutPassword.error = it.exceptionMessage
                 }
             }
         }

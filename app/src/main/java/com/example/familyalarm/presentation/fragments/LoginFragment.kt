@@ -14,6 +14,7 @@ import com.example.familyalarm.databinding.LoginFragmentBinding
 import com.example.familyalarm.presentation.Navigation
 import com.example.familyalarm.presentation.viewmodels.LoginVM
 import com.example.familyalarm.utils.UiState.*
+import com.example.familyalarm.utils.showErrorWithDisappearance
 import kotlinx.coroutines.launch
 
 class LoginFragment : Fragment() {
@@ -93,14 +94,12 @@ class LoginFragment : Fragment() {
             Log.d("LoginFragment", "loginVmState: $it")
             when (it) {
                 Init -> {
-                    binding.textInputLayoutPassword.error = null
                     binding.progressBar.isVisible = false
                     binding.buttonSignUp.isEnabled = true
                 }
                 Loading -> {
                     binding.progressBar.isVisible = true
                     binding.buttonSignUp.isEnabled = false
-                    binding.textInputLayoutPassword.error = null
                 }
                 is Success -> {
                     navigation.shouldCloseFragment()
@@ -111,11 +110,15 @@ class LoginFragment : Fragment() {
                 is Failure -> {
                     binding.progressBar.isVisible = false
                     binding.buttonSignUp.isEnabled = true
-                    binding.textInputLayoutPassword.error = it.error
+                    showErrorWithDisappearance(
+                        binding.textviewErrors, it.exceptionMessage, 5000
+                    )
                 }
             }
         }
     }
+
+
 
 
     override fun onDestroyView() {
