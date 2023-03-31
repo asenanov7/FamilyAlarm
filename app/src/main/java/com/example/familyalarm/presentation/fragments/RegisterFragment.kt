@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
@@ -15,6 +16,7 @@ import com.example.familyalarm.databinding.RegisterFragmentBinding
 import com.example.familyalarm.presentation.Navigation
 import com.example.familyalarm.presentation.viewmodels.RegisterVM
 import com.example.familyalarm.utils.UiState.*
+import com.example.familyalarm.utils.showErrorWithDisappearance
 import kotlinx.coroutines.launch
 
 class RegisterFragment : Fragment() {
@@ -55,16 +57,8 @@ class RegisterFragment : Fragment() {
         vm.clearErrorsOnInputChanged(binding.textInputEditTextPassword)
 
         binding.buttonReg.setOnClickListener {
-
-            val name = binding.textInputEditTextName.text.toString().trim()
-            val email = binding.textInputEditTextEmail.text.toString().trim()
-            val password = binding.textInputEditTextPassword.text.toString().trim()
-
-            if (name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
-                lifecycleScope.launch {
-                    vm.register(name, email, password)
-                }
-            }
+            hideKeyboard()
+            register()
         }
 
     }
@@ -76,12 +70,10 @@ class RegisterFragment : Fragment() {
                 Init -> {
                     binding.buttonReg.isEnabled = true
                     binding.progressBar.isVisible = false
-                    binding.textInputLayoutPassword.error = null
                 }
                 Loading -> {
                     binding.buttonReg.isEnabled = false
                     binding.progressBar.isVisible = true
-                    binding.textInputLayoutPassword.error = null
                 }
                 is Success -> {
                     navigation.shouldCloseFragment()
@@ -92,7 +84,9 @@ class RegisterFragment : Fragment() {
                 is Failure -> {
                     binding.buttonReg.isEnabled = true
                     binding.progressBar.isVisible = false
-                    binding.textInputLayoutPassword.error = it.exceptionMessage
+                    showErrorWithDisappearance(
+                        binding.textviewErrors, it.exceptionMessage, 5000
+                    )
                 }
             }
         }
@@ -107,6 +101,27 @@ class RegisterFragment : Fragment() {
     override fun onDestroy() {
         Log.d("RegisterFragment", "onDestroy: RegisterFragment $this")
         super.onDestroy()
+    }
+
+    private fun register(){
+        val name = binding.textInputEditTextName.text.toString().trim()
+        val email = binding.textInputEditTextEmail.text.toString().trim()
+        val password = binding.textInputEditTextPassword.text.toString().trim()
+
+        if (name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
+            lifecycleScope.launch {
+                vm.register(name, email, password)
+            }
+        }
+    }
+    private fun hideKeyboard(){
+        val inputMethodManager = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        if (requireActivity().currentFocus !=null){
+            inputMethodManager.hideSoftInputFromWindow(view?.windowToken, 0)
+        }
+
+        // on below line hiding our keyboard.
+        inputMethodManager.hideSoftInputFromWindow(view?.windowToken, 0)
     }
 
     companion object {

@@ -54,8 +54,8 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="330dp"
         android:layout_height="wrap_content"
-        app:errorEnabled="false"
         android:layout_marginBottom="24dp"
+        app:errorEnabled="false"
         app:errorTextAppearance="@style/error_appearance"
         app:hintEnabled="false"
         app:hintTextColor="@color/black"
@@ -183,22 +183,17 @@
 
     <TextView
         android:id="@+id/textview_errors"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
         android:background="@drawable/rounded_corner"
         android:fontFamily="helvetica"
         android:gravity="center"
         android:textColor="@color/white"
         android:textSize="16sp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/imageView_logo"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Вова далбаеб">
-
-    </TextView>
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

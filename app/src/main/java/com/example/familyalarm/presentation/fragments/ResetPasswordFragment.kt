@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -16,6 +17,7 @@ import com.example.familyalarm.databinding.ResetPasswordFragmentBinding
 import com.example.familyalarm.presentation.Navigation
 import com.example.familyalarm.presentation.viewmodels.ResetPasswordVM
 import com.example.familyalarm.utils.UiState.*
+import com.example.familyalarm.utils.showErrorWithDisappearance
 import kotlinx.coroutines.launch
 
 class ResetPasswordFragment : Fragment() {
@@ -59,12 +61,8 @@ class ResetPasswordFragment : Fragment() {
         }
 
         binding.buttonReset.setOnClickListener {
-            val email = binding.textInputEditTextEmail.text.toString().trim()
-            if (email.isNotEmpty()) {
-                lifecycleScope.launch {
-                    vm.reset(email)
-                }
-            }
+            hideKeyboard()
+            resetPassword()
         }
     }
 
@@ -73,7 +71,6 @@ class ResetPasswordFragment : Fragment() {
         vm.stateFlow.collect {
             when (it) {
                 Init -> {
-                    binding.textInputLayoutEmail.error = null
                     binding.progressBar.isVisible = false
                     binding.buttonReset.isEnabled = true
                 }
@@ -94,7 +91,9 @@ class ResetPasswordFragment : Fragment() {
                 is Failure -> {
                     binding.progressBar.isVisible = false
                     binding.buttonReset.isEnabled = true
-                    binding.textInputLayoutEmail.error = it.exceptionMessage
+                    showErrorWithDisappearance(
+                        binding.textviewErrors, it.exceptionMessage, 5000
+                    )
                 }
             }
         }
@@ -109,6 +108,25 @@ class ResetPasswordFragment : Fragment() {
     override fun onDestroy() {
         Log.d("ResetPasswordFragment", "onDestroyView: ResetFragment $this")
         super.onDestroy()
+    }
+
+    private fun resetPassword(){
+        val email = binding.textInputEditTextEmail.text.toString().trim()
+        if (email.isNotEmpty()) {
+            lifecycleScope.launch {
+                vm.reset(email)
+            }
+        }
+    }
+
+    private fun hideKeyboard(){
+        val inputMethodManager = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        if (requireActivity().currentFocus !=null){
+            inputMethodManager.hideSoftInputFromWindow(view?.windowToken, 0)
+        }
+
+        // on below line hiding our keyboard.
+        inputMethodManager.hideSoftInputFromWindow(view?.windowToken, 0)
     }
 
     companion object {

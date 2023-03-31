@@ -1,11 +1,13 @@
 package com.example.familyalarm.presentation.fragments
 
 import android.content.Context
+import android.content.Context.INPUT_METHOD_SERVICE
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -55,19 +57,12 @@ class LoginFragment : Fragment() {
         )
 
         lifecycleScope.launch {
-           observeVmState()
+           observeVmState(savedInstanceState)
         }
 
         binding.buttonSignUp.setOnClickListener {
-
-            lifecycleScope.launch {
-                val email = binding.textInputEditTextEmail.text.toString().trim()
-                val password = binding.textInputEditTextPassword.text.toString()
-
-                if (email.isNotEmpty() && password.isNotEmpty()) {
-                    vm.login(email, password)
-                }
-            }
+            hideKeyboard()
+            login()
         }
 
         binding.forgotPass.setOnClickListener{
@@ -88,8 +83,28 @@ class LoginFragment : Fragment() {
     }
 
 
+    private fun hideKeyboard(){
+        val inputMethodManager = requireActivity().getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        if (requireActivity().currentFocus !=null){
+            inputMethodManager.hideSoftInputFromWindow(view?.windowToken, 0)
+        }
 
-    private suspend fun observeVmState(){
+        // on below line hiding our keyboard.
+        inputMethodManager.hideSoftInputFromWindow(view?.windowToken, 0)
+    }
+
+    private fun login(){
+        lifecycleScope.launch {
+            val email = binding.textInputEditTextEmail.text.toString().trim()
+            val password = binding.textInputEditTextPassword.text.toString()
+
+            if (email.isNotEmpty() && password.isNotEmpty()) {
+                vm.login(email, password)
+            }
+        }
+    }
+
+    private suspend fun observeVmState(savedInstanceState: Bundle?){
         vm.stateFlow.collect {
             Log.d("LoginFragment", "loginVmState: $it")
             when (it) {
@@ -110,15 +125,13 @@ class LoginFragment : Fragment() {
                 is Failure -> {
                     binding.progressBar.isVisible = false
                     binding.buttonSignUp.isEnabled = true
-                    showErrorWithDisappearance(
-                        binding.textviewErrors, it.exceptionMessage, 5000
-                    )
+                        showErrorWithDisappearance(
+                            binding.textviewErrors, it.exceptionMessage, 5000
+                        )
                 }
             }
         }
     }
-
-
 
 
     override fun onDestroyView() {

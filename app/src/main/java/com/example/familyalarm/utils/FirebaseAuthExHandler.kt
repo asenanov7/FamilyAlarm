@@ -2,9 +2,8 @@ package com.example.familyalarm.utils
 
 import android.content.Context
 import com.example.familyalarm.R
-import com.google.firebase.FirebaseError.*
 
-    fun getErrorMessageFromFirebaseErrorCode(firebaseError: String, context:Context): String {
+fun getErrorMessageFromFirebaseErrorCode(firebaseError: String, context:Context): String {
         return when (firebaseError) {
             "ERROR_INVALID_CUSTOM_TOKEN" -> {"Недействительный пользовательский токен"}
             "ERROR_CUSTOM_TOKEN_MISMATCH" -> {"Пользовательский токен не соответствует ожидаемому"}
@@ -12,7 +11,7 @@ import com.google.firebase.FirebaseError.*
             "ERROR_USER_DISABLED" -> {"Учетная запись пользователя отключена администратором"}
             "ERROR_OPERATION_NOT_ALLOWED" -> {"Операция не разрешена"}
             "ERROR_EMAIL_ALREADY_IN_USE" -> {"Электронная почта уже используется"}
-            "ERROR_INVALID_EMAIL" -> {"Недействительные данные для входа"}
+            "ERROR_INVALID_EMAIL" -> {"Некорректный email"}
             "ERROR_WRONG_PASSWORD" -> {"Недействительные данные для входа"}
             "ERROR_TOO_MANY_REQUESTS" -> {"Слишком много запросов отправлено на сервер"}
             "ERROR_USER_NOT_FOUND" -> {"Пользователь с указанным email не найден"}

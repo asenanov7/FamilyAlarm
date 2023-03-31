@@ -5,22 +5,47 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:id="@+id/textview_errors"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_corner"
+        android:fontFamily="helvetica"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
+
+    <TextView
+        android:id="@+id/textViewRegister"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="120dp"
+        android:text="@string/_regis"
+        android:textColor="@color/black"
+        android:textSize="42sp"
+        app:layout_constraintBottom_toTopOf="@id/textInputLayout_name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textview_errors" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayout_name"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="330dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
         app:errorEnabled="false"
-        android:layout_marginBottom="24dp"
         app:errorTextAppearance="@style/error_appearance"
         app:hintEnabled="false"
         app:hintTextColor="@color/black"
-        app:layout_constraintBottom_toTopOf="@+id/textInputLayout_email"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textViewRegister"
+        app:layout_constraintTop_toBottomOf="@+id/textViewRegister"
         app:passwordToggleEnabled="false"
         app:startIconCheckable="false"
         app:startIconDrawable="@drawable/baseline_person_24">
@@ -41,18 +66,15 @@
         android:id="@+id/textInputLayout_email"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="330dp"
-        android:layout_marginBottom="24dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
         app:errorEnabled="false"
         app:errorTextAppearance="@style/error_appearance"
         app:hintEnabled="false"
         app:hintTextColor="@color/black"
-        app:layout_constraintBottom_toTopOf="@id/textInputLayout_password"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.493"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textInputLayout_name"
-        app:layout_constraintVertical_bias="0.39"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout_name"
         app:startIconDrawable="@android:drawable/sym_action_email">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -72,14 +94,14 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="330dp"
         android:layout_height="wrap_content"
-        app:errorEnabled="true"
+        android:layout_marginTop="24dp"
+        app:errorEnabled="false"
         app:errorIconDrawable="@null"
         app:errorTextAppearance="@style/error_appearance"
         app:hintEnabled="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/button_reg"
-        app:layout_constraintTop_toBottomOf="@id/textInputLayout_email"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout_email"
         app:passwordToggleEnabled="true"
         app:startIconDrawable="@android:drawable/ic_lock_idle_lock">
 
@@ -96,11 +118,11 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+
     <Button
         android:id="@+id/button_reg"
         android:layout_width="300dp"
         android:layout_height="45dp"
-        android:layout_marginTop="24dp"
         android:background="@drawable/circle"
         android:backgroundTint="@color/black"
         android:elevation="6dp"
@@ -108,36 +130,24 @@
         android:text="@string/_regis"
         android:textStyle="bold"
         android:theme="@style/Theme.AppCompat"
+        app:layout_constraintVertical_bias="0"
+        android:layout_marginTop="32dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textInputLayout_password" />
 
-    <TextView
-        android:id="@+id/textViewRegister"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="120dp"
-        android:layout_marginBottom="40dp"
-        android:text="@string/_regis"
-        android:textColor="@color/black"
-        android:textSize="42sp"
-        app:layout_constraintBottom_toTopOf="@+id/textInputLayout_name"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintVertical_bias="0.3"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <ProgressBar
         android:id="@+id/progressBar"
-        android:visibility="invisible"
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
