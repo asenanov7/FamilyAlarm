@@ -62,10 +62,6 @@ class MainActivity : AppCompatActivity(), Navigation {
                     shouldLaunchFragment(LoginFragment.newInstance(), LoginFragment.NAME, false)
                 } else {*/
 
-        //Убрать, оно для тестов тут
-        if (auth.currentUser!=null){
-            auth.signOut()
-        } //
 
         if (auth.currentUser == null) {
             Log.d("SENANOV", "auth.currentUser == null ")

@@ -94,7 +94,7 @@ class LoginFragment : Fragment() {
             val password = binding.textInputEditTextPassword.text.toString()
 
             if (email.isNotEmpty() && password.isNotEmpty()) {
-                vm.login(email, password)
+                vm.login(email, password, requireContext())
             }
         }
     }

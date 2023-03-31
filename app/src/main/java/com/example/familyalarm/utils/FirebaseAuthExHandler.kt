@@ -12,7 +12,7 @@ fun getErrorMessageFromFirebaseErrorCode(firebaseError: String, context:Context)
             "ERROR_OPERATION_NOT_ALLOWED" -> {"Операция не разрешена"}
             "ERROR_EMAIL_ALREADY_IN_USE" -> {"Электронная почта уже используется"}
             "ERROR_INVALID_EMAIL" -> {"Некорректный email"}
-            "ERROR_WRONG_PASSWORD" -> {"Недействительные данные для входа"}
+            "ERROR_WRONG_PASSWORD" -> {"Неправильный пароль"}
             "ERROR_TOO_MANY_REQUESTS" -> {"Слишком много запросов отправлено на сервер"}
             "ERROR_USER_NOT_FOUND" -> {"Пользователь с указанным email не найден"}
             "ERROR_ACCOUNT_EXISTS_WITH_DIFFERENT_CREDENTIAL" -> {"Учетная запись уже существует с другими учетными данными"}

@@ -113,7 +113,7 @@ class ResetPasswordFragment : Fragment() {
         val email = binding.textInputEditTextEmail.text.toString().trim()
         if (email.isNotEmpty()) {
             lifecycleScope.launch {
-                vm.reset(email)
+                vm.reset(email, requireContext())
             }
         }
     }
