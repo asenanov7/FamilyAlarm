@@ -5,6 +5,7 @@ import android.util.Log
 import com.example.familyalarm.domain.repositories.AuthRepository
 import com.example.familyalarm.utils.UiState
 import com.example.familyalarm.utils.getErrorMessageFromFirebaseErrorCode
+import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import kotlinx.coroutines.tasks.await
@@ -20,12 +21,20 @@ class AuthRepositoryImpl(private val context: Context) : AuthRepository {
                 auth.signInWithEmailAndPassword(email, password).await()
                 UiState.Success(true)
             } catch (exception: Exception) {
-                if ( exception is FirebaseAuthException) {
-                    UiState.Failure(
-                        getErrorMessageFromFirebaseErrorCode(exception.errorCode, context)
-                    )
-                }else{
-                    UiState.Failure("Слишком много попыток, пожалуйста попробуйте позже")
+                when (exception) {
+                    is FirebaseAuthException -> {
+                        UiState.Failure(
+                            getErrorMessageFromFirebaseErrorCode(exception.errorCode, context)
+                        )
+                    }
+                    is FirebaseTooManyRequestsException -> {
+                        UiState.Failure("Слишком много попыток, пожалуйста попробуйте позже")
+                    }
+                    else -> {
+                        UiState.Failure(
+                            getErrorMessageFromFirebaseErrorCode(exception.message!!, context)
+                        )
+                    }
                 }
             }
         return result
@@ -38,12 +47,20 @@ class AuthRepositoryImpl(private val context: Context) : AuthRepository {
                 auth.createUserWithEmailAndPassword(email, password).await()
                 UiState.Success(true)
             } catch (exception: Exception) {
-                if ( exception is FirebaseAuthException) {
-                    UiState.Failure(
-                        getErrorMessageFromFirebaseErrorCode(exception.errorCode, context)
-                    )
-                }else{
-                    UiState.Failure("Слишком много попыток, пожалуйста попробуйте позже")
+                when (exception) {
+                    is FirebaseAuthException -> {
+                        UiState.Failure(
+                            getErrorMessageFromFirebaseErrorCode(exception.errorCode, context)
+                        )
+                    }
+                    is FirebaseTooManyRequestsException -> {
+                        UiState.Failure("Слишком много попыток, пожалуйста попробуйте позже")
+                    }
+                    else -> {
+                        UiState.Failure(
+                            getErrorMessageFromFirebaseErrorCode(exception.message!!, context)
+                        )
+                    }
                 }
             }
         return result
@@ -59,12 +76,20 @@ class AuthRepositoryImpl(private val context: Context) : AuthRepository {
                     throw Exception("currentUser = null")
                 }
             } catch (exception: Exception) {
-                if ( exception is FirebaseAuthException) {
-                    UiState.Failure(
-                        getErrorMessageFromFirebaseErrorCode(exception.errorCode, context)
-                    )
-                }else{
-                    UiState.Failure("Слишком много попыток, пожалуйста попробуйте позже")
+                when (exception) {
+                    is FirebaseAuthException -> {
+                        UiState.Failure(
+                            getErrorMessageFromFirebaseErrorCode(exception.errorCode, context)
+                        )
+                    }
+                    is FirebaseTooManyRequestsException -> {
+                        UiState.Failure("Слишком много попыток, пожалуйста попробуйте позже")
+                    }
+                    else -> {
+                        UiState.Failure(
+                            getErrorMessageFromFirebaseErrorCode(exception.message!!, context)
+                        )
+                    }
                 }
             }
         return result
@@ -76,12 +101,20 @@ class AuthRepositoryImpl(private val context: Context) : AuthRepository {
                 auth.sendPasswordResetEmail(email).await()
                 UiState.Success(true)
             } catch (exception: Exception) {
-                if ( exception is FirebaseAuthException) {
-                    UiState.Failure(
-                        getErrorMessageFromFirebaseErrorCode(exception.errorCode, context)
-                    )
-                }else{
-                    UiState.Failure("Слишком много попыток, пожалуйста попробуйте позже")
+                when (exception) {
+                    is FirebaseAuthException -> {
+                        UiState.Failure(
+                            getErrorMessageFromFirebaseErrorCode(exception.errorCode, context)
+                        )
+                    }
+                    is FirebaseTooManyRequestsException -> {
+                        UiState.Failure("Слишком много попыток, пожалуйста попробуйте позже")
+                    }
+                    else -> {
+                        UiState.Failure(
+                            getErrorMessageFromFirebaseErrorCode(exception.message!!, context)
+                        )
+                    }
                 }
             }
         return result
