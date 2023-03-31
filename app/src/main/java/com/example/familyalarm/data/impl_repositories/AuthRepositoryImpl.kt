@@ -1,13 +1,8 @@
 package com.example.familyalarm.data.impl_repositories
 
-import android.content.Context
 import android.util.Log
 import com.example.familyalarm.domain.repositories.AuthRepository
-import com.example.familyalarm.utils.UiState
-import com.example.familyalarm.utils.getErrorMessageFromFirebaseErrorCode
-import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthException
 import kotlinx.coroutines.tasks.await
 
 class AuthRepositoryImpl() : AuthRepository {
