@@ -40,19 +40,22 @@ android {
 
 dependencies {
     implementation platform('com.google.firebase:firebase-bom:31.3.0')  //Firebase
-    implementation 'com.google.firebase:firebase-auth-ktx'
-    implementation 'com.google.firebase:firebase-database-ktx'
-    implementation 'com.google.firebase:firebase-analytics-ktx'
 
-    kapt "androidx.lifecycle:lifecycle-compiler:2.6.0"
+    implementation 'com.google.firebase:firebase-auth-ktx' //Firebase Auth
+    implementation 'com.google.firebase:firebase-analytics-ktx' //Firebase Auth
+
+    implementation 'com.google.firebase:firebase-firestore-ktx' //Firebase CloudFireStore
+
+
+    implementation "androidx.lifecycle:lifecycle-common-java8:2.6.1"
     implementation 'com.google.code.gson:gson:2.9.1'
-    implementation "androidx.lifecycle:lifecycle-common-java8:2.6.0"
-    implementation "androidx.lifecycle:lifecycle-reactivestreams-ktx:2.6.0"
+    implementation "androidx.lifecycle:lifecycle-common-java8:2.6.1"
+    implementation "androidx.lifecycle:lifecycle-reactivestreams-ktx:2.6.1"
 
     implementation 'com.squareup.picasso:picasso:2.71828'  //Picasso загрузка изображение по ссылке
 
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.0' //lifecycle scope
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.0" //view-model Scope
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1' //lifecycle scope
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1" //view-model Scope
 
     implementation 'com.google.dagger:dagger:2.44'       //Dagger2
     kapt 'com.google.dagger:dagger-compiler:2.44'

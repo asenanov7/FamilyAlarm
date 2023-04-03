@@ -4,8 +4,9 @@ data class User(
     val id: String,
     val name: String,
     val email: String,
-    val awake: Boolean,
-    val personalGroup: Group,
-    val currentGroup: Group,
-    val isLeader: Boolean = currentGroup==personalGroup
+    val password: String,
+    val awake: Boolean = false,
+    val personalGroupId: String,
+    val currentGroupId: String,
+    val isLeader: Boolean = personalGroupId==currentGroupId
 )

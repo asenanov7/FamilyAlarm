@@ -113,7 +113,7 @@ class RegisterFragment : Fragment() {
 
         if (name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
             lifecycleScope.launch {
-                vm.register(name, email, password, requireContext())
+                vm.registerAndCreateUser(name, email, password, requireContext())
             }
         }
     }
