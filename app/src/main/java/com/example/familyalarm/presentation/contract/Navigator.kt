@@ -1,8 +1,12 @@
-package com.example.familyalarm.presentation
+package com.example.familyalarm.presentation.contract
 
 import androidx.fragment.app.Fragment
 
-interface Navigation {
+fun Fragment.navigator(): Navigator{
+    return requireActivity() as Navigator
+}
+
+interface Navigator {
 
     fun shouldCloseFragment()
 

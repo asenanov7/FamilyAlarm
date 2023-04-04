@@ -4,15 +4,15 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import com.example.familyalarm.R
 import com.example.familyalarm.databinding.ActivityMainBinding
+import com.example.familyalarm.presentation.contract.Navigator
 import com.example.familyalarm.presentation.fragments.LoginFragment
 import com.example.familyalarm.presentation.fragments.MainFragment
-import com.example.familyalarm.presentation.fragments.RegisterFragment
+import com.google.android.material.navigation.NavigationBarView
 import com.google.firebase.auth.FirebaseAuth
 
-class MainActivity : AppCompatActivity(), Navigation {
+class MainActivity : AppCompatActivity(), Navigator {
 
     private val binding by lazy {
         ActivityMainBinding.inflate(layoutInflater)

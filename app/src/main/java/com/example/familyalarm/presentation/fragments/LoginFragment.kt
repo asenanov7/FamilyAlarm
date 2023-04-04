@@ -1,6 +1,5 @@
 package com.example.familyalarm.presentation.fragments
 
-import android.content.Context
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.os.Bundle
 import android.util.Log
@@ -15,7 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.familyalarm.databinding.LoginFragmentBinding
-import com.example.familyalarm.presentation.Navigation
+import com.example.familyalarm.presentation.contract.navigator
 import com.example.familyalarm.presentation.viewmodels.LoginVM
 import com.example.familyalarm.utils.UiState.*
 import com.example.familyalarm.utils.showErrorWithDisappearance
@@ -29,16 +28,6 @@ class LoginFragment : Fragment() {
     private val binding: LoginFragmentBinding
         get() = _binding ?: throw Exception("LoginFragment == null")
 
-    private lateinit var navigation: Navigation
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is Navigation) {
-            navigation = context
-        } else throw Exception(
-            "If Activity use LoginFragment, activity should implement Navigation"
-        )
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -63,7 +52,7 @@ class LoginFragment : Fragment() {
         }
 
         binding.forgotPass.setOnClickListener {
-            navigation.shouldLaunchFragment(
+            navigator().shouldLaunchFragment(
                 ResetPasswordFragment.newInstance(),
                 ResetPasswordFragment.NAME,
                 true
@@ -71,7 +60,7 @@ class LoginFragment : Fragment() {
         }
 
         binding.textViewRegister.setOnClickListener {
-            navigation.shouldLaunchFragment(
+            navigator().shouldLaunchFragment(
                 RegisterFragment.newInstance(),
                 RegisterFragment.NAME,
                 true
@@ -120,8 +109,8 @@ class LoginFragment : Fragment() {
                         binding.forgotPass.isEnabled = false
                     }
                     is Success -> {
-                        navigation.shouldCloseFragment()
-                        navigation.shouldLaunchFragment(
+                        navigator().shouldCloseFragment()
+                        navigator().shouldLaunchFragment(
                             MainFragment.newInstance(), MainFragment.NAME, false
                         )
                     }

@@ -39,12 +39,14 @@ android {
 }
 
 dependencies {
+    implementation 'com.google.android.material:material:1.8.0' //BottomNavigation
+
     implementation platform('com.google.firebase:firebase-bom:31.3.0')  //Firebase
 
     implementation 'com.google.firebase:firebase-auth-ktx' //Firebase Auth
     implementation 'com.google.firebase:firebase-analytics-ktx' //Firebase Auth
 
-    implementation 'com.google.firebase:firebase-firestore-ktx' //Firebase CloudFireStore
+    implementation 'com.google.firebase:firebase-database-ktx'//Realtime Database
 
 
     implementation "androidx.lifecycle:lifecycle-common-java8:2.6.1"

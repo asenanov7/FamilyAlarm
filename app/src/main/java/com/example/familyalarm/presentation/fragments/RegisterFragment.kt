@@ -14,11 +14,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.familyalarm.databinding.RegisterFragmentBinding
-import com.example.familyalarm.presentation.Navigation
+import com.example.familyalarm.presentation.contract.navigator
 import com.example.familyalarm.presentation.viewmodels.RegisterVM
 import com.example.familyalarm.utils.UiState.*
 import com.example.familyalarm.utils.showErrorWithDisappearance
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class RegisterFragment : Fragment() {
@@ -29,15 +28,6 @@ class RegisterFragment : Fragment() {
 
     private val vm by lazy { ViewModelProvider(this)[RegisterVM::class.java] }
 
-    private lateinit var navigation: Navigation
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is Navigation) {
-            navigation = context
-        } else throw Exception(
-            "If Activity use RegisterFragment, activity should implement Navigation"
-        )
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -78,8 +68,8 @@ class RegisterFragment : Fragment() {
                         Log.d("RegisterFragment", "binding.progressBar.isVisible = true")
                     }
                     is Success -> {
-                        navigation.shouldCloseFragment()
-                        navigation.shouldLaunchFragment(
+                        navigator().shouldCloseFragment()
+                        navigator().shouldLaunchFragment(
                             MainFragment.newInstance(), MainFragment.NAME, false
                         )
                     }

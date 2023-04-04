@@ -16,11 +16,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.familyalarm.R
 import com.example.familyalarm.databinding.ResetPasswordFragmentBinding
-import com.example.familyalarm.presentation.Navigation
+import com.example.familyalarm.presentation.contract.navigator
 import com.example.familyalarm.presentation.viewmodels.ResetPasswordVM
 import com.example.familyalarm.utils.UiState.*
 import com.example.familyalarm.utils.showErrorWithDisappearance
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class ResetPasswordFragment : Fragment() {
@@ -33,16 +32,6 @@ class ResetPasswordFragment : Fragment() {
         ViewModelProvider(this)[ResetPasswordVM::class.java]
     }
 
-    private lateinit var navigation: Navigation
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is Navigation) {
-            navigation = context
-        } else throw Exception(
-            "If Activity use ResetPasswordFragment, activity should implement Navigation"
-        )
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -90,7 +79,7 @@ class ResetPasswordFragment : Fragment() {
                             getString(R.string.sended),
                             Toast.LENGTH_SHORT
                         ).show()
-                        navigation.shouldCloseFragment()
+                        navigator().shouldCloseFragment()
                     }
                     is Failure -> {
                         binding.progressBar.isVisible = false

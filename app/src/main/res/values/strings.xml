@@ -16,4 +16,11 @@
     <string name="_name">Имя</string>
     <string name="_regis">Регистрация</string>
     <string name="unknownError">Неизвестная ошибка</string>
+    <string name="exit">Выход</string>
+    <string name="group">Группа</string>
+    <string name="alarms">Будильники</string>
+    <string name="awake">Awake</string>
+    <string name="delete">delete</string>
+    <string name="adduser">addUser</string>
+    <string name="invites">Приглашения</string>
 </resources>
