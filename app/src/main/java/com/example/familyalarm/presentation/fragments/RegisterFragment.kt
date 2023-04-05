@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -16,8 +17,11 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.familyalarm.databinding.RegisterFragmentBinding
 import com.example.familyalarm.presentation.contract.navigator
 import com.example.familyalarm.presentation.viewmodels.RegisterVM
+import com.example.familyalarm.utils.UiState
 import com.example.familyalarm.utils.UiState.*
+import com.example.familyalarm.utils.getErrorMessageFromFirebaseErrorCode
 import com.example.familyalarm.utils.showErrorWithDisappearance
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class RegisterFragment : Fragment() {
@@ -48,7 +52,7 @@ class RegisterFragment : Fragment() {
 
         binding.buttonReg.setOnClickListener {
             hideKeyboard()
-            register()
+            registerAndCreateUser()
         }
 
     }
@@ -96,14 +100,35 @@ class RegisterFragment : Fragment() {
         super.onDestroy()
     }
 
-    private fun register() {
+    private fun registerAndCreateUser() {
         val name = binding.textInputEditTextName.text.toString().trim()
         val email = binding.textInputEditTextEmail.text.toString().trim()
         val password = binding.textInputEditTextPassword.text.toString().trim()
+        val isParent = binding.radioButtonParent.isChecked
+        val isChildren = binding.radioButtonChild.isChecked
+
+        if (!isChildren && !isParent){
+            showErrorWithDisappearance(binding.textviewErrors,"Пожалуйста выберите роль", 5000)
+            return
+        }
 
         if (name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
             lifecycleScope.launch {
-                vm.registerAndCreateUser(name, email, password, requireContext())
+                if (isParent) {
+                    vm.registerAndCreateParent(
+                        name = name,
+                        email = email,
+                        password = password,
+                        context = requireContext()
+                    )
+                }else{
+                    vm.registerAndCreateChild(
+                        name = name,
+                        email = email,
+                        password = password,
+                        context = requireContext()
+                    )
+                }
             }
         }
     }

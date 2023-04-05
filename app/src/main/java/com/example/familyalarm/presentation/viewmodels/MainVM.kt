@@ -4,25 +4,36 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import com.example.familyalarm.data.impl_repositories.AuthRepositoryImpl
+import com.example.familyalarm.data.impl_repositories.RepositoryImpl
+import com.example.familyalarm.domain.entities.UserChild
+import com.example.familyalarm.domain.usecases.GetUsersFromTheGroupUseCase
 import com.example.familyalarm.domain.usecases.auth.LogOutUseCase
-import com.example.familyalarm.utils.UiState
-import com.example.familyalarm.utils.UiState.*
+import com.example.familyalarm.utils.UiState.Failure
+import com.example.familyalarm.utils.UiState.Success
 import com.example.familyalarm.utils.getErrorMessageFromFirebaseErrorCode
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuthException
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flow
 
 class MainVM(application:Application):AndroidViewModel(application) {
 
     private val authRepository = AuthRepositoryImpl()
+    private val repositoryImpl = RepositoryImpl()
     private val logOutUseCase = LogOutUseCase(repository = authRepository)
+
+
+    private val getUsersFromTheGroupUseCase = GetUsersFromTheGroupUseCase(repository = repositoryImpl)
 
    /* private val _stateFlow: MutableStateFlow<UiState<Boolean>> = MutableStateFlow(Default)
     val stateFlow: StateFlow<UiState<Boolean>>
         get() = _stateFlow.asStateFlow()*/
+
+
+    fun getUsersFromGroup(groupId:String): MutableSharedFlow<List<UserChild>> {
+        return getUsersFromTheGroupUseCase(groupId)
+    }
+
 
     suspend fun logOut(context: Context) = flow{
                 try {

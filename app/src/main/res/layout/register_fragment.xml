@@ -37,8 +37,6 @@
         android:gravity="center"
         android:layout_height="match_parent">
 
-
-
     <TextView
         android:id="@+id/textViewRegister"
         android:layout_width="wrap_content"
@@ -136,6 +134,27 @@
             android:textSize="16sp" />
 
     </com.google.android.material.textfield.TextInputLayout>
+
+        <RadioGroup
+            android:id="@+id/radioGroup"
+            android:layout_width="330dp"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp"
+            android:layout_height="wrap_content" >
+
+            <RadioButton
+                android:id="@+id/radioButtonParent"
+                android:layout_width="165dp"
+                android:layout_height="wrap_content"
+                android:text="@string/parent" />
+            <RadioButton
+                android:id="@+id/radioButtonChild"
+                android:layout_width="165dp"
+                android:layout_height="wrap_content"
+                android:text="@string/child" />
+
+        </RadioGroup>
+
 
 
     <Button

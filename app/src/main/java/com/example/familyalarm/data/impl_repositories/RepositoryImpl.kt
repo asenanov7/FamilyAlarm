@@ -2,82 +2,136 @@ package com.example.familyalarm.data.impl_repositories
 
 import android.util.Log
 import com.example.familyalarm.data.Mapper
-import com.example.familyalarm.domain.repositories.Repository
-import com.example.familyalarm.domain.entities.Alarm
 import com.example.familyalarm.domain.entities.Group
 import com.example.familyalarm.domain.entities.User
+import com.example.familyalarm.domain.entities.UserChild
+import com.example.familyalarm.domain.entities.UserParent
+import com.example.familyalarm.domain.repositories.Repository
 import com.example.familyalarm.utils.FirebaseTables
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
 
 class RepositoryImpl() : Repository {
 
     private val mapper = Mapper()
     private val auth by lazy { FirebaseAuth.getInstance() }
 
-    private val groupsRef = Firebase.firestore.collection(FirebaseTables.GROUPS)
-    private val usersRef = Firebase.firestore.collection(FirebaseTables.USERS)
 
+    private val parentGroupsRef =
+        Firebase.database("https://waketeam-75be8-default-rtdb.europe-west1.firebasedatabase.app")
+            .getReference(FirebaseTables.PARENT_GROUPS)
+    private val childsRef =
+        Firebase.database("https://waketeam-75be8-default-rtdb.europe-west1.firebasedatabase.app")
+            .getReference(FirebaseTables.CHILDS)
 
-    override fun createUserUseCase(user: User) {
-        auth.currentUser?.let {
-            val group = Group(it.uid, mutableListOf())
-            group.add(user)
+    private val parentsRef = Firebase.database("https://waketeam-75be8-default-rtdb.europe-west1.firebasedatabase.app")
+        .getReference(FirebaseTables.PARENTS)
 
-            val groupHashMap = hashMapOf(
-                "id" to group.id,
-                "users" to group.users
-            )
-
-            groupsRef
-                .document(it.uid)
-                .set(groupHashMap)
-                .addOnSuccessListener {
-                    auth.currentUser?.let {
-                        Log.d("FIRESTORE", "groupHashMap: Success")
-                        val userHashmap = hashMapOf(
-                            "id" to it.uid,
-                            "name" to user.name,
-                            "email" to user.email,
-                            "password" to user.password,
-                            "awake" to user.awake,
-                            "personalGroup" to user.personalGroupId,
-                            "currentGroup" to user.currentGroupId,
-                            "isLeader" to user.isLeader
-                        )
-
-                        usersRef
-                            .document(it.uid)
-                            .set(userHashmap)
-                            .addOnSuccessListener { Log.d("FIRESTORE", "userHashmap: Success") }
-                            .addOnFailureListener { Log.d("FIRESTORE", "userHashmap: Fail") }
-                    }
-                }
-                .addOnFailureListener { Log.d("FIRESTORE", "groupHashMap: Fail") }
-
+    private val scope = CoroutineScope(Dispatchers.IO)
+    override suspend fun createChildUseCase(userChild: UserChild) {
+        Log.d("Database", "createChildUseCase: started")
+        val job = scope.launch {
+            auth.currentUser?.let {
+                Log.d("Database", "createChildUseCase: currentUser!=null")
+                childsRef
+                    .child(it.uid)
+                    .setValue(userChild)
+                    .addOnSuccessListener { Log.d("Database", "createChildUseCase: user Success") }
+                    .addOnFailureListener { Log.d("Database", "createChildUseCase: user Fail") }
+            }
         }
+        job.join()
+}
+
+override suspend fun createParentUseCase(userParent: UserParent) {
+    Log.d("Database", "createParentUseCase: started")
+    auth.currentUser?.let { firebaseUser ->
+        Log.d("Database", "createParentUseCase: currentUser!=null")
+        val group = Group(firebaseUser.uid, userParent, listOf())
+
+        val job = scope.launch() {
+            parentGroupsRef
+                .child(firebaseUser.uid)
+                .setValue(group)
+                .addOnSuccessListener {
+                    Log.d("Database", "createParentUseCase: group: Success")
+                    parentsRef
+                        .child(firebaseUser.uid)
+                        .setValue(userParent)
+                        .addOnSuccessListener {
+                            Log.d(
+                                "Database",
+                                "createParentUseCase: user Success"
+                            )
+                        }
+                        .addOnFailureListener {
+                            Log.d(
+                                "Database",
+                                "createParentUseCase: user Fail"
+                            )
+                        }
+                }
+                .addOnFailureListener { Log.d("Database", "createParentUseCase: group: Fail") }
+        }
+        job.join()
     }
+}
 
-    override fun inviteUserInTheGroup(userId: String, userGroupId: String) {
-        TODO("Not yet implemented")
-    }
+override fun getUsersFromTheGroup(userGroupId: String): MutableSharedFlow<List<UserChild>> {
+    val group = parentGroupsRef.child(userGroupId).child("usersInGroup")
 
-    override fun deleteUserFromGroup(userId: String, userGroupId: String) {
-        TODO("Not yet implemented")
-    }
+    val listUserMutableFlow = MutableSharedFlow<List<UserChild>>(replay = 1)
 
-    override fun getUsersFromTheGroup(userGroupId: String): Flow<List<User>> {
-        TODO("Not yet implemented")
-    }
+    group.addValueEventListener(object : ValueEventListener {
 
-    override fun getUserInfo(userId: String): Flow<User> {
-        TODO("Not yet implemented")
-    }
+        override fun onDataChange(snapshot: DataSnapshot) {
+            var listUser = listOf<UserChild>()
+            Log.d("Database", "onDataChange $snapshot")
+            for (item in snapshot.children) {
+                Log.d("Database", "(item in snapshot.children ")
+                val user = item.getValue(UserChild::class.java)
+                if (user != null) {
+                    Log.d("Database", "user != null ")
+                    val newList = listUser.toMutableList()
+                    newList.add(user)
+                    listUser = newList
+                }
+                Log.d("Database", "listResult: $listUser")
+                scope.launch {
+                    listUserMutableFlow.emit(listUser)
+                }
+            }
+        }
 
+        override fun onCancelled(error: DatabaseError) {
+            Log.d("Database", "onCancelled $error ")
+            throw Exception(error.message)
+        }
+    })
 
+    return listUserMutableFlow
+}
+
+override fun inviteUserInTheGroup(userId: String, userGroupId: String) {
+    TODO("Not yet implemented")
+}
+
+override fun deleteUserFromGroup(userId: String, userGroupId: String) {
+    TODO("Not yet implemented")
+}
+
+override fun getUserInfo(userId: String): Flow<User> {
+    TODO("Not yet implemented")
+}
 
 
 }

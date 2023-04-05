@@ -23,4 +23,6 @@
     <string name="delete">delete</string>
     <string name="adduser">addUser</string>
     <string name="invites">Приглашения</string>
+    <string name="parent">Родитель</string>
+    <string name="child">Ребенок</string>
 </resources>
