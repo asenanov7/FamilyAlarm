@@ -8,15 +8,15 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 
 interface Repository {
 
-    suspend fun createChildUseCase(userChild:UserChild)
+    suspend fun createChildUseCase(userChild: UserChild)
 
-    suspend fun createParentUseCase(userParent:UserParent)
+    suspend fun createParentUseCase(userParent: UserParent)
 
-    fun inviteUserInTheGroup(userId: String, userGroupId: String)
+    suspend fun inviteUserInTheParentChildrens(userId: String, parentId: String)
 
-    fun deleteUserFromGroup(userId: String, userGroupId: String)
+    fun deleteUserFromParentChildrens(userId: String, parentId: String)
 
-    fun getUsersFromTheGroup(userGroupId: String): MutableSharedFlow<List<UserChild>>
+    fun getUsersFromParentChildrens(parentId: String): MutableSharedFlow<List<UserChild>>
 
     fun getUserInfo(userId: String): Flow<User>
 

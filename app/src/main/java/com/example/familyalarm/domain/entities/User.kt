@@ -22,5 +22,6 @@ data class UserParent(
     override val name: String? = null,
     override val email: String? = null,
     override val password: String? = null,
-    val personalGroupId: String? = null,
+    val childrens: List<UserChild?>? =null
+
 ):User()

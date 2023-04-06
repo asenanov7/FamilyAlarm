@@ -4,11 +4,11 @@ import com.example.familyalarm.domain.entities.Alarm
 
 interface AlarmRepository {
 
-    fun setAlarmForGroup(time:Int, userGroupId: String)
+    fun setAlarmForParentChildrens(time:Int, parentId: String)
 
-    fun removeAlarmForGroup(time:Int, userGroupId: String)
+    fun removeAlarmForParentChildrens(time:Int, parentId: String)
 
-    fun startAlarm(userGroupId: String, alarm: Alarm)
+    fun startAlarm(parentId: String, alarm: Alarm)
 
-    fun stopAlarm(userGroupId: String, alarm: Alarm)
+    fun stopAlarm(parentId: String, alarm: Alarm)
 }
