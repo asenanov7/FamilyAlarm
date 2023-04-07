@@ -12,20 +12,23 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.childEvents
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
+import com.google.firebase.database.ktx.snapshots
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 class RepositoryImpl() : Repository {
 
     private val mapper = Mapper()
     private val auth by lazy { FirebaseAuth.getInstance() }
+    private val scope = CoroutineScope(Dispatchers.IO)
 
     companion object {
         const val TAG = "RepositoryImpl"
@@ -42,7 +45,6 @@ class RepositoryImpl() : Repository {
             .getReference(FirebaseTables.PARENTS)
 
 
-    private val scope = CoroutineScope(Dispatchers.IO)
     override suspend fun createChildUseCase(userChild: UserChild) {
         Log.d(TAG, "createChildUseCase: started")
         val job = scope.launch {
@@ -131,6 +133,18 @@ class RepositoryImpl() : Repository {
                 }
             }
         }
+    }
+
+    override suspend fun findUserByHazyName(name: String): Flow<List<UserChild>> =flow{
+        val childrensMap = childsRef.get().await().children
+        val listContainsChild = mutableListOf<UserChild>()
+        for (childItem in childrensMap ){
+            val child = childItem.getValue(UserChild::class.java)
+            if (child?.name?.lowercase()?.contains(name) == true){
+                listContainsChild.add(child)
+            }
+        }
+        emit(listContainsChild)
     }
 
     override fun deleteUserFromParentChildrens(userId: String, parentId: String) {

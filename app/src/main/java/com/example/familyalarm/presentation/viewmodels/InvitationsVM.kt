@@ -1,13 +1,18 @@
 package com.example.familyalarm.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
+import com.example.familyalarm.data.impl_repositories.RepositoryImpl
 import com.example.familyalarm.domain.entities.UserChild
-import kotlinx.coroutines.flow.flow
-import java.util.concurrent.Flow
+import com.example.familyalarm.domain.usecases.FindUserByHazyNameUseCase
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 class InvitationsVM : ViewModel() {
 
-    /*suspend fun getUsersByHazyName(hazyName: String): Flow<List<UserChild>> {
-              TODO()
-    }*/
+    private val repositoryImpl = RepositoryImpl()
+    private val findUsersByHazyNameUseCase = FindUserByHazyNameUseCase(repositoryImpl)
+
+    suspend fun getUsersByHazyName(name: String): Flow<List<UserChild>> {
+        return findUsersByHazyNameUseCase(name)
+    }
 }

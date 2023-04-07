@@ -9,10 +9,13 @@ import android.widget.SearchView.OnQueryTextListener
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.familyalarm.databinding.InvitationsFragmentBinding
 import com.example.familyalarm.databinding.MainFragmentBinding
 import com.example.familyalarm.presentation.recyclerview.InvitationsAdapter
 import com.example.familyalarm.presentation.viewmodels.InvitationsVM
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 class InvitationsFragment : Fragment() {
 
@@ -44,7 +47,19 @@ class InvitationsFragment : Fragment() {
             }
 
             override fun onQueryTextChange(p0: String?): Boolean {
-                TODO()
+                if (p0.isNullOrEmpty()){
+                    //Пустой лист при первом запуске и в случае стирания
+                    adapter.submitList(listOf())
+                    return false
+                }
+                Log.d("InvitationsFragment", "onQueryTextChange: p0 = $p0")
+                lifecycleScope.launch {
+                    vm.getUsersByHazyName(p0.trim()).collect {
+                        Log.d("InvitationsFragment", "  vm.getUsersByHazyName().collect: $it")
+                        adapter.submitList(it)
+                    }
+                }
+                return false
             }
         })
 

@@ -7,12 +7,22 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.familyalarm.databinding.ItemUserSearchAddBinding
 import com.example.familyalarm.databinding.ItemUserSearchAddedBinding
 import com.example.familyalarm.domain.entities.UserChild
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 class InvitationsAdapter : ListAdapter<UserChild, RecyclerView.ViewHolder>(UsersDiffCallback()) {
 
     companion object {
         const val ADD_HOLDER = 1
         const val ADDED_HOLDER = 2
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return if (getItem(position).currentGroupId==Firebase.auth.uid){
+            ADDED_HOLDER
+        }else{
+            ADD_HOLDER
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
