@@ -15,7 +15,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.familyalarm.R
 import com.example.familyalarm.databinding.MainFragmentBinding
 import com.example.familyalarm.presentation.contract.navigator
-import com.example.familyalarm.presentation.recyclerview.MainUsersAdapter
+import com.example.familyalarm.presentation.recyclerview.UsersAdapter
 import com.example.familyalarm.presentation.viewmodels.MainVM
 import com.example.familyalarm.utils.UiState
 import com.google.firebase.auth.ktx.auth
@@ -30,7 +30,7 @@ class MainFragment : Fragment() {
         get() = _binding ?: throw Exception("MainFragment == null")
 
     private val vm by lazy { ViewModelProvider(this)[MainVM::class.java] }
-    private val adapter by lazy { MainUsersAdapter() }
+    private val adapter by lazy { UsersAdapter() }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,6 +47,14 @@ class MainFragment : Fragment() {
         Log.d("MainFragment", "onViewCreated: MainFragment $this")
         //binding.textView.text = user
 
+        binding.fabAdd.setOnClickListener {
+            navigator().shouldLaunchFragment(
+                InvitationsFragment.newInstance(),
+                InvitationsFragment.NAME,
+                true
+            )
+        }
+
       lifecycleScope.launch (){
            vm.inviteUser(
                "E7dDKlJRpKQlqbbj0orpOOqgO8v1",
@@ -55,6 +63,7 @@ class MainFragment : Fragment() {
                when(it){
                    UiState.Default ->{}
                    is UiState.Failure -> {
+                       binding.progressBarMain.isVisible = false
                        Toast.makeText(requireContext(), it.exceptionMessage, Toast.LENGTH_SHORT).show()
                    }
                    UiState.Loading -> {binding.progressBarMain.isVisible = true}

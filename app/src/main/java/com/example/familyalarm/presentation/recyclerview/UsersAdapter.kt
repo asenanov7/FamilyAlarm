@@ -5,16 +5,18 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.familyalarm.R
 import com.example.familyalarm.databinding.ItemUserChildBinding
+import com.example.familyalarm.databinding.ItemUserSearchAddBinding
+import com.example.familyalarm.databinding.ItemUserSearchAddedBinding
 import com.example.familyalarm.domain.entities.UserChild
-import com.example.familyalarm.presentation.recyclerview.MainUsersAdapter.UserViewHolder
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import kotlin.properties.Delegates
 
 
-class MainUsersAdapter : ListAdapter<UserChild, UserViewHolder>(UsersDiffCallback()) {
-
-    class UserViewHolder(val binding: ItemUserChildBinding) : RecyclerView.ViewHolder(binding.root)
+class UsersAdapter : ListAdapter<UserChild, UserViewHolder>(UsersDiffCallback()) {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
@@ -27,13 +29,12 @@ class MainUsersAdapter : ListAdapter<UserChild, UserViewHolder>(UsersDiffCallbac
     }
 
     override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
-        val user:UserChild = getItem(position)
+        val user = getItem(position)
 
         holder.binding.textViewName.text = user.name.toString()
         holder.binding.textViewEmail.text = user.email.toString()
         holder.binding.imageViewAwake.setImageDrawable(getAwakeStatus(user, holder))
-        holder.binding.imageViewAvatar
-
+        holder.binding.imageViewAvatar //////
 
     }
 

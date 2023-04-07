@@ -72,7 +72,7 @@
             tools:text="@string/_email" />
 
         <ImageView
-            android:id="@+id/imageView"
+            android:id="@+id/imageViewButtonAddDisabled"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:background="#B2B2B2"
