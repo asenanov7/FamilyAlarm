@@ -9,10 +9,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.familyalarm.R
 import com.example.familyalarm.databinding.ItemUserChildBinding
 import com.example.familyalarm.domain.entities.UserChild
-import com.example.familyalarm.presentation.recyclerview.UsersAdapter.UserViewHolder
+import com.example.familyalarm.presentation.recyclerview.MainUsersAdapter.UserViewHolder
 
 
-class UsersAdapter : ListAdapter<UserChild, UserViewHolder>(UsersDiffCallback()) {
+class MainUsersAdapter : ListAdapter<UserChild, UserViewHolder>(UsersDiffCallback()) {
 
     class UserViewHolder(val binding: ItemUserChildBinding) : RecyclerView.ViewHolder(binding.root)
 

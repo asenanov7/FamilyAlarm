@@ -60,7 +60,8 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1' //lifecycle scope
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1" //view-model Scope
 
-    implementation 'com.google.dagger:dagger:2.44'       //Dagger2
+    implementation 'com.google.dagger:dagger:2.44'
+    implementation 'com.android.car.ui:car-ui-lib:2.0.0'//Dagger2
     kapt 'com.google.dagger:dagger-compiler:2.44'
 
     implementation 'androidx.core:core-ktx:1.9.0'
