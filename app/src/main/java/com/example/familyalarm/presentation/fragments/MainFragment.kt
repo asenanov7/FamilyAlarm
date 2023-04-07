@@ -13,7 +13,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.familyalarm.R
-import com.example.familyalarm.data.impl_repositories.RepositoryImpl
 import com.example.familyalarm.databinding.MainFragmentBinding
 import com.example.familyalarm.presentation.contract.navigator
 import com.example.familyalarm.presentation.recyclerview.UsersAdapter
@@ -21,7 +20,6 @@ import com.example.familyalarm.presentation.viewmodels.MainVM
 import com.example.familyalarm.utils.UiState
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 

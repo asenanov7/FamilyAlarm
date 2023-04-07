@@ -5,16 +5,13 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.SearchView.OnQueryTextListener
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.familyalarm.databinding.InvitationsFragmentBinding
-import com.example.familyalarm.databinding.MainFragmentBinding
 import com.example.familyalarm.presentation.recyclerview.InvitationsAdapter
 import com.example.familyalarm.presentation.viewmodels.InvitationsVM
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class InvitationsFragment : Fragment() {
