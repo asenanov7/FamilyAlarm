@@ -55,23 +55,6 @@ class MainFragment : Fragment() {
             )
         }
 
-     lifecycleScope.launch (){
-           vm.inviteUser(
-               "li8Y9KdXowfbGDyOH4Phdoqm8L33",
-               "xvK2wNTt24Myqrac6h2rAggfJG33"
-           ).collect{
-               when(it){
-                   UiState.Default ->{}
-                   is UiState.Failure -> {
-                       binding.progressBarMain.isVisible = false
-                       Toast.makeText(requireContext(), it.exceptionMessage, Toast.LENGTH_SHORT).show()
-                   }
-                   UiState.Loading -> {binding.progressBarMain.isVisible = true}
-                   is UiState.Success -> {binding.progressBarMain.isVisible = false}
-               }
-           }
-        }
-
         bottomNavigationListener()
         binding.recyclerView.adapter = adapter
 

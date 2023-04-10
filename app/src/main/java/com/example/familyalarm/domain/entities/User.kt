@@ -13,15 +13,16 @@ data class UserChild(
     override val name: String? = null,
     override val email: String? = null,
     override val password: String? = null,
+    val invitesParentsID: List<String?>? = null,
     val awake: Boolean = false,
     val currentGroupId: String? = null,
-):User()
+) : User()
 
 data class UserParent(
     override val id: String? = null,
     override val name: String? = null,
     override val email: String? = null,
     override val password: String? = null,
-    val childrens: List<UserChild?>? =null
+    val childrens: List<UserChild?>? = null
 
-):User()
+) : User()

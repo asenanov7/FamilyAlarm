@@ -1,6 +1,7 @@
 package com.example.familyalarm.presentation.recyclerview
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -16,6 +17,8 @@ class InvitationsAdapter : ListAdapter<UserChild, RecyclerView.ViewHolder>(Users
         const val ADD_HOLDER = 1
         const val ADDED_HOLDER = 2
     }
+
+    lateinit var clickAddUser:(userId:String)->Unit
 
     override fun getItemViewType(position: Int): Int {
         return if (getItem(position).currentGroupId==Firebase.auth.uid){
@@ -58,7 +61,11 @@ class InvitationsAdapter : ListAdapter<UserChild, RecyclerView.ViewHolder>(Users
             is AddUserViewHolder -> {
                 holder.binding.textViewName.text = user.name.toString()
                 holder.binding.textViewEmail.text = user.email.toString()
-                holder.binding.imageViewAvatar //////
+                holder.binding.imageViewAvatar //////////
+                holder.binding.imageViewButtonAdd.setOnClickListener {
+                    it.alpha = 0.1f
+                    clickAddUser(user?.id?:throw Exception("UserID==null"))
+                }
             }
             is AddedUserViewHolder -> {
                 holder.binding.textViewName.text = user.name.toString()
@@ -67,5 +74,10 @@ class InvitationsAdapter : ListAdapter<UserChild, RecyclerView.ViewHolder>(Users
             }
         }
     }
+
+    private fun click(onClicked: ()->Unit, view:View){
+        view.alpha =0.1f
+    }
+
 
 }

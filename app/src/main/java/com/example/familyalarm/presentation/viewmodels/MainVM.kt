@@ -60,15 +60,4 @@ class MainVM(application:Application):AndroidViewModel(application) {
                 }
         }
 
-    fun inviteUser(userid:String, groupId: String): Flow<UiState<Boolean>> = flow{
-            emit(UiState.Loading)
-            try {
-                repositoryImpl.inviteUserInTheParentChildrens(
-                    userid, groupId
-                )
-                emit(Success(true))
-            } catch (e: Exception) {
-                emit(Failure(e.message!!))
-            }
-    }
 }

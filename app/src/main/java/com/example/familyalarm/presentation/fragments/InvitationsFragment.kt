@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -12,6 +13,8 @@ import androidx.lifecycle.lifecycleScope
 import com.example.familyalarm.databinding.InvitationsFragmentBinding
 import com.example.familyalarm.presentation.recyclerview.InvitationsAdapter
 import com.example.familyalarm.presentation.viewmodels.InvitationsVM
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 
 class InvitationsFragment : Fragment() {
@@ -37,31 +40,44 @@ class InvitationsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.rvInvitations.adapter = adapter
-
-        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(p0: String?): Boolean {
-                return false
-            }
-
-            override fun onQueryTextChange(p0: String?): Boolean {
-                if (p0.isNullOrEmpty()){
-                    //Пустой лист при первом запуске и в случае стирания
-                    adapter.submitList(listOf())
-                    return false
-                }
-                Log.d("InvitationsFragment", "onQueryTextChange: p0 = $p0")
-                lifecycleScope.launch {
-                    vm.getUsersByHazyName(p0.trim()).collect {
+        adapter.clickAddUser = {
+            lifecycleScope.launch {
+                val result = vm.invite(it)
+                if (result) {
+                    val text = binding.searchView.query
+                    vm.getUsersByHazyName(text.toString().trim()).collect {
                         Log.d("InvitationsFragment", "  vm.getUsersByHazyName().collect: $it")
                         adapter.submitList(it)
                     }
+                } else {
+                    Toast.makeText(requireContext(), "Ошибка", Toast.LENGTH_SHORT).show()
                 }
-                return false
             }
-        })
+        }
 
+            binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(p0: String?): Boolean {
+                    return false
+                }
 
-    }
+                override fun onQueryTextChange(p0: String?): Boolean {
+                    if (p0.isNullOrEmpty()) {
+                        //Пустой лист при первом запуске и в случае стирания
+                        adapter.submitList(listOf())
+                        return false
+                    }
+
+                    lifecycleScope.launch {
+                        vm.getUsersByHazyName(p0.trim()).collect {
+                            Log.d("InvitationsFragment", "  vm.getUsersByHazyName().collect: $it")
+                            adapter.submitList(it)
+                        }
+                    }
+                    return false
+                }
+            })
+
+        }
 
     override fun onDestroyView() {
         Log.d("InvitationsFragment", "onDestroyView: InvitationsFragment $this")
@@ -74,7 +90,7 @@ class InvitationsFragment : Fragment() {
         super.onDestroy()
     }
 
-    companion object{
+    companion object {
         const val NAME: String = "MainFragment"
 
         fun newInstance(): InvitationsFragment {

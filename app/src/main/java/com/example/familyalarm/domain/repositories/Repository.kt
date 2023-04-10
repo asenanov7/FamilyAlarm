@@ -12,7 +12,7 @@ interface Repository {
 
     suspend fun createParentUseCase(userParent: UserParent)
 
-    suspend fun inviteUserInTheParentChildrens(userId: String, parentId: String)
+    suspend fun inviteUserInTheParentChildrens(userId: String): Boolean
 
     suspend fun findUserByHazyName(name:String): Flow<List<UserChild>>
 

@@ -9,6 +9,7 @@ import com.example.familyalarm.domain.repositories.Repository
 import com.example.familyalarm.utils.FirebaseTables
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -119,27 +120,34 @@ class RepositoryImpl() : Repository {
         return listUserMutableFlow
     }
 
-    override suspend fun inviteUserInTheParentChildrens(userId: String, parentId: String) {
+    override suspend fun inviteUserInTheParentChildrens(userId: String): Boolean {
+        val parentId = Firebase.auth.currentUser!!.uid
+        return try {
         updateChildCurrentGroupId(userId, parentId)?.addOnSuccessListener {
-            scope.launch {
-                val userChild = getUserChild(userId)
-                val oldChildList = getOldChildList(parentId)
+                scope.launch {
+                    val userChild = getUserChild(userId)
+                    val oldChildList = getOldChildList(parentId)
 
-                if (userChild != null) {
-                    val newList = oldChildList.toMutableList()
-                    newList.add(userChild)
-                    setNewList(parentId, newList)
+                    if (userChild != null) {
+                        val newList = oldChildList.toMutableList()
+                        newList.add(userChild)
+                        setNewList(parentId, newList)
+                    }
+
                 }
             }
+            true
+        }catch (e: java.lang.Exception) {
+            false
         }
     }
 
-    override suspend fun findUserByHazyName(name: String): Flow<List<UserChild>> =flow{
+    override suspend fun findUserByHazyName(name: String): Flow<List<UserChild>> = flow {
         val childrensMap = childsRef.get().await().children
         val listContainsChild = mutableListOf<UserChild>()
-        for (childItem in childrensMap ){
+        for (childItem in childrensMap) {
             val child = childItem.getValue(UserChild::class.java)
-            if (child?.name?.lowercase()?.contains(name) == true){
+            if (child?.name?.lowercase()?.contains(name) == true) {
                 listContainsChild.add(child)
             }
         }
