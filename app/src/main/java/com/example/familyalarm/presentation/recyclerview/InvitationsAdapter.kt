@@ -1,5 +1,6 @@
 package com.example.familyalarm.presentation.recyclerview
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,18 +15,24 @@ import com.google.firebase.ktx.Firebase
 class InvitationsAdapter : ListAdapter<UserChild, RecyclerView.ViewHolder>(UsersDiffCallback()) {
 
     companion object {
+        const val UNKNOWN_HOLDER = 0
         const val ADD_HOLDER = 1
         const val ADDED_HOLDER = 2
     }
 
-    lateinit var clickAddUser:(userId:String)->Unit
+    lateinit var clickAddUser: (userId: String) -> Unit
 
     override fun getItemViewType(position: Int): Int {
-        return if (getItem(position).currentGroupId==Firebase.auth.uid){
-            ADDED_HOLDER
-        }else{
-            ADD_HOLDER
+        var result = UNKNOWN_HOLDER
+        val userChild = getItem(position)
+        val parentUserId =
+            Firebase.auth.currentUser?.uid ?: throw java.lang.Exception("Parent==null")
+        if (userChild.invitesParentsID!=null && userChild.invitesParentsID.contains(parentUserId)) {
+            result = ADDED_HOLDER
+        } else if (userChild.invitesParentsID == null) {
+            result = ADD_HOLDER
         }
+        return result
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -59,15 +66,16 @@ class InvitationsAdapter : ListAdapter<UserChild, RecyclerView.ViewHolder>(Users
 
         when (holder) {
             is AddUserViewHolder -> {
+                Log.d("ADAPTER", "ADD: ")
                 holder.binding.textViewName.text = user.name.toString()
                 holder.binding.textViewEmail.text = user.email.toString()
                 holder.binding.imageViewAvatar //////////
                 holder.binding.imageViewButtonAdd.setOnClickListener {
-                    it.alpha = 0.1f
-                    clickAddUser(user?.id?:throw Exception("UserID==null"))
+                    clickAddUser(user?.id ?: throw Exception("UserID==null"))
                 }
             }
             is AddedUserViewHolder -> {
+                Log.d("ADAPTER", "ADDED: ")
                 holder.binding.textViewName.text = user.name.toString()
                 holder.binding.textViewEmail.text = user.email.toString()
                 holder.binding.imageViewAvatar      /////
@@ -75,8 +83,8 @@ class InvitationsAdapter : ListAdapter<UserChild, RecyclerView.ViewHolder>(Users
         }
     }
 
-    private fun click(onClicked: ()->Unit, view:View){
-        view.alpha =0.1f
+    private fun click(onClicked: () -> Unit, view: View) {
+        view.alpha = 0.1f
     }
 
 

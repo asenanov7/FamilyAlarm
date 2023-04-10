@@ -123,22 +123,28 @@ class RepositoryImpl() : Repository {
     override suspend fun inviteUserInTheParentChildrens(userId: String): Boolean {
         val parentId = Firebase.auth.currentUser!!.uid
         return try {
-        updateChildCurrentGroupId(userId, parentId)?.addOnSuccessListener {
-                scope.launch {
-                    val userChild = getUserChild(userId)
-                    val oldChildList = getOldChildList(parentId)
+            updateInvites(userId, parentId)
+            Log.d(TAG, "TRUE: updateInvites($userId, $parentId)")
+            true
+        } catch (e: java.lang.Exception) {
+            Log.d(TAG, "FALSE: updateInvites($userId, $parentId)")
+            false
+        }
+    }
 
-                    if (userChild != null) {
-                        val newList = oldChildList.toMutableList()
-                        newList.add(userChild)
-                        setNewList(parentId, newList)
-                    }
+    override suspend fun acceptInvite(parentId: String) {
+        val childUserID = Firebase.auth.currentUser!!.uid
+        updateChildCurrentGroupId(childUserID, parentId)?.addOnSuccessListener {
+            scope.launch {
+                val userChild = getUserChild(childUserID)
+                val oldChildList = getOldChildList(parentId)
 
+                if (userChild != null) {
+                    val newList = oldChildList.toMutableList()
+                    newList.add(userChild)
+                    setNewList(parentId, newList)
                 }
             }
-            true
-        }catch (e: java.lang.Exception) {
-            false
         }
     }
 
@@ -147,6 +153,9 @@ class RepositoryImpl() : Repository {
         val listContainsChild = mutableListOf<UserChild>()
         for (childItem in childrensMap) {
             val child = childItem.getValue(UserChild::class.java)
+            if (child?.currentGroupId==Firebase.auth.currentUser!!.uid){
+                return@flow
+            }
             if (child?.name?.lowercase()?.contains(name) == true) {
                 listContainsChild.add(child)
             }
@@ -190,4 +199,15 @@ class RepositoryImpl() : Repository {
             }
     }
 
+    private suspend fun updateInvites(userChildId: String, parentId: String) {
+        childsRef.child(userChildId).get().await().getValue(UserChild::class.java)?.let {
+            val oldInvites = it.invitesParentsID?: listOf()
+            val newInvites = oldInvites.toMutableList()
+            if ( !newInvites.contains(parentId) ){
+                newInvites.add(parentId)
+            }
+
+            childsRef.child(userChildId).setValue(it.copy(invitesParentsID = newInvites))
+        }
+    }
 }

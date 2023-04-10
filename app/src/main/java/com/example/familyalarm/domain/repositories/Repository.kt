@@ -14,6 +14,8 @@ interface Repository {
 
     suspend fun inviteUserInTheParentChildrens(userId: String): Boolean
 
+    suspend fun acceptInvite(parentId: String)
+
     suspend fun findUserByHazyName(name:String): Flow<List<UserChild>>
 
     fun deleteUserFromParentChildrens(userId: String, parentId: String)
