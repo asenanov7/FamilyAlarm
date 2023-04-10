@@ -48,6 +48,11 @@ class MainFragment : Fragment() {
         Log.d("MainFragment", "onViewCreated: MainFragment $this")
         //binding.textView.text = user
 
+    /* val repositoryImpl = RepositoryImpl()
+        lifecycleScope.launch {
+            repositoryImpl.acceptInvite("fFVU2CnbMaXaR1bagLAFhkLgOWx1")
+        }*/
+
         binding.fabAdd.setOnClickListener {
             navigator().shouldLaunchFragment(
                 InvitationsFragment.newInstance(),

@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlin.math.log
 
 class RepositoryImpl() : Repository {
 
@@ -123,7 +124,7 @@ class RepositoryImpl() : Repository {
     override suspend fun inviteUserInTheParentChildrens(userId: String): Boolean {
         val parentId = Firebase.auth.currentUser!!.uid
         return try {
-            updateInvites(userId, parentId)
+            addNewInvites(userId, parentId)
             Log.d(TAG, "TRUE: updateInvites($userId, $parentId)")
             true
         } catch (e: java.lang.Exception) {
@@ -136,6 +137,7 @@ class RepositoryImpl() : Repository {
         val childUserID = Firebase.auth.currentUser!!.uid
         updateChildCurrentGroupId(childUserID, parentId)?.addOnSuccessListener {
             scope.launch {
+                removeInviteAfterAccept(childUserID, parentId)
                 val userChild = getUserChild(childUserID)
                 val oldChildList = getOldChildList(parentId)
 
@@ -149,14 +151,17 @@ class RepositoryImpl() : Repository {
     }
 
     override suspend fun findUserByHazyName(name: String): Flow<List<UserChild>> = flow {
+        Log.d(TAG, "findUserByHazyName: $name")
         val childrensMap = childsRef.get().await().children
         val listContainsChild = mutableListOf<UserChild>()
         for (childItem in childrensMap) {
             val child = childItem.getValue(UserChild::class.java)
-            if (child?.currentGroupId==Firebase.auth.currentUser!!.uid){
-                return@flow
+            if (child?.currentGroupId == Firebase.auth.currentUser!!.uid) {
+                Log.d(TAG, "findUserByHazyName: continue")
+                continue
             }
             if (child?.name?.lowercase()?.contains(name) == true) {
+                Log.d(TAG, "findUserByHazyName: $child")
                 listContainsChild.add(child)
             }
         }
@@ -199,14 +204,30 @@ class RepositoryImpl() : Repository {
             }
     }
 
-    private suspend fun updateInvites(userChildId: String, parentId: String) {
+    private suspend fun addNewInvites(userChildId: String, parentId: String) {
         childsRef.child(userChildId).get().await().getValue(UserChild::class.java)?.let {
-            val oldInvites = it.invitesParentsID?: listOf()
+            val oldInvites = it.invitesParentsID ?: listOf()
             val newInvites = oldInvites.toMutableList()
-            if ( !newInvites.contains(parentId) ){
+            if (!newInvites.contains(parentId)) {
                 newInvites.add(parentId)
             }
 
+            childsRef.child(userChildId).setValue(it.copy(invitesParentsID = newInvites))
+        }
+    }
+
+    private suspend fun removeInviteAfterAccept(userChildId: String, parentId: String) {
+        childsRef.child(userChildId).get().await().getValue(UserChild::class.java)?.let {
+            val oldInvites = it.invitesParentsID ?: listOf()
+            Log.d("removeInviteAfterAccept", "oldInvites: $oldInvites ")
+            val newInvites = oldInvites.toMutableList()
+            if (newInvites.contains(parentId)) {
+                Log.d(TAG, "newInvites remove: ")
+                newInvites.remove(parentId)
+                Log.d("removeInviteAfterAccept", "newInvites($newInvites) remove: $parentId ")
+            } else {
+                throw Exception("removeInviteAfterAccept newInvites not contains parentId for remove")
+            }
             childsRef.child(userChildId).setValue(it.copy(invitesParentsID = newInvites))
         }
     }

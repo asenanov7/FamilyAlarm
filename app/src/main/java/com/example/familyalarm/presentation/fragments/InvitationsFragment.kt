@@ -39,6 +39,7 @@ class InvitationsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d("InvitationsFragment", "onViewCreated: InvitationsFragment $this")
         binding.rvInvitations.adapter = adapter
         adapter.clickAddUser = {
             lifecycleScope.launch {
