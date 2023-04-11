@@ -10,22 +10,20 @@ import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.example.familyalarm.databinding.InvitationsFragmentBinding
-import com.example.familyalarm.presentation.recyclerview.InvitationsAdapter
-import com.example.familyalarm.presentation.viewmodels.InvitationsVM
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.example.familyalarm.databinding.SearchFragmentBinding
+import com.example.familyalarm.presentation.recyclerview.SearchAdapter
+import com.example.familyalarm.presentation.viewmodels.SearchVM
 import kotlinx.coroutines.launch
 
-class InvitationsFragment : Fragment() {
+class SearchFragment : Fragment() {
 
-    private var _binding: InvitationsFragmentBinding? = null
-    private val binding: InvitationsFragmentBinding
+    private var _binding: SearchFragmentBinding? = null
+    private val binding: SearchFragmentBinding
         get() = _binding ?: throw Exception("InvitationsFragment == null")
 
 
-    private val vm by lazy { ViewModelProvider(this)[InvitationsVM::class.java] }
-    private val adapter = InvitationsAdapter()
+    private val vm by lazy { ViewModelProvider(this)[SearchVM::class.java] }
+    private val adapter = SearchAdapter()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -33,7 +31,7 @@ class InvitationsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         Log.d("InvitationsFragment", "onCreateView: InvitationsFragment $this")
-        _binding = InvitationsFragmentBinding.inflate(layoutInflater, container, false)
+        _binding = SearchFragmentBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
 
@@ -94,8 +92,8 @@ class InvitationsFragment : Fragment() {
     companion object {
         const val NAME: String = "MainFragment"
 
-        fun newInstance(): InvitationsFragment {
-            return InvitationsFragment()
+        fun newInstance(): SearchFragment {
+            return SearchFragment()
         }
     }
 }

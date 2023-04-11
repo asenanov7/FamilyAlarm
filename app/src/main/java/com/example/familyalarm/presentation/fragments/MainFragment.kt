@@ -13,7 +13,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.familyalarm.R
-import com.example.familyalarm.data.impl_repositories.RepositoryImpl
 import com.example.familyalarm.databinding.MainFragmentBinding
 import com.example.familyalarm.presentation.contract.navigator
 import com.example.familyalarm.presentation.recyclerview.UsersAdapter
@@ -55,8 +54,8 @@ class MainFragment : Fragment() {
 
         binding.fabAdd.setOnClickListener {
             navigator().shouldLaunchFragment(
-                InvitationsFragment.newInstance(),
-                InvitationsFragment.NAME,
+                SearchFragment.newInstance(),
+                SearchFragment.NAME,
                 true
             )
         }

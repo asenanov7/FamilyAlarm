@@ -7,7 +7,7 @@ import com.example.familyalarm.domain.usecases.FindUserByHazyNameUseCase
 import com.example.familyalarm.domain.usecases.InviteUserInParentChildrensUseCase
 import kotlinx.coroutines.flow.Flow
 
-class InvitationsVM : ViewModel() {
+class SearchVM : ViewModel() {
 
     private val repositoryImpl = RepositoryImpl()
     private val findUsersByHazyNameUseCase = FindUserByHazyNameUseCase(repositoryImpl)
