@@ -20,23 +20,22 @@ import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 
-class MainVM(application:Application):AndroidViewModel(application) {
+class MainVM(application: Application) : AndroidViewModel(application) {
 
     private val authRepository = AuthRepositoryImpl()
     private val repositoryImpl = RepositoryImpl()
 
     private val logOutUseCase = LogOutUseCase(repository = authRepository)
     private val getUserInfoUseCase = GetUserInfoUseCase(repository = repositoryImpl)
-    private val getUsersFromParentChildrensUseCase = GetUsersFromParentChildrensUseCase(repository = repositoryImpl)
+    private val getUsersFromParentChildrensUseCase =
+        GetUsersFromParentChildrensUseCase(repository = repositoryImpl)
 
-   /* private val _stateFlow: MutableStateFlow<UiState<Boolean>> = MutableStateFlow(Default)
+    private val _stateFlow: MutableStateFlow<UiState<Boolean>> = MutableStateFlow(UiState.Default)
     val stateFlow: StateFlow<UiState<Boolean>>
-        get() = _stateFlow.asStateFlow()*/
+        get() = _stateFlow.asStateFlow()
 
 
     init {
@@ -49,32 +48,36 @@ class MainVM(application:Application):AndroidViewModel(application) {
         return getUserInfoUseCase(currentUserId)
     }
 
-    fun getUsersFromParentChildrens(parentId:String): MutableSharedFlow<List<UserChild>> {
+    fun getUsersFromParentChildrens(parentId: String): MutableSharedFlow<List<UserChild>> {
         return getUsersFromParentChildrensUseCase(parentId)
     }
 
 
-    suspend fun logOut(context: Context) = flow{
-                try {
-                    logOutUseCase()
-                    emit(Success(true))
-                } catch (exception: Exception) {
-                    when (exception) {
-                        is FirebaseAuthException -> {
-                            emit(Failure(
-                                getErrorMessageFromFirebaseErrorCode(exception.errorCode, context)
-                            ))
-                        }
-                        is FirebaseTooManyRequestsException -> {
-                            emit(Failure("Слишком много попыток, пожалуйста попробуйте позже"))
-                        }
-                        else -> {
-                            emit(Failure(
-                                getErrorMessageFromFirebaseErrorCode(exception.message!!, context)
-                            ))
-                        }
-                    }
+    suspend fun logOut(context: Context) = flow {
+        try {
+            logOutUseCase()
+            emit(Success(true))
+        } catch (exception: Exception) {
+            when (exception) {
+                is FirebaseAuthException -> {
+                    emit(
+                        Failure(
+                            getErrorMessageFromFirebaseErrorCode(exception.errorCode, context)
+                        )
+                    )
                 }
+                is FirebaseTooManyRequestsException -> {
+                    emit(Failure("Слишком много попыток, пожалуйста попробуйте позже"))
+                }
+                else -> {
+                    emit(
+                        Failure(
+                            getErrorMessageFromFirebaseErrorCode(exception.message!!, context)
+                        )
+                    )
+                }
+            }
         }
+    }
 
 }

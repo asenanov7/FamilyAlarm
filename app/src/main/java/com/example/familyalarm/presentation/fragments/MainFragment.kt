@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.familyalarm.R
 import com.example.familyalarm.databinding.MainFragmentBinding
+import com.example.familyalarm.domain.entities.UserChild
 import com.example.familyalarm.presentation.contract.navigator
 import com.example.familyalarm.presentation.recyclerview.UsersAdapter
 import com.example.familyalarm.presentation.viewmodels.MainVM
@@ -22,6 +23,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlin.properties.Delegates
 
 class MainFragment : Fragment() {
 
@@ -32,6 +34,9 @@ class MainFragment : Fragment() {
     private val vm by lazy { ViewModelProvider(this)[MainVM::class.java] }
     private val adapter by lazy { UsersAdapter() }
 
+    private var isParent by Delegates.notNull<Boolean>()
+
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -39,8 +44,10 @@ class MainFragment : Fragment() {
     ): View {
         Log.d("MainFragment", "onCreateView: MainFragment $this")
         _binding = MainFragmentBinding.inflate(layoutInflater, container, false)
+        updateUIWithUserCondition()
         return binding.root
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -130,6 +137,23 @@ class MainFragment : Fragment() {
                     false
                 }
                 else -> false
+            }
+        }
+    }
+
+    private fun updateUIWithUserCondition(){
+        lifecycleScope.launch {
+            val user = vm.getUserInfo()
+            isParent = user !is UserChild
+            Log.d("Parent", "isParent: $isParent")
+            if (isParent) {
+                binding.buttonInvitations.visibility = View.INVISIBLE
+                binding.fabAdd.visibility = View.VISIBLE
+                binding.fabDelete.visibility = View.VISIBLE
+            } else {
+                binding.buttonInvitations.visibility = View.VISIBLE
+                binding.fabAdd.visibility = View.INVISIBLE
+                binding.fabDelete.visibility = View.INVISIBLE
             }
         }
     }

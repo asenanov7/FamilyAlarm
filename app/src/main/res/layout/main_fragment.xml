@@ -61,7 +61,7 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/buttonPopular"
+        android:id="@+id/buttonInvitations"
         android:layout_width="155dp"
         android:layout_height="45dp"
         android:background="@drawable/button_circle"
@@ -69,6 +69,7 @@
         android:fontFamily="helvetica"
         android:clickable="true"
         android:focusable="true"
+        android:visibility="invisible"
         android:text="@string/invites"
         android:textAllCaps="false"
         android:textSize="14sp"
@@ -82,14 +83,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:backgroundTint="#9CC7F6"
+        android:visibility="invisible"
         android:clickable="true"
         android:contentDescription="@string/delete"
         android:focusable="true"
         app:fabSize="mini"
-        app:layout_constraintBottom_toBottomOf="@+id/buttonPopular"
+        app:layout_constraintBottom_toBottomOf="@+id/buttonInvitations"
         app:layout_constraintEnd_toStartOf="@+id/progressBarMain"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/buttonPopular"
+        app:layout_constraintTop_toTopOf="@+id/buttonInvitations"
         app:srcCompat="@android:drawable/ic_menu_delete" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -97,14 +99,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:backgroundTint="#9CC7F6"
+        android:visibility="invisible"
         android:clickable="true"
         android:contentDescription="@string/adduser"
         android:focusable="true"
         app:fabSize="mini"
-        app:layout_constraintBottom_toBottomOf="@+id/buttonPopular"
+        app:layout_constraintBottom_toBottomOf="@+id/buttonInvitations"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/progressBarMain"
-        app:layout_constraintTop_toTopOf="@+id/buttonPopular"
+        app:layout_constraintTop_toTopOf="@+id/buttonInvitations"
         app:srcCompat="@android:drawable/ic_input_add" />
 
     <TextView
