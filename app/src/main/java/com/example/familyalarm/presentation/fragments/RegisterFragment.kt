@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -17,11 +16,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.familyalarm.databinding.RegisterFragmentBinding
 import com.example.familyalarm.presentation.contract.navigator
 import com.example.familyalarm.presentation.viewmodels.RegisterVM
-import com.example.familyalarm.utils.UiState
 import com.example.familyalarm.utils.UiState.*
-import com.example.familyalarm.utils.getErrorMessageFromFirebaseErrorCode
 import com.example.familyalarm.utils.showErrorWithDisappearance
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class RegisterFragment : Fragment() {

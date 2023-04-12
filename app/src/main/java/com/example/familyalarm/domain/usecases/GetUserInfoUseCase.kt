@@ -5,7 +5,7 @@ import com.example.familyalarm.domain.entities.User
 import kotlinx.coroutines.flow.Flow
 
 class GetUserInfoUseCase(private val repository: Repository) {
-    operator fun invoke(userId:String): Flow<User> {
+    suspend operator fun invoke(userId:String): User {
         return repository.getUserInfo(userId)
     }
 }

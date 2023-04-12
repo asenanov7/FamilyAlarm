@@ -22,6 +22,6 @@ interface Repository {
 
     fun getUsersFromParentChildrens(parentId: String): MutableSharedFlow<List<UserChild>>
 
-    fun getUserInfo(userId: String): Flow<User>
+    suspend fun getUserInfo(userId: String): User
 
 }

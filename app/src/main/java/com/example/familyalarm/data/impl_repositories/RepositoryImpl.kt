@@ -27,6 +27,7 @@ import kotlin.math.log
 
 class RepositoryImpl() : Repository {
 
+
     private val mapper = Mapper()
     private val auth by lazy { FirebaseAuth.getInstance() }
     private val scope = CoroutineScope(Dispatchers.IO)
@@ -45,6 +46,10 @@ class RepositoryImpl() : Repository {
         Firebase.database(databaseUrl)
             .getReference(FirebaseTables.PARENTS)
 
+    private val generalRef =
+        Firebase.database(databaseUrl)
+            .getReference(FirebaseTables.GENERAL)
+
 
     override suspend fun createChildUseCase(userChild: UserChild) {
         Log.d(TAG, "createChildUseCase: started")
@@ -54,7 +59,9 @@ class RepositoryImpl() : Repository {
                 childsRef
                     .child(it.uid)
                     .setValue(userChild)
-                    .addOnSuccessListener { Log.d(TAG, "createChildUseCase: user Success") }
+                    .addOnSuccessListener {
+                        Log.d(TAG, "createChildUseCase: user Success")
+                    }
                     .addOnFailureListener { Log.d(TAG, "createChildUseCase: user Fail") }
             }
         }
@@ -71,17 +78,9 @@ class RepositoryImpl() : Repository {
                     .child(firebaseUser.uid)
                     .setValue(userParent)
                     .addOnSuccessListener {
-                        Log.d(
-                            TAG,
-                            "createParentUseCase: user Success"
-                        )
+                        Log.d(TAG, "createParentUseCase: user Success")
                     }
-                    .addOnFailureListener {
-                        Log.d(
-                            TAG,
-                            "createParentUseCase: user Fail"
-                        )
-                    }
+                    .addOnFailureListener { Log.d(TAG, "createParentUseCase: user Fail") }
             }
             job.join()
         }
@@ -172,8 +171,12 @@ class RepositoryImpl() : Repository {
         TODO("Not yet implemented")
     }
 
-    override fun getUserInfo(userId: String): Flow<User> {
-        TODO("Not yet implemented")
+    override suspend fun getUserInfo(userId: String): User {
+        return try {
+            childsRef.child(userId).get().await().getValue<UserChild>()!!
+        }catch (e:java.lang.Exception) {
+            parentsRef.child(userId).get().await().getValue<UserParent>()!!
+        }
     }
 
 
@@ -231,4 +234,37 @@ class RepositoryImpl() : Repository {
             childsRef.child(userChildId).setValue(it.copy(invitesParentsID = newInvites))
         }
     }
+
+    fun setGeneralAutoChange() {
+        childsRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (item in snapshot.children) {
+                    val userChild = item.getValue(UserChild::class.java)
+                    generalRef
+                        .child(userChild?.id ?: "null id")
+                        .setValue(userChild)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+        })
+
+        parentsRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (item in snapshot.children) {
+                    val userParent = item.getValue(UserParent::class.java)
+                    generalRef
+                        .child(userParent?.id ?: "null id")
+                        .setValue(userParent)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+        })
+    }
 }
+
