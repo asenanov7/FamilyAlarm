@@ -5,6 +5,7 @@ import com.example.familyalarm.domain.entities.UserChild
 import com.example.familyalarm.domain.entities.UserParent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 
 interface Repository {
 
@@ -13,6 +14,8 @@ interface Repository {
     suspend fun createParentUseCase(userParent: UserParent)
 
     suspend fun inviteUserInTheParentChildrens(userId: String): Boolean
+
+    suspend fun getInvitations(userId: String): MutableSharedFlow<List<UserParent>>
 
     suspend fun acceptInvite(parentId: String)
 

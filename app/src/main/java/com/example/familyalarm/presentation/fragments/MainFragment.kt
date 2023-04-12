@@ -52,12 +52,7 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d("MainFragment", "onViewCreated: MainFragment $this")
-        //binding.textView.text = user
 
-    /* val repositoryImpl = RepositoryImpl()
-        lifecycleScope.launch {
-            repositoryImpl.acceptInvite("fFVU2CnbMaXaR1bagLAFhkLgOWx1")
-        }*/
 
         binding.fabAdd.setOnClickListener {
             navigator().shouldLaunchFragment(
@@ -154,6 +149,13 @@ class MainFragment : Fragment() {
                 binding.buttonInvitations.visibility = View.VISIBLE
                 binding.fabAdd.visibility = View.INVISIBLE
                 binding.fabDelete.visibility = View.INVISIBLE
+                binding.buttonInvitations.setOnClickListener{
+                    navigator().shouldLaunchFragment(
+                        InvitationsFragment.newInstance(),
+                        InvitationsFragment.NAME,
+                        true
+                    )
+                }
             }
         }
     }

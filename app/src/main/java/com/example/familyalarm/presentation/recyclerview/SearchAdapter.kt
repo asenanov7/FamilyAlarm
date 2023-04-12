@@ -12,7 +12,7 @@ import com.example.familyalarm.domain.entities.UserChild
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
-class SearchAdapter : ListAdapter<UserChild, RecyclerView.ViewHolder>(UsersDiffCallback()) {
+class SearchAdapter : ListAdapter<UserChild, RecyclerView.ViewHolder>(UsersChildDiffCallback()) {
 
     companion object {
         const val UNKNOWN_HOLDER = 0
