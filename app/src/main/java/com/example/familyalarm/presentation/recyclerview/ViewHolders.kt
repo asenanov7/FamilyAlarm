@@ -9,6 +9,6 @@ import com.example.familyalarm.databinding.ItemUserSearchAddedBinding
 class UserChildViewHolder(val binding: ItemUserChildBinding) : ViewHolder(binding.root)
 class UserParentViewHolder(val binding: ItemUserParentInviteBinding) : ViewHolder(binding.root)
 
-class AddUserViewHolder(val binding: ItemUserSearchAddBinding) : ViewHolder(binding.root)
+class InviteUserViewHolder(val binding: ItemUserSearchAddBinding) : ViewHolder(binding.root)
 
-class AddedUserViewHolder(val binding: ItemUserSearchAddedBinding) : ViewHolder(binding.root)
+class InvitedUserViewHolder(val binding: ItemUserSearchAddedBinding) : ViewHolder(binding.root)

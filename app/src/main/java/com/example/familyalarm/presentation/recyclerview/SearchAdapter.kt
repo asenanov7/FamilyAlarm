@@ -16,8 +16,8 @@ class SearchAdapter : ListAdapter<UserChild, RecyclerView.ViewHolder>(UsersChild
 
     companion object {
         const val UNKNOWN_HOLDER = 0
-        const val ADD_HOLDER = 1
-        const val ADDED_HOLDER = 2
+        const val INVITE_HOLDER = 1
+        const val INVITED_HOLDER = 2
     }
 
     lateinit var clickAddUser: (userId: String) -> Unit
@@ -27,10 +27,11 @@ class SearchAdapter : ListAdapter<UserChild, RecyclerView.ViewHolder>(UsersChild
         val userChild = getItem(position)
         val parentUserId =
             Firebase.auth.currentUser?.uid ?: throw java.lang.Exception("Parent==null")
-        if (userChild.invitesParentsID!=null && userChild.invitesParentsID.contains(parentUserId)) {
-            result = ADDED_HOLDER
-        } else if (userChild.invitesParentsID == null) {
-            result = ADD_HOLDER
+        if (userChild.invitesParentsID!=null && userChild.invitesParentsID.contains(parentUserId)){
+            result = INVITED_HOLDER
+        }
+        else if (userChild.currentGroupId != parentUserId) {
+            result = INVITE_HOLDER
         }
         return result
     }
@@ -51,8 +52,8 @@ class SearchAdapter : ListAdapter<UserChild, RecyclerView.ViewHolder>(UsersChild
             )
 
         val holder = when (viewType) {
-            ADD_HOLDER -> AddUserViewHolder(bindingAdd)
-            ADDED_HOLDER -> AddedUserViewHolder(bindingAdded)
+            INVITE_HOLDER -> InviteUserViewHolder(bindingAdd)
+            INVITED_HOLDER -> InvitedUserViewHolder(bindingAdded)
             else -> {
                 throw Exception("UNKNOWN HOLDER")
             }
@@ -65,7 +66,7 @@ class SearchAdapter : ListAdapter<UserChild, RecyclerView.ViewHolder>(UsersChild
         val user = getItem(position)
 
         when (holder) {
-            is AddUserViewHolder -> {
+            is InviteUserViewHolder -> {
                 Log.d("ADAPTER", "ADD: ")
                 holder.binding.textViewName.text = user.name.toString()
                 holder.binding.textViewEmail.text = user.email.toString()
@@ -74,7 +75,7 @@ class SearchAdapter : ListAdapter<UserChild, RecyclerView.ViewHolder>(UsersChild
                     clickAddUser(user?.id ?: throw Exception("UserID==null"))
                 }
             }
-            is AddedUserViewHolder -> {
+            is InvitedUserViewHolder -> {
                 Log.d("ADAPTER", "ADDED: ")
                 holder.binding.textViewName.text = user.name.toString()
                 holder.binding.textViewEmail.text = user.email.toString()

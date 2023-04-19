@@ -50,7 +50,7 @@ class RegisterVM(application: Application) : AndroidViewModel(application) {
                             name = name,
                             email = email,
                             password = password,
-                            childrens = listOf()
+                            childrensIds = listOf()
                         )
                         createParentUseCase(user)
                     }
@@ -90,7 +90,7 @@ class RegisterVM(application: Application) : AndroidViewModel(application) {
                         name = name,
                         email = email,
                         password = password,
-                        currentGroupId = "null",
+                        currentGroupId = null,
                     )
                     createChildUseCase(user)
                 }

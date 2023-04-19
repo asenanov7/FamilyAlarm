@@ -20,12 +20,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
-import kotlin.math.log
 
 class RepositoryImpl() : Repository {
 
@@ -95,20 +92,22 @@ class RepositoryImpl() : Repository {
         parentsRef.child(parentId).child("childrens")
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    var listUser = listOf<UserChild>()
-                    Log.d(TAG, "onDataChange $snapshot")
-                    for (item in snapshot.children) {
-                        Log.d(TAG, "(item in snapshot.children ")
-                        val user = item.getValue(UserChild::class.java)
-                        if (user != null) {
-                            Log.d(TAG, "user != null ")
-                            val newList = listUser.toMutableList()
-                            newList.add(user)
-                            listUser = newList
-                        }
-                        Log.d(TAG, "listResult: $listUser")
-                        scope.launch {
-                            listUserMutableFlow.emit(listUser)
+                    scope.launch {
+                        var listChilds = listOf<UserChild>()
+                        Log.d(TAG, "onDataChange $snapshot")
+                        for (item in snapshot.children) {
+                            Log.d(TAG, "(item in snapshot.children ")
+                            val user = item.getValue<String>()?.let { getUserChild(it) }
+                            if (user != null) {
+                                Log.d(TAG, "user != null ")
+                                val newList = listChilds.toMutableList()
+                                newList.add(user)
+                                listChilds = newList
+                            }
+                            Log.d(TAG, "listResult: $listChilds")
+                            scope.launch {
+                                listUserMutableFlow.emit(listChilds)
+                            }
                         }
                     }
                 }
@@ -126,7 +125,7 @@ class RepositoryImpl() : Repository {
         val listParentMutableFlow =
             MutableSharedFlow<List<UserParent>>(replay = 1)
         childsRef.child(userId).child("invitesParentsID")
-            .addValueEventListener(object : ValueEventListener{
+            .addValueEventListener(object : ValueEventListener {
                 override fun onCancelled(error: DatabaseError) {
                     TODO("Not yet implemented")
                 }
@@ -134,14 +133,16 @@ class RepositoryImpl() : Repository {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     var parentsIds = listOf<String>()
                     scope.launch {
-                    for (item in snapshot.children){
-                       val newListIds = parentsIds.toMutableList()
-                       newListIds.add(item.getValue<String>()!!)
-                       parentsIds = newListIds
-                    }
+                        for (item in snapshot.children) {
+                            val newListIds = parentsIds.toMutableList()
+                            newListIds.add(item.getValue<String>()!!)
+                            parentsIds = newListIds
+                        }
                         val parents =
-                            parentsIds.map { parentsRef.child(it).get().await().getValue<UserParent>()?:
-                            throw Exception("Parent == null")}
+                            parentsIds.map {
+                                parentsRef.child(it).get().await().getValue<UserParent>()
+                                    ?: throw Exception("Parent == null")
+                            }
 
                         listParentMutableFlow.emit(parents)
 
@@ -165,149 +166,171 @@ class RepositoryImpl() : Repository {
 
     override suspend fun acceptInvite(parentId: String) {
         val childUserID = Firebase.auth.currentUser!!.uid
+        val userChild = getUserChild(childUserID)
+
+        scope.launch {
+            if (userChild?.currentGroupId != null) {
+                deleteUserFromCurrentParent(
+                    userId = childUserID,
+                    parentId = getUserChild(childUserID)?.currentGroupId ?: throw Exception(
+                        "Delete user From current parent error, currentParent == null"
+                    )
+                )
+            }
+        }.join()
         updateChildCurrentGroupId(childUserID, parentId)?.addOnSuccessListener {
             scope.launch {
                 removeInviteAfterAccept(childUserID, parentId)
-                val userChild = getUserChild(childUserID)
-                val oldChildList = getOldChildList(parentId)
 
-                if (userChild != null) {
-                    val newList = oldChildList.toMutableList()
-                    newList.add(userChild)
-                    setNewList(parentId, newList)
-                }
+                val oldChildIdsList = getOldChildIdsList(parentId)
+                val newList = oldChildIdsList.toMutableList()
+
+                newList.add(childUserID)
+                setNewChildList(parentId, newList)
             }
         }
-    }
+}
 
-    override suspend fun findUserByHazyName(name: String): Flow<List<UserChild>> = flow {
-        Log.d(TAG, "findUserByHazyName: $name")
-        val childrensMap = childsRef.get().await().children
-        val listContainsChild = mutableListOf<UserChild>()
-        for (childItem in childrensMap) {
-            val child = childItem.getValue(UserChild::class.java)
-            if (child?.currentGroupId == Firebase.auth.currentUser!!.uid) {
-                Log.d(TAG, "findUserByHazyName: continue")
-                continue
-            }
-            if (child?.name?.lowercase()?.contains(name) == true) {
-                Log.d(TAG, "findUserByHazyName: $child")
-                listContainsChild.add(child)
-            }
+override suspend fun findUserByHazyName(name: String): Flow<List<UserChild>> = flow {
+    Log.d(TAG, "findUserByHazyName: $name")
+    val childrensMap = childsRef.get().await().children
+    val listContainsChild = mutableListOf<UserChild>()
+    for (childItem in childrensMap) {
+        val child = childItem.getValue(UserChild::class.java)
+        if (child?.currentGroupId == Firebase.auth.currentUser!!.uid) {
+            Log.d(TAG, "findUserByHazyName: continue")
+            continue
         }
-        emit(listContainsChild)
-    }
-
-    override fun deleteUserFromParentChildrens(
-        userId: String,
-        parentId: String
-    ) {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun getUserInfo(userId: String): User {
-        return try {
-            childsRef.child(userId).get().await().getValue<UserChild>()!!
-        } catch (e: java.lang.Exception) {
-            parentsRef.child(userId).get().await().getValue<UserParent>()!!
+        if (child?.name?.lowercase()?.contains(name) == true) {
+            Log.d(TAG, "findUserByHazyName: $child")
+            listContainsChild.add(child)
         }
     }
+    emit(listContainsChild)
+}
 
+override fun deleteUserFromCurrentParent(
+    userId: String,
+    parentId: String
+) {
+    scope.launch {
+        /*val parentId =
+            childsRef.child(childUserId).get().await().getValue(UserChild::class.java)
+                ?.currentGroupId?:throw Exception("Exit from oldest group error")*/
 
-    private suspend fun getUserChild(userId: String): UserChild? {
-        val snapshot = childsRef.child(userId).get().await()
-        return snapshot.getValue(UserChild::class.java)
+        val oldIdList = getOldChildIdsList(parentId)
+        val newIdList = oldIdList.toMutableList()
+
+        newIdList.remove(userId)
+
+        setNewChildList(parentId, newIdList)
     }
+}
 
-    private suspend fun getOldChildList(parentId: String): List<UserChild> {
-        val snapshot = parentsRef.child(parentId).child("childrens").get().await()
-        return snapshot.getValue<List<UserChild>>() ?: listOf()
+override suspend fun getUserInfo(userId: String): User {
+    return try {
+        childsRef.child(userId).get().await().getValue<UserChild>()!!
+    } catch (e: java.lang.Exception) {
+        parentsRef.child(userId).get().await().getValue<UserParent>()!!
     }
+}
 
-    private suspend fun setNewList(parentId: String, newList: List<UserChild>) {
-        parentsRef.child(parentId).child("childrens").setValue(newList).await()
-    }
 
-    private suspend fun updateChildCurrentGroupId(
-        userChildId: String,
-        groupId: String
-    ): Task<Void>? {
-        return childsRef.child(userChildId).get().await()
-            .getValue(UserChild::class.java)
-            ?.let {
-                if (it.currentGroupId == groupId) {
-                    throw Exception("Пользователь уже находится в группе")
-                }
-                childsRef.child(userChildId).setValue(it.copy(currentGroupId = groupId))
+private suspend fun getUserChild(userId: String): UserChild? {
+    val snapshot = childsRef.child(userId).get().await()
+    return snapshot.getValue(UserChild::class.java)
+}
+
+
+private suspend fun getOldChildIdsList(parentId: String): List<String?> {
+    val snapshot = parentsRef.child(parentId).child("childrens").get().await()
+    return snapshot.getValue<List<String>>() ?: listOf()
+}
+
+private suspend fun setNewChildList(parentId: String, newIdList: List<String?>) {
+    parentsRef.child(parentId).child("childrens").setValue(newIdList).await()
+}
+
+private suspend fun updateChildCurrentGroupId(
+    userChildId: String,
+    groupId: String
+): Task<Void>? {
+    return childsRef.child(userChildId).get().await()
+        .getValue(UserChild::class.java)
+        ?.let {
+            if (it.currentGroupId == groupId) {
+                throw Exception("Пользователь уже находится в группе")
             }
-    }
+            childsRef.child(userChildId).setValue(it.copy(currentGroupId = groupId))
+        }
+}
 
-    private suspend fun addNewInvites(userChildId: String, parentId: String) {
-        childsRef.child(userChildId).get().await().getValue(UserChild::class.java)
-            ?.let {
-                val oldInvites = it.invitesParentsID ?: listOf()
-                val newInvites = oldInvites.toMutableList()
-                if (!newInvites.contains(parentId)) {
-                    newInvites.add(parentId)
-                }
-
-                childsRef.child(userChildId)
-                    .setValue(it.copy(invitesParentsID = newInvites))
-            }
-    }
-
-    private suspend fun removeInviteAfterAccept(userChildId: String, parentId: String) {
-        childsRef.child(userChildId).get().await().getValue(UserChild::class.java)
-            ?.let {
-                val oldInvites = it.invitesParentsID ?: listOf()
-                Log.d("removeInviteAfterAccept", "oldInvites: $oldInvites ")
-                val newInvites = oldInvites.toMutableList()
-                if (newInvites.contains(parentId)) {
-                    Log.d(TAG, "newInvites remove: ")
-                    newInvites.remove(parentId)
-                    Log.d(
-                        "removeInviteAfterAccept",
-                        "newInvites($newInvites) remove: $parentId "
-                    )
-                } else {
-                    throw Exception("removeInviteAfterAccept newInvites not contains parentId for remove")
-                }
-                childsRef.child(userChildId)
-                    .setValue(it.copy(invitesParentsID = newInvites))
-            }
-    }
-
-    fun setGeneralAutoChange() {
-        childsRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                for (item in snapshot.children) {
-                    val userChild = item.getValue(UserChild::class.java)
-                    generalRef
-                        .child(userChild?.id ?: "null id")
-                        .setValue(userChild)
-                }
+private suspend fun addNewInvites(userChildId: String, parentId: String) {
+    childsRef.child(userChildId).get().await().getValue(UserChild::class.java)
+        ?.let {
+            val oldInvites = it.invitesParentsID ?: listOf()
+            val newInvites = oldInvites.toMutableList()
+            if (!newInvites.contains(parentId)) {
+                newInvites.add(parentId)
             }
 
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
-            }
-        })
+            childsRef.child(userChildId)
+                .setValue(it.copy(invitesParentsID = newInvites))
+        }
+}
 
-        parentsRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                for (item in snapshot.children) {
-                    val userParent = item.getValue(UserParent::class.java)
-                    generalRef
-                        .child(userParent?.id ?: "null id")
-                        .setValue(userParent)
-                }
+private suspend fun removeInviteAfterAccept(userChildId: String, parentId: String) {
+    childsRef.child(userChildId).get().await().getValue(UserChild::class.java)
+        ?.let {
+            val oldInvites = it.invitesParentsID ?: listOf()
+            Log.d("removeInviteAfterAccept", "oldInvites: $oldInvites ")
+            val newInvites = oldInvites.toMutableList()
+            if (newInvites.contains(parentId)) {
+                Log.d(TAG, "newInvites remove: ")
+                newInvites.remove(parentId)
+                Log.d(
+                    "removeInviteAfterAccept",
+                    "newInvites($newInvites) remove: $parentId "
+                )
+            } else {
+                throw Exception("removeInviteAfterAccept newInvites not contains parentId for remove")
             }
+            childsRef.child(userChildId)
+                .setValue(it.copy(invitesParentsID = newInvites))
+        }
+}
 
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
+fun setGeneralAutoChange() {
+    childsRef.addValueEventListener(object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            for (item in snapshot.children) {
+                val userChild = item.getValue(UserChild::class.java)
+                generalRef
+                    .child(userChild?.id ?: "null id")
+                    .setValue(userChild)
             }
-        })
-    }
+        }
+
+        override fun onCancelled(error: DatabaseError) {
+            TODO("Not yet implemented")
+        }
+    })
+
+    parentsRef.addValueEventListener(object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            for (item in snapshot.children) {
+                val userParent = item.getValue(UserParent::class.java)
+                generalRef
+                    .child(userParent?.id ?: "null id")
+                    .setValue(userParent)
+            }
+        }
+
+        override fun onCancelled(error: DatabaseError) {
+            TODO("Not yet implemented")
+        }
+    })
+}
 }
 
 
