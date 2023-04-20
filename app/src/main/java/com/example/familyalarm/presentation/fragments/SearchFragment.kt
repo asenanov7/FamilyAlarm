@@ -23,7 +23,7 @@ class SearchFragment : Fragment() {
 
 
     private val vm by lazy { ViewModelProvider(this)[SearchVM::class.java] }
-    private val adapter = SearchAdapter()
+    private val adapter by lazy { SearchAdapter() }
 
     override fun onCreateView(
         inflater: LayoutInflater,

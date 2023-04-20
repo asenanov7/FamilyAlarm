@@ -84,9 +84,6 @@ class SearchAdapter : ListAdapter<UserChild, RecyclerView.ViewHolder>(UsersChild
         }
     }
 
-    private fun click(onClicked: () -> Unit, view: View) {
-        view.alpha = 0.1f
-    }
 
 
 }

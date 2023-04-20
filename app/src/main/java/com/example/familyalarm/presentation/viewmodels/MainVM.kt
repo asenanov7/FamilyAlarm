@@ -9,6 +9,7 @@ import com.example.familyalarm.data.impl_repositories.AuthRepositoryImpl
 import com.example.familyalarm.data.impl_repositories.RepositoryImpl
 import com.example.familyalarm.domain.entities.User
 import com.example.familyalarm.domain.entities.UserChild
+import com.example.familyalarm.domain.usecases.DeleteUserFromCurrentParentUseCase
 import com.example.familyalarm.domain.usecases.GetUserInfoUseCase
 import com.example.familyalarm.domain.usecases.GetUsersFromParentChildrensUseCase
 import com.example.familyalarm.domain.usecases.auth.LogOutUseCase
@@ -17,6 +18,7 @@ import com.example.familyalarm.utils.UiState.Failure
 import com.example.familyalarm.utils.UiState.Success
 import com.example.familyalarm.utils.getErrorMessageFromFirebaseErrorCode
 import com.google.firebase.FirebaseTooManyRequestsException
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -28,15 +30,10 @@ class MainVM(application: Application) : AndroidViewModel(application) {
     private val authRepository = AuthRepositoryImpl()
     private val repositoryImpl = RepositoryImpl()
 
-    private val logOutUseCase = LogOutUseCase(repository = authRepository)
-    private val getUserInfoUseCase = GetUserInfoUseCase(repository = repositoryImpl)
-    private val getUsersFromParentChildrensUseCase =
-        GetUsersFromParentChildrensUseCase(repository = repositoryImpl)
-
-    private val _stateFlow: MutableStateFlow<UiState<Boolean>> = MutableStateFlow(UiState.Default)
-    val stateFlow: StateFlow<UiState<Boolean>>
-        get() = _stateFlow.asStateFlow()
-
+    private val logOutUseCase = LogOutUseCase(authRepository)
+    private val getUserInfoUseCase = GetUserInfoUseCase(repositoryImpl)
+    private val getUsersFromParentChildrensUseCase = GetUsersFromParentChildrensUseCase(repositoryImpl)
+    private val deleteChildUseCase = DeleteUserFromCurrentParentUseCase(repositoryImpl)
 
     init {
         repositoryImpl.setGeneralAutoChange()
@@ -46,6 +43,12 @@ class MainVM(application: Application) : AndroidViewModel(application) {
     suspend fun getUserInfo(): User {
         val currentUserId = Firebase.auth.currentUser!!.uid
         return getUserInfoUseCase(currentUserId)
+    }
+
+    fun deleteChild(userId:String){
+        val parentId = Firebase.auth.currentUser?.let {
+            deleteChildUseCase(userId, it.uid)
+        }
     }
 
     fun getUsersFromParentChildrens(parentId: String): MutableSharedFlow<List<UserChild>> {

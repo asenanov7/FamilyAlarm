@@ -10,7 +10,7 @@ import com.example.familyalarm.databinding.ItemUserChildBinding
 import com.example.familyalarm.domain.entities.UserChild
 
 
-class UsersAdapter : ListAdapter <UserChild, UserChildViewHolder> (UsersChildDiffCallback()) {
+class UsersAdapter : ListAdapter<UserChild, UserChildViewHolder>(UsersChildDiffCallback()) {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserChildViewHolder {

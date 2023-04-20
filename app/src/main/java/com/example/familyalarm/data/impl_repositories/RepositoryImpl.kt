@@ -201,7 +201,7 @@ override suspend fun findUserByHazyName(name: String): Flow<List<UserChild>> = f
             Log.d(TAG, "findUserByHazyName: continue")
             continue
         }
-        if (child?.name?.lowercase()?.contains(name) == true) {
+        if (child?.name?.lowercase()?.contains(name.lowercase()) == true) {
             Log.d(TAG, "findUserByHazyName: $child")
             listContainsChild.add(child)
         }
@@ -214,14 +214,13 @@ override fun deleteUserFromCurrentParent(
     parentId: String
 ) {
     scope.launch {
-        /*val parentId =
-            childsRef.child(childUserId).get().await().getValue(UserChild::class.java)
-                ?.currentGroupId?:throw Exception("Exit from oldest group error")*/
 
         val oldIdList = getOldChildIdsList(parentId)
         val newIdList = oldIdList.toMutableList()
 
         newIdList.remove(userId)
+
+        updateChildCurrentGroupId(userId, null)
 
         setNewChildList(parentId, newIdList)
     }
@@ -253,7 +252,7 @@ private suspend fun setNewChildList(parentId: String, newIdList: List<String?>) 
 
 private suspend fun updateChildCurrentGroupId(
     userChildId: String,
-    groupId: String
+    groupId: String?
 ): Task<Void>? {
     return childsRef.child(userChildId).get().await()
         .getValue(UserChild::class.java)

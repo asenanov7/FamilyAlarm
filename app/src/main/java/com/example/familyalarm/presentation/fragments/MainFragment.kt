@@ -6,12 +6,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.constraintlayout.motion.widget.OnSwipe
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.example.familyalarm.R
 import com.example.familyalarm.databinding.MainFragmentBinding
 import com.example.familyalarm.domain.entities.UserChild
@@ -32,6 +35,7 @@ class MainFragment : Fragment() {
         get() = _binding ?: throw Exception("MainFragment == null")
 
     private val vm by lazy { ViewModelProvider(this)[MainVM::class.java] }
+
     private val adapter by lazy { UsersAdapter() }
 
     private var isParent by Delegates.notNull<Boolean>()
@@ -61,6 +65,8 @@ class MainFragment : Fragment() {
                 true
             )
         }
+
+        setRecyclerViewItemSwipeListener()
 
         bottomNavigationListener()
         binding.recyclerView.adapter = adapter
@@ -157,6 +163,29 @@ class MainFragment : Fragment() {
             }
         }
     }
+
+    private fun setRecyclerViewItemSwipeListener(){
+
+            val callback = object : ItemTouchHelper.SimpleCallback(
+                0,
+                ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+            ){
+                override fun onMove(recyclerView: RecyclerView,
+                                    viewHolder: RecyclerView.ViewHolder,
+                                    target: RecyclerView.ViewHolder): Boolean {
+                    return false
+                }
+
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                     adapter.currentList[viewHolder.adapterPosition].id?.let {
+                        vm.deleteChild(it)
+                    }
+                }
+            }
+
+            val itemTouchHelper = ItemTouchHelper(callback)
+            itemTouchHelper.attachToRecyclerView(binding.recyclerView)
+        }
 
     companion object {
         const val NAME: String = "MainFragment"
