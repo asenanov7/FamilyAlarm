@@ -54,7 +54,7 @@ class MainFragment : Fragment() {
         Log.d("MainFragment", "onViewCreated: MainFragment $this")
 
 
-        binding.fabAdd.setOnClickListener {
+        binding.buttonAdd.setOnClickListener {
             navigator().shouldLaunchFragment(
                 SearchFragment.newInstance(),
                 SearchFragment.NAME,
@@ -143,12 +143,10 @@ class MainFragment : Fragment() {
             Log.d("Parent", "isParent: $isParent")
             if (isParent) {
                 binding.buttonInvitations.visibility = View.INVISIBLE
-                binding.fabAdd.visibility = View.VISIBLE
-                binding.fabDelete.visibility = View.VISIBLE
+                binding.buttonAdd.visibility = View.VISIBLE
             } else {
                 binding.buttonInvitations.visibility = View.VISIBLE
-                binding.fabAdd.visibility = View.INVISIBLE
-                binding.fabDelete.visibility = View.INVISIBLE
+                binding.buttonAdd.visibility = View.INVISIBLE
                 binding.buttonInvitations.setOnClickListener{
                     navigator().shouldLaunchFragment(
                         InvitationsFragment.newInstance(),

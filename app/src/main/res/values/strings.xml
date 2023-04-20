@@ -25,4 +25,5 @@
     <string name="invites">Приглашения</string>
     <string name="parent">Родитель</string>
     <string name="child">Ребенок</string>
+    <string name="add">Добавить</string>
 </resources>
