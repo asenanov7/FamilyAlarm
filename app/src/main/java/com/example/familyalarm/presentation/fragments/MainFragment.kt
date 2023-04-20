@@ -1,5 +1,7 @@
 package com.example.familyalarm.presentation.fragments
 
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -90,11 +92,10 @@ class MainFragment : Fragment() {
     }
 
     private fun exit() {
-
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 Log.d("MainFragment", "binding.textViewExit.setOnClickListener")
-                vm.logOut(requireContext()).collect {
+                vm.logOut(requireContext()).collectLatest {
                     Log.d("MainFragment", "ExitState: $it ")
                     when (it) {
                         UiState.Default -> {
@@ -122,11 +123,30 @@ class MainFragment : Fragment() {
         }
     }
 
+    private fun showAlertDialogForExit(){
+        val listener = DialogInterface.OnClickListener{ dialog, which->
+            when(which){
+                DialogInterface.BUTTON_POSITIVE -> { exit() }
+                DialogInterface.BUTTON_NEGATIVE -> { dialog.cancel() }
+            }
+        }
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setCancelable(true)
+            .setTitle(R.string.exit)
+            .setMessage(getString(R.string.youSureWantToExit))
+            .setPositiveButton("Да", listener)
+            .setNegativeButton("Нет", listener)
+            .create()
+
+        dialog.show()
+    }
+
     private fun bottomNavigationListener() {
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.item_exit -> {
-                    exit()
+                    showAlertDialogForExit()
                     Log.d("BottomNavigation", "bottomNavigationListener: EXit")
                     true
                 }

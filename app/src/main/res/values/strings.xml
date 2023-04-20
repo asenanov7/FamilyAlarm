@@ -26,4 +26,5 @@
     <string name="parent">Родитель</string>
     <string name="child">Ребенок</string>
     <string name="add">Добавить</string>
+    <string name="youSureWantToExit">Вы действительно хотите выйти?</string>
 </resources>
