@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlin.math.log
 
 class RepositoryImpl() : Repository {
 
@@ -311,7 +312,7 @@ fun setGeneralAutoChange() {
         }
 
         override fun onCancelled(error: DatabaseError) {
-            TODO("Not yet implemented")
+            Log.d(TAG, "onCancelled: $error ")
         }
     })
 
@@ -326,12 +327,10 @@ fun setGeneralAutoChange() {
         }
 
         override fun onCancelled(error: DatabaseError) {
-            TODO("Not yet implemented")
+            Log.d(TAG, "onCancelled: $error ")
         }
     })
 }
 }
 
 
-/*
-     */
