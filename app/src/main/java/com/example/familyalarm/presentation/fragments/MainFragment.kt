@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.constraintlayout.motion.widget.OnSwipe
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -24,8 +23,6 @@ import com.example.familyalarm.presentation.contract.navigator
 import com.example.familyalarm.presentation.recyclerview.UsersAdapter
 import com.example.familyalarm.presentation.viewmodels.MainVM
 import com.example.familyalarm.utils.UiState
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
@@ -50,8 +47,12 @@ class MainFragment : Fragment() {
     ): View {
         Log.d("MainFragment", "onCreateView: MainFragment $this")
         _binding = MainFragmentBinding.inflate(layoutInflater, container, false)
-        updateUIWithUserCondition()
         return binding.root
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        getChildsAndSubmitInAdapter()
     }
 
 
@@ -59,25 +60,10 @@ class MainFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Log.d("MainFragment", "onViewCreated: MainFragment $this")
 
-
-        binding.buttonAdd.setOnClickListener {
-            navigator().shouldLaunchFragment(
-                SearchFragment.newInstance(),
-                SearchFragment.NAME,
-                true
-            )
-        }
-
+        updateUIWithUserCondition()
         setRecyclerViewItemSwipeListener()
-
         bottomNavigationListener()
         binding.recyclerView.adapter = adapter
-
-        lifecycleScope.launch {
-            vm.getUsersFromParentChildrens(Firebase.auth.currentUser!!.uid).collectLatest {
-                adapter.submitList(it)
-            }
-        }
     }
 
     override fun onDestroyView() {
@@ -91,6 +77,22 @@ class MainFragment : Fragment() {
         Log.d("MainFragment", "onDestroy: MainFragment $this")
     }
 
+
+    private fun getChildsAndSubmitInAdapter(){
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                vm.stateFlow.collectLatest {
+                    Log.d("ARSEN", " vm.stateFlow.collectLatest:$it ")
+                    if (it is UiState.Success) {
+                        Log.d("ARSEN", "adapter submitted $it ")
+                        adapter.submitList(it.result)
+                    }
+                }
+            }
+        }
+    }
+
+    //Норм
     private fun exit() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
@@ -123,11 +125,16 @@ class MainFragment : Fragment() {
         }
     }
 
-    private fun showAlertDialogForExit(){
-        val listener = DialogInterface.OnClickListener{ dialog, which->
-            when(which){
-                DialogInterface.BUTTON_POSITIVE -> { exit() }
-                DialogInterface.BUTTON_NEGATIVE -> { dialog.cancel() }
+    //Норм
+    private fun showAlertDialogForExit() {
+        val listener = DialogInterface.OnClickListener { dialog, which ->
+            when (which) {
+                DialogInterface.BUTTON_POSITIVE -> {
+                    exit()
+                }
+                DialogInterface.BUTTON_NEGATIVE -> {
+                    dialog.cancel()
+                }
             }
         }
 
@@ -142,6 +149,7 @@ class MainFragment : Fragment() {
         dialog.show()
     }
 
+    //Норм
     private fun bottomNavigationListener() {
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
@@ -162,7 +170,8 @@ class MainFragment : Fragment() {
         }
     }
 
-    private fun updateUIWithUserCondition(){
+    //Переделать для каждого вида юзера свой UI и фрагмент с вьюмоделью
+    private fun updateUIWithUserCondition() {
         lifecycleScope.launch {
             val user = vm.getUserInfo()
             isParent = user !is UserChild
@@ -170,10 +179,18 @@ class MainFragment : Fragment() {
             if (isParent) {
                 binding.buttonInvitations.visibility = View.INVISIBLE
                 binding.buttonAdd.visibility = View.VISIBLE
+                binding.buttonAdd.setOnClickListener {
+                    navigator().shouldLaunchFragment(
+                        SearchFragment.newInstance(),
+                        SearchFragment.NAME,
+                        true
+                    )
+                }
+
             } else {
                 binding.buttonInvitations.visibility = View.VISIBLE
                 binding.buttonAdd.visibility = View.INVISIBLE
-                binding.buttonInvitations.setOnClickListener{
+                binding.buttonInvitations.setOnClickListener {
                     navigator().shouldLaunchFragment(
                         InvitationsFragment.newInstance(),
                         InvitationsFragment.NAME,
@@ -184,28 +201,31 @@ class MainFragment : Fragment() {
         }
     }
 
-    private fun setRecyclerViewItemSwipeListener(){
+    //Норм
+    private fun setRecyclerViewItemSwipeListener() {
 
-            val callback = object : ItemTouchHelper.SimpleCallback(
-                0,
-                ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
-            ){
-                override fun onMove(recyclerView: RecyclerView,
-                                    viewHolder: RecyclerView.ViewHolder,
-                                    target: RecyclerView.ViewHolder): Boolean {
-                    return false
-                }
-
-                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                     adapter.currentList[viewHolder.adapterPosition].id?.let {
-                        vm.deleteChild(it)
-                    }
-                }
+        val callback = object : ItemTouchHelper.SimpleCallback(
+            0,
+            ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
             }
 
-            val itemTouchHelper = ItemTouchHelper(callback)
-            itemTouchHelper.attachToRecyclerView(binding.recyclerView)
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                adapter.currentList[viewHolder.adapterPosition].id?.let {
+                    vm.deleteChild(it)
+                }
+            }
         }
+
+        val itemTouchHelper = ItemTouchHelper(callback)
+        itemTouchHelper.attachToRecyclerView(binding.recyclerView)
+    }
 
     companion object {
         const val NAME: String = "MainFragment"

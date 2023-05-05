@@ -23,7 +23,7 @@ interface Repository {
 
     fun deleteUserFromCurrentParent(userId: String, parentId: String)
 
-    fun getUsersFromParentChildrens(parentId: String): MutableSharedFlow<List<UserChild>>
+    fun getUsersFromParentChildrens(parentId: String): Flow<List<UserChild>>
 
     suspend fun getUserInfo(userId: String): User
 
