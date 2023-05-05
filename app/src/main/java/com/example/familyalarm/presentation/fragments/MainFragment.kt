@@ -23,6 +23,9 @@ import com.example.familyalarm.presentation.contract.navigator
 import com.example.familyalarm.presentation.recyclerview.UsersAdapter
 import com.example.familyalarm.presentation.viewmodels.MainVM
 import com.example.familyalarm.utils.UiState
+import com.example.familyalarm.utils.collectLifecycleFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
@@ -50,16 +53,12 @@ class MainFragment : Fragment() {
         return binding.root
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        getChildsAndSubmitInAdapter()
-    }
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d("MainFragment", "onViewCreated: MainFragment $this")
 
+        getChildsAndSubmitInAdapter()
         updateUIWithUserCondition()
         setRecyclerViewItemSwipeListener()
         bottomNavigationListener()
@@ -79,15 +78,11 @@ class MainFragment : Fragment() {
 
 
     private fun getChildsAndSubmitInAdapter(){
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                vm.stateFlow.collectLatest {
-                    Log.d("ARSEN", " vm.stateFlow.collectLatest:$it ")
-                    if (it is UiState.Success) {
-                        Log.d("ARSEN", "adapter submitted $it ")
-                        adapter.submitList(it.result)
-                    }
-                }
+        collectLifecycleFlow(vm.stateFlow) {
+            Log.d("ARSEN", " vm.stateFlow.collectLatest:$it ")
+            if (it is UiState.Success) {
+                Log.d("ARSEN", "adapter submitted $it ")
+                adapter.submitList(it.result)
             }
         }
     }
@@ -235,3 +230,4 @@ class MainFragment : Fragment() {
         }
     }
 }
+
