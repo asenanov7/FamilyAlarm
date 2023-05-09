@@ -43,9 +43,7 @@ class MainVM(application: Application) : AndroidViewModel(application) {
     }
 
     private val _stateFlowListUserChild: MutableStateFlow<UiState<List<UserChild>>> =
-        MutableStateFlow(
-            Default
-        )
+        MutableStateFlow(Default)
     val stateFlowListUserChild: StateFlow<UiState<List<UserChild>>>
         get() = _stateFlowListUserChild.asStateFlow()
 
@@ -54,17 +52,15 @@ class MainVM(application: Application) : AndroidViewModel(application) {
         val parentId = user.id ?: throwEx(getChild())
 
         _stateFlowListUserChild.value = Loading
-        val result: UiState<List<UserChild>> =
-            try {
-                var tempResult: UiState<List<UserChild>> = Default
-                getUsersFromParentChildrensUseCase(parentId).collectLatest {
-                    tempResult = Success(it)
-                }
-                tempResult
-            } catch (e: java.lang.Exception) {
-                Failure(e.message ?: "null message")
+        try {
+            getUsersFromParentChildrensUseCase(parentId).collectLatest {
+                _stateFlowListUserChild.value = Success(it)
             }
-        _stateFlowListUserChild.value = result
+        } catch (e: Exception) {
+            _stateFlowListUserChild.value = Failure(e.message?:"null exception message")
+        }
+
+
     }
 
     suspend fun getUserInfo(): User {
