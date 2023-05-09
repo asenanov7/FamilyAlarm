@@ -24,8 +24,6 @@ import com.example.familyalarm.presentation.recyclerview.UsersAdapter
 import com.example.familyalarm.presentation.viewmodels.MainVM
 import com.example.familyalarm.utils.UiState
 import com.example.familyalarm.utils.collectLifecycleFlow
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
@@ -78,7 +76,7 @@ class MainFragment : Fragment() {
 
 
     private fun getChildsAndSubmitInAdapter(){
-        collectLifecycleFlow(vm.stateFlow) {
+        collectLifecycleFlow(vm.stateFlowListUserChild) {
             Log.d("ARSEN", " vm.stateFlow.collectLatest:$it ")
             if (it is UiState.Success) {
                 Log.d("ARSEN", "adapter submitted $it ")
