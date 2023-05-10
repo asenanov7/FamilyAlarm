@@ -51,16 +51,11 @@ class MainVM(application: Application) : AndroidViewModel(application) {
         val user = getUserInfo()
         val parentId = user.id ?: throwEx(getChild())
 
-        _stateFlowListUserChild.value = Loading
-        try {
-            getUsersFromParentChildrensUseCase(parentId).collectLatest {
-                _stateFlowListUserChild.value = Success(it)
-            }
-        } catch (e: Exception) {
-            _stateFlowListUserChild.value = Failure(e.message?:"null exception message")
-        }
-
-
+        getUsersFromParentChildrensUseCase(parentId)
+            .onStart { _stateFlowListUserChild.value = Loading }
+            .onEach { _stateFlowListUserChild.value = Success(it) }
+            .catch { _stateFlowListUserChild.value = Failure(it.message ?: "null message") }
+            .launchIn(viewModelScope)
     }
 
     suspend fun getUserInfo(): User {
