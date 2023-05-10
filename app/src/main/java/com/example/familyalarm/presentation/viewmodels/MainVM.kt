@@ -24,17 +24,22 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.lang.Thread.State
 
 class MainVM(application: Application) : AndroidViewModel(application) {
+
 
     private val authRepository = AuthRepositoryImpl()
     private val repositoryImpl = RepositoryImpl()
 
     private val logOutUseCase = LogOutUseCase(authRepository)
     private val getUserInfoUseCase = GetUserInfoUseCase(repositoryImpl)
-    private val getUsersFromParentChildrensUseCase =
-        GetUsersFromParentChildrensUseCase(repositoryImpl)
+    private val getUsersFromParentChildrensUseCase = GetUsersFromParentChildrensUseCase(repositoryImpl)
     private val deleteChildUseCase = DeleteUserFromCurrentParentUseCase(repositoryImpl)
+
+    private val _userChildsStateFLOW:MutableStateFlow<UiState<List<UserChild>>> = MutableStateFlow(Default)
+    val userChildsStateFLOW:StateFlow<UiState<List<UserChild>>>
+    get() = _userChildsStateFLOW.asStateFlow()
 
     init {
         viewModelScope.launch { getChild() }
@@ -42,21 +47,16 @@ class MainVM(application: Application) : AndroidViewModel(application) {
         Log.d("setGeneralAutoChange", "setGeneralAutoChange")
     }
 
-    private val _stateFlowListUserChild: MutableStateFlow<UiState<List<UserChild>>> =
-        MutableStateFlow(Default)
-    val stateFlowListUserChild: StateFlow<UiState<List<UserChild>>>
-        get() = _stateFlowListUserChild.asStateFlow()
+     private suspend fun getChild(){
+             val user = getUserInfo()
+             val parentId = user.id ?: throwEx(getChild())
 
-    private suspend fun getChild() {
-        val user = getUserInfo()
-        val parentId = user.id ?: throwEx(getChild())
-
-        getUsersFromParentChildrensUseCase(parentId)
-            .onStart { _stateFlowListUserChild.value = Loading }
-            .onEach { _stateFlowListUserChild.value = Success(it) }
-            .catch { _stateFlowListUserChild.value = Failure(it.message ?: "null message") }
-            .launchIn(viewModelScope)
-    }
+             getUsersFromParentChildrensUseCase(parentId)
+                 .onStart { _userChildsStateFLOW.value = Loading }
+                 .onEach { _userChildsStateFLOW.value = Success(it) }
+                 .catch { _userChildsStateFLOW.value = Failure(it.message ?: "null message") }
+                 .launchIn(viewModelScope)
+         }
 
     suspend fun getUserInfo(): User {
         val currentUserId = Firebase.auth.currentUser?.uid
@@ -94,5 +94,6 @@ class MainVM(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+
 
 }

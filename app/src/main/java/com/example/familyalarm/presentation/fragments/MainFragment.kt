@@ -76,7 +76,7 @@ class MainFragment : Fragment() {
 
 
     private fun getChildsAndSubmitInAdapter() {
-        collectLifecycleFlow(vm.stateFlowListUserChild) {
+        collectLifecycleFlow(vm.userChildsStateFLOW) {
             if (it is UiState.Success<List<UserChild>>) {
                 Log.d("ARSEN", "adapter submitted $it ")
                 adapter.submitList(it.result)

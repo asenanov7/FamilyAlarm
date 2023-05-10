@@ -85,35 +85,6 @@ class RepositoryImpl() : Repository {
     }
 
 
-    override fun getUsersFromParentChildrens(parentId: String): Flow<List<UserChild>> {
-        val result = MutableStateFlow(listOf<UserChild>())
-
-            val listener = object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    Log.d("ARSEN", "CHANGED $this")
-                    scope.launch {
-                        val listOfChilds = mutableListOf<UserChild>()
-                        for (item in snapshot.children) {
-                            item.getValue<String>()
-                                ?.let { getUserChild(it) }
-                                ?.let {
-                                    listOfChilds.add(it)
-                                }
-                        }
-                        result.value = listOfChilds
-                    }
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    Log.d(TAG, "onCancelled $error ")
-                    throw Exception(error.message)
-                }
-            }
-            parentsRef.child(parentId).child("childrens")
-                .addValueEventListener(listener)
-        return result
-    }
-
     override suspend fun getInvitations(userId: String): MutableSharedFlow<List<UserParent>> {
         val listParentMutableFlow =
             MutableSharedFlow<List<UserParent>>(replay = 1)
@@ -211,9 +182,8 @@ class RepositoryImpl() : Repository {
             val newIdList = oldIdList.toMutableList()
                 .apply { remove(userId) }
 
-            updateChildCurrentGroupId(userId, null)
-
             setNewChildList(parentId, newIdList)
+            updateChildCurrentGroupId(userId, null)
         }
     }
 
@@ -321,6 +291,43 @@ class RepositoryImpl() : Repository {
             }
         })
     }
+
+
+
+    override fun getUsersFromParentChildrens(parentId: String): Flow<List<UserChild>> {
+        val result = MutableStateFlow(listOf<UserChild>())
+
+        val listener = object : ValueEventListener {
+
+
+
+            override fun onDataChange(snapshot: DataSnapshot) {
+                Log.d("ARSEN", "CHANGED $this")
+                scope.launch {
+                    val listOfChilds = mutableListOf<UserChild>()
+                    for (item in snapshot.children) {
+                        item.getValue<String>()
+                            ?.let { getUserChild(it) }
+                            ?.let {
+                                listOfChilds.add(it)
+                            }
+                    }
+                    result.value = listOfChilds
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.d(TAG, "onCancelled $error ")
+                throw Exception(error.message)
+            }
+        }
+
+        parentsRef.child(parentId).child("childrens")
+            .addValueEventListener(listener)
+
+        return result
+    }
+
 }
 
 
