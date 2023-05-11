@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.familyalarm.data.impl_repositories.RepositoryImpl
 import com.example.familyalarm.domain.entities.UserChild
 import com.example.familyalarm.utils.FirebaseTables
+import com.example.familyalarm.utils.databaseUrl
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -14,12 +15,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
-class ChildOnParentListener(val repositoryImpl: RepositoryImpl, val scope: CoroutineScope) :
+class ChildOnParentListener(private val repositoryImpl: RepositoryImpl, private val scope: CoroutineScope) :
     ValueEventListener {
 
-    private val parentsRef =
-        Firebase.database(RepositoryImpl.databaseUrl)
-            .getReference(FirebaseTables.PARENTS)
+    private val parentsRef = Firebase.database(databaseUrl)
+        .getReference(FirebaseTables.PARENTS)
 
     fun addListener(parentId:String) {
         parentsRef.child(parentId).child("childrens")
@@ -53,7 +53,6 @@ class ChildOnParentListener(val repositoryImpl: RepositoryImpl, val scope: Corou
 
     override fun onCancelled(error: DatabaseError) {
         isActive = false
-        Log.d(RepositoryImpl.TAG, "onCancelled $error ")
         throw Exception(error.message)
     }
 
