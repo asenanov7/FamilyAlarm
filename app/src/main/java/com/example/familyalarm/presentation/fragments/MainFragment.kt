@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.graphics.scaleMatrix
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -23,11 +24,16 @@ import com.example.familyalarm.presentation.contract.navigator
 import com.example.familyalarm.presentation.recyclerview.UsersAdapter
 import com.example.familyalarm.presentation.viewmodels.MainVM
 import com.example.familyalarm.utils.UiState
+import com.example.familyalarm.utils.uiLifeCycleScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.properties.Delegates
 
 class MainFragment : Fragment() {
@@ -79,11 +85,9 @@ class MainFragment : Fragment() {
     }
 
 
-
     private suspend fun getChildsAndSubmitInAdapter() {
-        viewLifecycleOwner.lifecycleScope.launch {
-        repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                vm.getChild(this).collectLatest {
+        uiLifeCycleScope { UiScope->
+                vm.getChild(UiScope).collectLatest {
                     if (it is UiState.Success<List<UserChild>>) {
                         Log.d("ARSEN", "adapter submitted $it ")
                         adapter.submitList(it.result)
@@ -91,12 +95,12 @@ class MainFragment : Fragment() {
                 }
             }
         }
-    }
+
+
 
     //Норм
     private suspend fun exit() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+        uiLifeCycleScope{
                 vm.logOut(requireContext()).collectLatest {
                     Log.d("MainFragment", "ExitState: $it ")
                     when (it) {
@@ -122,7 +126,6 @@ class MainFragment : Fragment() {
                     }
                 }
             }
-        }
     }
 
 
@@ -175,7 +178,7 @@ class MainFragment : Fragment() {
 
     //Переделать для каждого вида юзера свой UI и фрагмент с вьюмоделью
     private fun updateUIWithUserCondition() {
-        viewLifecycleOwner.lifecycleScope.launch {
+        uiLifeCycleScope{
             val user = vm.getUserInfo()
             isParent = user !is UserChild
             Log.d("Parent", "isParent: $isParent")

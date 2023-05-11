@@ -8,6 +8,7 @@ import com.example.familyalarm.domain.entities.UserChild
 import com.example.familyalarm.domain.entities.UserParent
 import com.example.familyalarm.domain.repositories.Repository
 import com.example.familyalarm.utils.FirebaseTables
+import com.example.familyalarm.utils.FirebaseTables.databaseUrl
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -32,8 +33,6 @@ class RepositoryImpl() : Repository {
 
     companion object {
         const val TAG = "RepositoryImpl"
-        const val databaseUrl =
-            "https://waketeam-75be8-default-rtdb.europe-west1.firebasedatabase.app"
     }
 
     private val childsRef =
