@@ -23,7 +23,9 @@ import com.example.familyalarm.presentation.contract.navigator
 import com.example.familyalarm.presentation.recyclerview.UsersAdapter
 import com.example.familyalarm.presentation.viewmodels.MainVM
 import com.example.familyalarm.utils.UiState
-import com.example.familyalarm.utils.collectLifecycleFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
@@ -58,11 +60,11 @@ class MainFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             getChildsAndSubmitInAdapter()
+            updateUIWithUserCondition()
+            setRecyclerViewItemSwipeListener()
+            bottomNavigationListener()
+            binding.recyclerView.adapter = adapter
         }
-        updateUIWithUserCondition()
-        setRecyclerViewItemSwipeListener()
-        bottomNavigationListener()
-        binding.recyclerView.adapter = adapter
     }
 
     override fun onDestroyView() {
@@ -77,20 +79,24 @@ class MainFragment : Fragment() {
     }
 
 
+
     private suspend fun getChildsAndSubmitInAdapter() {
-        collectLifecycleFlow(vm.getChild()) {
-            if (it is UiState.Success<List<UserChild>>) {
-                Log.d("ARSEN", "adapter submitted $it ")
-                adapter.submitList(it.result)
+        viewLifecycleOwner.lifecycleScope.launch {
+        repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                vm.getChild(this).collectLatest {
+                    if (it is UiState.Success<List<UserChild>>) {
+                        Log.d("ARSEN", "adapter submitted $it ")
+                        adapter.submitList(it.result)
+                    }
+                }
             }
         }
     }
 
     //Норм
-    private fun exit() {
-        lifecycleScope.launch {
+    private suspend fun exit() {
+        viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                Log.d("MainFragment", "binding.textViewExit.setOnClickListener")
                 vm.logOut(requireContext()).collectLatest {
                     Log.d("MainFragment", "ExitState: $it ")
                     when (it) {
@@ -119,12 +125,15 @@ class MainFragment : Fragment() {
         }
     }
 
+
     //Норм
     private fun showAlertDialogForExit() {
         val listener = DialogInterface.OnClickListener { dialog, which ->
             when (which) {
                 DialogInterface.BUTTON_POSITIVE -> {
-                    exit()
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        exit()
+                    }
                 }
                 DialogInterface.BUTTON_NEGATIVE -> {
                     dialog.cancel()
@@ -166,7 +175,7 @@ class MainFragment : Fragment() {
 
     //Переделать для каждого вида юзера свой UI и фрагмент с вьюмоделью
     private fun updateUIWithUserCondition() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             val user = vm.getUserInfo()
             isParent = user !is UserChild
             Log.d("Parent", "isParent: $isParent")

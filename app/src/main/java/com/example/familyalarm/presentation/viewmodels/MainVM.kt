@@ -22,6 +22,8 @@ import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.lang.Thread.State
@@ -43,15 +45,22 @@ class MainVM(application: Application) : AndroidViewModel(application) {
         Log.d("setGeneralAutoChange", "setGeneralAutoChange")
     }
 
-       suspend fun getChild(): StateFlow<UiState<List<UserChild>>> {
+        suspend fun getChild(scope:CoroutineScope): StateFlow<UiState<List<UserChild>>> {
+
                val user = getUserInfo()
-               val parentId = user.id ?: throwEx(getChild())
+               val parentId = user.id ?: throwEx(getChild(scope))
 
                return getUsersFromParentChildrensUseCase(parentId)
                    .map { Success(it) as UiState<List<UserChild>> }
-                   .onStart { emit(Loading) }
+                   .onStart {
+                       emit(Loading)
+                       Log.d("LifeCycle", "onStart")}
                    .catch { emit(Failure(it.message ?: "null message")) }
-                   .stateIn(viewModelScope)
+                   .retry()
+                   .onCompletion{
+                       Log.d("LifeCycle", "onCompletion")
+                   }
+                   .stateIn(scope)
            }
 
 
