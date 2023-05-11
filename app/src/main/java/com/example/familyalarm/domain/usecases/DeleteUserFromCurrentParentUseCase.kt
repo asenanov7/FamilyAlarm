@@ -4,6 +4,6 @@ import com.example.familyalarm.domain.repositories.Repository
 
 class DeleteUserFromCurrentParentUseCase(private val repository: Repository) {
     operator fun invoke(userId: String, parentId: String){
-        repository.deleteUserFromCurrentParent(userId, parentId)
+        repository.deleteChild(userId, parentId)
     }
 }

@@ -37,26 +37,23 @@ class MainVM(application: Application) : AndroidViewModel(application) {
     private val getUsersFromParentChildrensUseCase = GetUsersFromParentChildrensUseCase(repositoryImpl)
     private val deleteChildUseCase = DeleteUserFromCurrentParentUseCase(repositoryImpl)
 
-    private val _userChildsStateFLOW:MutableStateFlow<UiState<List<UserChild>>> = MutableStateFlow(Default)
-    val userChildsStateFLOW:StateFlow<UiState<List<UserChild>>>
-    get() = _userChildsStateFLOW.asStateFlow()
 
     init {
-        viewModelScope.launch { getChild() }
         repositoryImpl.setGeneralAutoChange()
         Log.d("setGeneralAutoChange", "setGeneralAutoChange")
     }
 
-     private suspend fun getChild(){
-             val user = getUserInfo()
-             val parentId = user.id ?: throwEx(getChild())
+       suspend fun getChild(): StateFlow<UiState<List<UserChild>>> {
+               val user = getUserInfo()
+               val parentId = user.id ?: throwEx(getChild())
 
-             getUsersFromParentChildrensUseCase(parentId)
-                 .onStart { _userChildsStateFLOW.value = Loading }
-                 .onEach { _userChildsStateFLOW.value = Success(it) }
-                 .catch { _userChildsStateFLOW.value = Failure(it.message ?: "null message") }
-                 .launchIn(viewModelScope)
-         }
+               return getUsersFromParentChildrensUseCase(parentId)
+                   .map { Success(it) as UiState<List<UserChild>> }
+                   .onStart { emit(Loading) }
+                   .catch { emit(Failure(it.message ?: "null message")) }
+                   .stateIn(viewModelScope)
+           }
+
 
     suspend fun getUserInfo(): User {
         val currentUserId = Firebase.auth.currentUser?.uid

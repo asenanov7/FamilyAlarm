@@ -5,6 +5,6 @@ import com.example.familyalarm.domain.repositories.Repository
 
 class CreateParentUseCase(private val repository: Repository) {
     suspend operator fun invoke(userParent: UserParent){
-        repository.createParentUseCase(userParent)
+        repository.createParent(userParent)
     }
 }

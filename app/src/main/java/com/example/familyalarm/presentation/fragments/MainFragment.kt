@@ -56,7 +56,9 @@ class MainFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Log.d("MainFragment", "onViewCreated: MainFragment $this")
 
-        getChildsAndSubmitInAdapter()
+        viewLifecycleOwner.lifecycleScope.launch {
+            getChildsAndSubmitInAdapter()
+        }
         updateUIWithUserCondition()
         setRecyclerViewItemSwipeListener()
         bottomNavigationListener()
@@ -75,8 +77,8 @@ class MainFragment : Fragment() {
     }
 
 
-    private fun getChildsAndSubmitInAdapter() {
-        collectLifecycleFlow(vm.userChildsStateFLOW) {
+    private suspend fun getChildsAndSubmitInAdapter() {
+        collectLifecycleFlow(vm.getChild()) {
             if (it is UiState.Success<List<UserChild>>) {
                 Log.d("ARSEN", "adapter submitted $it ")
                 adapter.submitList(it.result)

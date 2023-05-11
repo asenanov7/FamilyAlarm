@@ -1,6 +1,7 @@
 package com.example.familyalarm.data.impl_repositories
 
 import android.util.Log
+import com.example.familyalarm.data.listeners.ChildOnParentListener
 import com.example.familyalarm.data.Mapper
 import com.example.familyalarm.domain.entities.User
 import com.example.familyalarm.domain.entities.UserChild
@@ -21,14 +22,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import kotlin.math.log
 
 class RepositoryImpl() : Repository {
-
 
     private val mapper = Mapper()
     private val auth by lazy { FirebaseAuth.getInstance() }
     private val scope = CoroutineScope(Dispatchers.IO)
+    private val childOnParentListener = ChildOnParentListener(this, scope)
 
     companion object {
         const val TAG = "RepositoryImpl"
@@ -49,7 +49,7 @@ class RepositoryImpl() : Repository {
             .getReference(FirebaseTables.GENERAL)
 
 
-    override suspend fun createChildUseCase(userChild: UserChild) {
+    override suspend fun createChild(userChild: UserChild) {
         Log.d(TAG, "createChildUseCase: started")
         val job = scope.launch {
             auth.currentUser?.let {
@@ -66,7 +66,7 @@ class RepositoryImpl() : Repository {
         job.join()
     }
 
-    override suspend fun createParentUseCase(userParent: UserParent) {
+    override suspend fun createParent(userParent: UserParent) {
         Log.d(TAG, "createParentUseCase: started")
         auth.currentUser?.let { firebaseUser ->
             Log.d(TAG, "createParentUseCase: currentUser!=null")
@@ -116,7 +116,7 @@ class RepositoryImpl() : Repository {
         return listParentMutableFlow
     }
 
-    override suspend fun inviteUserInTheParentChildrens(userId: String): Boolean {
+    override suspend fun inviteUser(userId: String): Boolean {
         val parentId = Firebase.auth.currentUser!!.uid
         return try {
             addNewInvites(userId, parentId)
@@ -134,7 +134,7 @@ class RepositoryImpl() : Repository {
 
         scope.launch {
             if (userChild?.currentGroupId != null) {
-                deleteUserFromCurrentParent(
+                deleteChild(
                     userId = childUserID,
                     parentId = getUserChild(childUserID)?.currentGroupId ?: throw Exception(
                         "Delete user From current parent error, currentParent == null"
@@ -173,7 +173,7 @@ class RepositoryImpl() : Repository {
         emit(listContainsChild)
     }
 
-    override fun deleteUserFromCurrentParent(
+    override fun deleteChild(
         userId: String,
         parentId: String
     ) {
@@ -196,7 +196,7 @@ class RepositoryImpl() : Repository {
     }
 
 
-    private suspend fun getUserChild(userId: String): UserChild? {
+     suspend fun getUserChild(userId: String): UserChild? {
         val snapshot = childsRef.child(userId).get().await()
         return snapshot.getValue(UserChild::class.java)
     }
@@ -294,38 +294,12 @@ class RepositoryImpl() : Repository {
 
 
 
-    override fun getUsersFromParentChildrens(parentId: String): Flow<List<UserChild>> {
-        val result = MutableStateFlow(listOf<UserChild>())
 
-        val listener = object : ValueEventListener {
-
-
-
-            override fun onDataChange(snapshot: DataSnapshot) {
-                Log.d("ARSEN", "CHANGED $this")
-                scope.launch {
-                    val listOfChilds = mutableListOf<UserChild>()
-                    for (item in snapshot.children) {
-                        item.getValue<String>()
-                            ?.let { getUserChild(it) }
-                            ?.let {
-                                listOfChilds.add(it)
-                            }
-                    }
-                    result.value = listOfChilds
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.d(TAG, "onCancelled $error ")
-                throw Exception(error.message)
-            }
-        }
-
-        parentsRef.child(parentId).child("childrens")
-            .addValueEventListener(listener)
-
-        return result
+    override fun getChilds(parentId: String): Flow<List<UserChild>> {
+         if (!childOnParentListener.isActive) {
+            childOnParentListener.addListener(parentId)
+         }
+        return childOnParentListener.result
     }
 
 }
