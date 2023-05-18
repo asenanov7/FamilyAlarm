@@ -156,25 +156,7 @@ class MainFragment : Fragment() {
     }
 
     //Норм
-    private fun bottomNavigationListener() {
-        binding.bottomNavigation.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.item_exit -> {
-                    showAlertDialogForExit()
-                    Log.d("BottomNavigation", "bottomNavigationListener: EXit")
-                    true
-                }
-                R.id.item_alarms -> {
-                    Toast.makeText(requireContext(), "Будильники", Toast.LENGTH_SHORT).show()
-                    true
-                }
-                R.id.item_groups -> {
-                    false
-                }
-                else -> false
-            }
-        }
-    }
+
 
     //Переделать для каждого вида юзера свой UI и фрагмент с вьюмоделью
     private fun updateUIWithUserCondition() {
