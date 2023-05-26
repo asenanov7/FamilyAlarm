@@ -5,17 +5,16 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Adapter
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.chesire.lifecyklelog.LogLifecykle
 import com.example.familyalarm.databinding.InvitationsFragmentBinding
-import com.example.familyalarm.databinding.MainFragmentBinding
 import com.example.familyalarm.presentation.recyclerview.InvitationsAdapter
 import com.example.familyalarm.presentation.viewmodels.InvitationVM
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
+@LogLifecykle
 class InvitationsFragment: Fragment() {
 
     private var _binding: InvitationsFragmentBinding? = null
@@ -30,13 +29,11 @@ class InvitationsFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View{
-        Log.d("InvitationsFragment", "onCreateView: InvitationsFragment $this")
         _binding = InvitationsFragmentBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        Log.d("InvitationsFragment", "onViewCreated: InvitationsFragment $this")
         super.onViewCreated(view, savedInstanceState)
         binding.recyclerView2.adapter = adapter
 
@@ -54,14 +51,10 @@ class InvitationsFragment: Fragment() {
     }
 
     override fun onDestroyView() {
-        Log.d("InvitationsFragment", "onDestroyView: InvitationsFragment $this")
         super.onDestroyView()
+        _binding = null
     }
 
-    override fun onDestroy() {
-        Log.d("InvitationsFragment", "onDestroy: InvitationsFragment $this")
-        super.onDestroy()
-    }
 
     companion object{
         const val NAME = "InvitationsFragment"

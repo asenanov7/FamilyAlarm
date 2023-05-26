@@ -4,13 +4,20 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import com.example.familyalarm.R
+import com.example.familyalarm.data.impl_repositories.GeneralRepositoryImpl
+import com.example.familyalarm.data.impl_repositories.ParentRepositoryImpl
 import com.example.familyalarm.databinding.ActivityMainBinding
+import com.example.familyalarm.domain.entities.User
+import com.example.familyalarm.domain.entities.UserParent
 import com.example.familyalarm.presentation.contract.Navigator
+import com.example.familyalarm.presentation.fragments.ChildMainFragment
 import com.example.familyalarm.presentation.fragments.LoginFragment
-import com.example.familyalarm.presentation.fragments.MainFragment
-import com.google.android.material.navigation.NavigationBarView
+import com.example.familyalarm.presentation.fragments.ParentMainFragment
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), Navigator {
 
@@ -70,7 +77,27 @@ class MainActivity : AppCompatActivity(), Navigator {
             }
         } else {
             if (savedInstanceState == null) {
-                shouldLaunchFragment(MainFragment.newInstance(), MainFragment.NAME, false)
+                lifecycleScope.launch {
+                    var user: User? =null
+                    lifecycleScope.launch {
+                        user = ParentRepositoryImpl.getUserInfo(FirebaseAuth.getInstance().currentUser!!.uid)
+                    }.join()
+
+                    val isParent = user is UserParent
+                    if (isParent) {
+                        shouldLaunchFragment(
+                            ParentMainFragment.newInstance(),
+                            ParentMainFragment.NAME,
+                            false
+                        )
+                    }else{
+                        shouldLaunchFragment(
+                            ChildMainFragment.newInstance(),
+                            ChildMainFragment.NAME,
+                            false
+                        )
+                    }
+                }
                 Log.d(
                     "SENANOV",
                     "currentUser not null - savedInstanceState == null : laucnh MainFragment"

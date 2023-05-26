@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class ResetPasswordVM(application: Application): AndroidViewModel(application) {
 
-    private val authRep = AuthRepositoryImpl()
+    private val authRep = AuthRepositoryImpl
     private val resetUseCase = ResetPassUseCase(repository = authRep)
 
     private val _stateFlow:MutableStateFlow<UiState<Boolean>> = MutableStateFlow(Default)

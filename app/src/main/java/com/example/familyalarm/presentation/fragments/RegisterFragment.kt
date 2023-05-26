@@ -7,19 +7,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import androidx.core.view.allViews
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.chesire.lifecyklelog.LogLifecykle
 import com.example.familyalarm.databinding.RegisterFragmentBinding
 import com.example.familyalarm.presentation.contract.navigator
 import com.example.familyalarm.presentation.viewmodels.RegisterVM
 import com.example.familyalarm.utils.UiState.*
 import com.example.familyalarm.utils.showErrorWithDisappearance
+import com.example.familyalarm.utils.throwEx
 import kotlinx.coroutines.launch
 
+@LogLifecykle
 class RegisterFragment : Fragment() {
 
     private var _binding: RegisterFragmentBinding? = null
@@ -34,7 +38,6 @@ class RegisterFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        Log.d("RegisterFragment", "onCreateView: RegisterFragment $this")
         _binding = RegisterFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -59,23 +62,28 @@ class RegisterFragment : Fragment() {
                 Log.d("RegisterFragment", "regState: $it ")
                 when (it) {
                     Default -> {
-                        binding.buttonReg.isEnabled = true
                         binding.progressBar.isVisible = false
+                        binding.root.allViews.forEach {view-> view.isEnabled = true }
                     }
                     Loading -> {
-                        binding.buttonReg.isEnabled = false
+                        binding.root.allViews.forEach {view-> view.isEnabled = false }
                         binding.progressBar.isVisible = true
-                        Log.d("RegisterFragment", "binding.progressBar.isVisible = true")
                     }
                     is Success -> {
                         navigator().shouldCloseFragment()
-                        navigator().shouldLaunchFragment(
-                            MainFragment.newInstance(), MainFragment.NAME, false
-                        )
+                        if (isParent()) {
+                            navigator().shouldLaunchFragment(
+                                ParentMainFragment.newInstance(), ParentMainFragment.NAME, false
+                            )
+                        }else{
+                            navigator().shouldLaunchFragment(
+                                ChildMainFragment.newInstance(), ChildMainFragment.NAME, false
+                            )
+                        }
                     }
                     is Failure -> {
-                        binding.buttonReg.isEnabled = true
                         binding.progressBar.isVisible = false
+                        binding.root.allViews.forEach {view-> view.isEnabled = true }
                         showErrorWithDisappearance(
                             binding.textviewErrors, it.exceptionMessage, 5000
                         )
@@ -86,14 +94,17 @@ class RegisterFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        Log.d("RegisterFragment", "onDestroyView: RegisterFragment $this")
         super.onDestroyView()
         _binding = null
     }
 
-    override fun onDestroy() {
-        Log.d("RegisterFragment", "onDestroy: RegisterFragment $this")
-        super.onDestroy()
+    private fun isParent(): Boolean {
+        if (binding.radioButtonParent.isChecked){
+            return true
+        }else if (binding.radioButtonChild.isChecked){
+            return false
+        }
+        throwEx(isParent())
     }
 
     private fun registerAndCreateUser() {
