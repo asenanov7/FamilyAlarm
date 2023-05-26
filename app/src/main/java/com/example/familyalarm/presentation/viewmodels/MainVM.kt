@@ -27,6 +27,7 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
+import java.io.Closeable
 
 class MainVM(application: Application) : AndroidViewModel(application) {
 
@@ -41,10 +42,12 @@ class MainVM(application: Application) : AndroidViewModel(application) {
     private val deleteChildUseCase = DeleteChild(parentRepositoryImpl)
 
 
+
     init {
         repositoryImpl.setGeneralAutoChangeListener()
         Log.d("setGeneralAutoChange", "setGeneralAutoChange")
     }
+
 
     suspend fun getChilds(): Flow<UiState<List<UserChild>>> {
         return getParentChildsUseCase()

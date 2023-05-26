@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -20,6 +21,7 @@ import com.example.familyalarm.databinding.ChildMainFragmentBinding
 import com.example.familyalarm.domain.entities.UserChild
 import com.example.familyalarm.presentation.contract.navigator
 import com.example.familyalarm.presentation.recyclerview.UsersAdapter
+import com.example.familyalarm.presentation.viewmodels.MainChildVM
 import com.example.familyalarm.presentation.viewmodels.MainVM
 import com.example.familyalarm.utils.UiState
 import com.example.familyalarm.utils.uiLifeCycleScope
@@ -34,7 +36,8 @@ class ChildMainFragment : Fragment() {
     private val binding: ChildMainFragmentBinding
         get() = _binding ?: throw Exception("ChildMainFragment == null")
 
-    private val vm by lazy { ViewModelProvider(this)[MainVM::class.java] }
+    private val vm by lazy { ViewModelProvider(this)[MainChildVM::class.java] }
+    private val vmStore by lazy { ViewModelStore() }
 
     private val adapter by lazy { UsersAdapter() }
 
@@ -52,6 +55,8 @@ class ChildMainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        vmStore.put(vm.toString(), vm)
+
         viewLifecycleOwner.lifecycleScope.launch {
             getChildsAndSubmitInAdapter()
             launchInvitationsFragment()
@@ -65,17 +70,18 @@ class ChildMainFragment : Fragment() {
         _binding = null
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        vmStore.clear()
+    }
+
 
     private suspend fun getChildsAndSubmitInAdapter() {
         uiLifeCycleScope {
             vm.getChilds().collectLatest {
                 if (it is UiState.Success<List<UserChild>>) {
-                    Log.d("ARSEN", "adapter submitted $it ")
-                    val list = it.result.toMutableList()
-                    /*val user = vm.getUserInfo()
-                    Log.d("ARSEN", "deleting USER: $user ")
-                    list.remove(user)*/
-                    adapter.submitList(list)
+                    Log.d("ARSEN", "result ${it.result}")
+                    adapter.submitList(it.result)
                 }
             }
         }
@@ -98,6 +104,7 @@ class ChildMainFragment : Fragment() {
                         navigator().shouldCloseFragment()
 
                         vm.detachAllListeners()
+                        vmStore.clear()
 
                         navigator().shouldLaunchFragment(
                             LoginFragment.newInstance(),

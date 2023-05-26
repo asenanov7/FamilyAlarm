@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -29,6 +30,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.io.Closeable
 import kotlin.properties.Delegates
 
 @LogLifecykle
@@ -38,6 +40,7 @@ class ParentMainFragment : Fragment() {
     private val binding: ParentMainFragmentBinding
         get() = _binding ?: throw Exception("ParentMainFragment == null")
 
+    private val vmStore by lazy { ViewModelStore() }
     private val vm by lazy { ViewModelProvider(this)[MainVM::class.java] }
 
     private val adapter by lazy { UsersAdapter() }
@@ -56,6 +59,8 @@ class ParentMainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        vmStore.put(vm.toString(), vm)
 
         viewLifecycleOwner.lifecycleScope.launch {
             getChildsAndSubmitInAdapter()
@@ -83,6 +88,11 @@ class ParentMainFragment : Fragment() {
             }
         }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        vmStore.clear()
+    }
+
 
 
     //Норм
@@ -100,6 +110,7 @@ class ParentMainFragment : Fragment() {
                         is UiState.Success -> {
                             navigator().shouldCloseFragment()
 
+                             vmStore.clear()
                              vm.detachAllListeners()
 
                             navigator().shouldLaunchFragment(
