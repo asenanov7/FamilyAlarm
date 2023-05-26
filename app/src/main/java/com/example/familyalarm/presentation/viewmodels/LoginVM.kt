@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.familyalarm.data.impl_repositories.AuthRepositoryImpl
+import com.example.familyalarm.data.impl_repositories.GeneralRepositoryImpl
 import com.example.familyalarm.data.impl_repositories.ParentRepositoryImpl
 import com.example.familyalarm.domain.entities.User
 import com.example.familyalarm.domain.entities.UserParent
@@ -62,7 +63,7 @@ class LoginVM(application: Application) : AndroidViewModel(application) {
     suspend fun checkIsParentOrChild(){
         var user: User? =null
         viewModelScope.launch {
-           user = ParentRepositoryImpl.getUserInfo(FirebaseAuth.getInstance().currentUser!!.uid)
+           user = GeneralRepositoryImpl.getUserInfo(FirebaseAuth.getInstance().currentUser!!.uid)
         }.join()
 
         if (user is UserParent){

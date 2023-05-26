@@ -1,6 +1,7 @@
 package com.example.familyalarm.data.impl_repositories
 
 import com.example.familyalarm.data.listeners.SingleFirebaseListener
+import com.example.familyalarm.domain.entities.User
 import com.example.familyalarm.domain.entities.UserChild
 import com.example.familyalarm.domain.entities.UserParent
 import com.example.familyalarm.domain.repositories.GeneralRepository
@@ -12,10 +13,12 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 object GeneralRepositoryImpl : GeneralRepository {
 
@@ -70,6 +73,14 @@ object GeneralRepositoryImpl : GeneralRepository {
         scope.launch {
             auth.currentUser?.let { parentsRef.child(it.uid).setValue(userParent) }
         }.join()
+    }
+
+    override suspend fun getUserInfo(userId: String): User {
+        return try {
+            childsRef.child(userId).get().await().getValue<UserChild>()!!
+        } catch (e: java.lang.Exception) {
+            parentsRef.child(userId).get().await().getValue<UserParent>()!!
+        }
     }
 
 

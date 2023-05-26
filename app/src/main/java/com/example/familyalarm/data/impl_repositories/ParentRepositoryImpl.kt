@@ -111,13 +111,5 @@ object ParentRepositoryImpl : ParentRepository {
     }
 
 
-    override suspend fun getUserInfo(userId: String): User {
-        return try {
-            childsRef.child(userId).get().await().getValue<UserChild>()!!
-        } catch (e: java.lang.Exception) {
-            parentsRef.child(userId).get().await().getValue<UserParent>()!!
-        }
-    }
-
 
 }

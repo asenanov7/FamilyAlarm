@@ -80,7 +80,7 @@ class MainActivity : AppCompatActivity(), Navigator {
                 lifecycleScope.launch {
                     var user: User? =null
                     lifecycleScope.launch {
-                        user = ParentRepositoryImpl.getUserInfo(FirebaseAuth.getInstance().currentUser!!.uid)
+                        user = GeneralRepositoryImpl.getUserInfo(FirebaseAuth.getInstance().currentUser!!.uid)
                     }.join()
 
                     val isParent = user is UserParent
