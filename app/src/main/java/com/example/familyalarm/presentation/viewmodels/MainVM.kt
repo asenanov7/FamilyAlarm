@@ -12,7 +12,7 @@ import com.example.familyalarm.domain.entities.User
 import com.example.familyalarm.domain.entities.UserChild
 import com.example.familyalarm.domain.usecases.auth.LogOutUseCase
 import com.example.familyalarm.domain.usecases.parent.DeleteChild
-import com.example.familyalarm.domain.usecases.parent.GetChildInfoUseCase
+import com.example.familyalarm.domain.usecases.parent.GetUserInfoUseCase
 import com.example.familyalarm.domain.usecases.parent.GetParentChildsUseCase
 import com.example.familyalarm.utils.UiState
 import com.example.familyalarm.utils.UiState.*
@@ -24,27 +24,20 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
-import java.io.Closeable
 
 class MainVM(application: Application) : AndroidViewModel(application) {
 
-
-    private val authRepository = AuthRepositoryImpl
-    private val repositoryImpl = GeneralRepositoryImpl
-    private val parentRepositoryImpl = ParentRepositoryImpl
-
-    private val logOutUseCase = LogOutUseCase(authRepository)
-    private val getChildInfoUseCase = GetChildInfoUseCase(parentRepositoryImpl)
-    private val getParentChildsUseCase = GetParentChildsUseCase(parentRepositoryImpl)
-    private val deleteChildUseCase = DeleteChild(parentRepositoryImpl)
+    private val logOutUseCase = LogOutUseCase(AuthRepositoryImpl)
+    private val getUserInfoUseCase = GetUserInfoUseCase(GeneralRepositoryImpl)
+    private val getParentChildsUseCase = GetParentChildsUseCase(ParentRepositoryImpl)
+    private val deleteChildUseCase = DeleteChild(ParentRepositoryImpl)
 
 
 
     init {
-        repositoryImpl.setGeneralAutoChangeListener()
+        GeneralRepositoryImpl.setGeneralAutoChangeListener()
         Log.d("setGeneralAutoChange", "setGeneralAutoChange")
     }
 
@@ -58,10 +51,8 @@ class MainVM(application: Application) : AndroidViewModel(application) {
     }
 
 
-    suspend fun getUserInfo(): User {
-        val currentUserId = Firebase.auth.currentUser?.uid
-            ?: throwEx(getUserInfo())
-        return getChildInfoUseCase(currentUserId)
+    suspend fun getUserInfo(id:String): User {
+        return getUserInfoUseCase(id)
     }
 
     fun deleteChild(userId: String) {

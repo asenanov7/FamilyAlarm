@@ -18,11 +18,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 
 class MainChildVM : ViewModel() {
-    private val authRepository = AuthRepositoryImpl
-    private val childRepositoryImpl = ChildRepositoryImpl
 
-    private val logOutUseCase = LogOutUseCase(authRepository)
-    private val childGetUseCase = GetChildsForChildUseCase(childRepositoryImpl)
+    private val logOutUseCase = LogOutUseCase(AuthRepositoryImpl)
+    private val childGetUseCase = GetChildsForChildUseCase(ChildRepositoryImpl)
 
     suspend fun getChilds(): Flow<UiState<List<UserChild>>> {
         return childGetUseCase()

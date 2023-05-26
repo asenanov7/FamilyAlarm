@@ -10,6 +10,7 @@ interface ChildRepository {
 
     suspend fun acceptInvite(parentId: String)
 
+
     val getChilds: Flow<List<UserChild>>
 
 }

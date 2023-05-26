@@ -14,5 +14,5 @@ interface ParentRepository {
 
     val childsFLOW: Flow<List<UserChild>>
 
-    suspend fun getUserInfo(userId: String): User
+
 }
