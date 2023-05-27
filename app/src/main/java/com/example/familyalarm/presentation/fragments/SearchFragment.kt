@@ -10,11 +10,13 @@ import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.chesire.lifecyklelog.LogLifecykle
 import com.example.familyalarm.databinding.SearchFragmentBinding
 import com.example.familyalarm.presentation.recyclerview.SearchAdapter
 import com.example.familyalarm.presentation.viewmodels.SearchVM
 import kotlinx.coroutines.launch
 
+@LogLifecykle
 class SearchFragment : Fragment() {
 
     private var _binding: SearchFragmentBinding? = null
@@ -30,14 +32,12 @@ class SearchFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.d("InvitationsFragment", "onCreateView: InvitationsFragment $this")
         _binding = SearchFragmentBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("InvitationsFragment", "onViewCreated: InvitationsFragment $this")
         binding.rvInvitations.adapter = adapter
         adapter.clickAddUser = {
             lifecycleScope.launch {
@@ -79,14 +79,8 @@ class SearchFragment : Fragment() {
         }
 
     override fun onDestroyView() {
-        Log.d("InvitationsFragment", "onDestroyView: InvitationsFragment $this")
         super.onDestroyView()
         _binding = null
-    }
-
-    override fun onDestroy() {
-        Log.d("InvitationsFragment", "onDestroy: InvitationsFragment $this")
-        super.onDestroy()
     }
 
     companion object {

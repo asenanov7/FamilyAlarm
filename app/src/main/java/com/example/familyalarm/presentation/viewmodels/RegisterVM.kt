@@ -4,11 +4,11 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import com.example.familyalarm.data.impl_repositories.AuthRepositoryImpl
-import com.example.familyalarm.data.impl_repositories.RepositoryImpl
+import com.example.familyalarm.data.impl_repositories.GeneralRepositoryImpl
 import com.example.familyalarm.domain.entities.UserChild
 import com.example.familyalarm.domain.entities.UserParent
-import com.example.familyalarm.domain.usecases.CreateChildUseCase
-import com.example.familyalarm.domain.usecases.CreateParentUseCase
+import com.example.familyalarm.domain.usecases.general.CreateChildUseCase
+import com.example.familyalarm.domain.usecases.general.CreateParentUseCase
 import com.example.familyalarm.domain.usecases.auth.RegisterUseCase
 import com.example.familyalarm.utils.UiState
 import com.example.familyalarm.utils.UiState.*
@@ -22,11 +22,11 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class RegisterVM(application: Application) : AndroidViewModel(application) {
 
-    private val authRepository = AuthRepositoryImpl()
-    private val repositoryImpl = RepositoryImpl()
+    private val authRepository = AuthRepositoryImpl
+    private val repositoryImpl = GeneralRepositoryImpl
     private val registerUseCase = RegisterUseCase(repository = authRepository)
-    private val createParentUseCase = CreateParentUseCase(repository = repositoryImpl)
-    private val createChildUseCase = CreateChildUseCase(repository = repositoryImpl)
+    private val createParentUseCase = CreateParentUseCase(generalRepository = repositoryImpl)
+    private val createChildUseCase = CreateChildUseCase(generalRepository = repositoryImpl)
     private val auth = FirebaseAuth.getInstance()
 
     private val _stateFlow: MutableStateFlow<UiState<Boolean>> = MutableStateFlow(Default)

@@ -8,45 +8,43 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.graphics.scaleMatrix
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.chesire.lifecyklelog.LogLifecykle
 import com.example.familyalarm.R
-import com.example.familyalarm.databinding.MainFragmentBinding
+import com.example.familyalarm.data.impl_repositories.ParentRepositoryImpl
+import com.example.familyalarm.data.listeners.SingleFirebaseListener
+import com.example.familyalarm.databinding.ParentMainFragmentBinding
 import com.example.familyalarm.domain.entities.UserChild
 import com.example.familyalarm.presentation.contract.navigator
 import com.example.familyalarm.presentation.recyclerview.UsersAdapter
 import com.example.familyalarm.presentation.viewmodels.MainVM
 import com.example.familyalarm.utils.UiState
 import com.example.familyalarm.utils.uiLifeCycleScope
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.flow.collect
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
+import java.io.Closeable
 import kotlin.properties.Delegates
 
-class MainFragment : Fragment() {
+@LogLifecykle
+class ParentMainFragment : Fragment() {
 
-    private var _binding: MainFragmentBinding? = null
-    private val binding: MainFragmentBinding
-        get() = _binding ?: throw Exception("MainFragment == null")
+    private var _binding: ParentMainFragmentBinding? = null
+    private val binding: ParentMainFragmentBinding
+        get() = _binding ?: throw Exception("ParentMainFragment == null")
 
+    private val vmStore by lazy { ViewModelStore() }
     private val vm by lazy { ViewModelProvider(this)[MainVM::class.java] }
 
     private val adapter by lazy { UsersAdapter() }
 
-    private var isParent by Delegates.notNull<Boolean>()
 
 
     override fun onCreateView(
@@ -54,19 +52,19 @@ class MainFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        Log.d("MainFragment", "onCreateView: MainFragment $this")
-        _binding = MainFragmentBinding.inflate(layoutInflater, container, false)
+        _binding = ParentMainFragmentBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("MainFragment", "onViewCreated: MainFragment $this")
+
+        vmStore.put(vm.toString(), vm)
 
         viewLifecycleOwner.lifecycleScope.launch {
             getChildsAndSubmitInAdapter()
-            updateUIWithUserCondition()
+            launchSearchFragment()
             setRecyclerViewItemSwipeListener()
             bottomNavigationListener()
             binding.recyclerView.adapter = adapter
@@ -74,20 +72,14 @@ class MainFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        Log.d("MainFragment", "onDestroyView: MainFragment $this")
         super.onDestroyView()
         _binding = null
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d("MainFragment", "onDestroy: MainFragment $this")
-    }
-
 
     private suspend fun getChildsAndSubmitInAdapter() {
-        uiLifeCycleScope { UiScope->
-                vm.getChild(UiScope).collectLatest {
+        uiLifeCycleScope {
+            vm.getChilds().collectLatest {
                     if (it is UiState.Success<List<UserChild>>) {
                         Log.d("ARSEN", "adapter submitted $it ")
                         adapter.submitList(it.result)
@@ -96,13 +88,18 @@ class MainFragment : Fragment() {
             }
         }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        vmStore.clear()
+    }
+
 
 
     //Норм
     private suspend fun exit() {
         uiLifeCycleScope{
                 vm.logOut(requireContext()).collectLatest {
-                    Log.d("MainFragment", "ExitState: $it ")
+                    Log.d("ParentMainFragment", "ExitState: $it ")
                     when (it) {
                         UiState.Default -> {
                             binding.progressBarMain.isVisible = false
@@ -112,6 +109,10 @@ class MainFragment : Fragment() {
                         }
                         is UiState.Success -> {
                             navigator().shouldCloseFragment()
+
+                             vmStore.clear()
+                             vm.detachAllListeners()
+
                             navigator().shouldLaunchFragment(
                                 LoginFragment.newInstance(),
                                 LoginFragment.NAME,
@@ -177,14 +178,8 @@ class MainFragment : Fragment() {
     }
 
     //Переделать для каждого вида юзера свой UI и фрагмент с вьюмоделью
-    private fun updateUIWithUserCondition() {
+    private fun launchSearchFragment() {
         uiLifeCycleScope{
-            val user = vm.getUserInfo()
-            isParent = user !is UserChild
-            Log.d("Parent", "isParent: $isParent")
-            if (isParent) {
-                binding.buttonInvitations.visibility = View.INVISIBLE
-                binding.buttonAdd.visibility = View.VISIBLE
                 binding.buttonAdd.setOnClickListener {
                     navigator().shouldLaunchFragment(
                         SearchFragment.newInstance(),
@@ -193,18 +188,7 @@ class MainFragment : Fragment() {
                     )
                 }
 
-            } else {
-                binding.buttonInvitations.visibility = View.VISIBLE
-                binding.buttonAdd.visibility = View.INVISIBLE
-                binding.buttonInvitations.setOnClickListener {
-                    navigator().shouldLaunchFragment(
-                        InvitationsFragment.newInstance(),
-                        InvitationsFragment.NAME,
-                        true
-                    )
-                }
             }
-        }
     }
 
     //Норм
@@ -234,10 +218,10 @@ class MainFragment : Fragment() {
     }
 
     companion object {
-        const val NAME: String = "MainFragment"
+        const val NAME: String = "ParentMainFragment"
 
-        fun newInstance(): MainFragment {
-            return MainFragment()
+        fun newInstance(): ParentMainFragment {
+            return ParentMainFragment()
         }
     }
 }

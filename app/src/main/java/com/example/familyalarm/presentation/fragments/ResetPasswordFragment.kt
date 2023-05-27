@@ -8,12 +8,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.core.view.allViews
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.chesire.lifecyklelog.LogLifecykle
 import com.example.familyalarm.R
 import com.example.familyalarm.databinding.ResetPasswordFragmentBinding
 import com.example.familyalarm.presentation.contract.navigator
@@ -22,6 +24,7 @@ import com.example.familyalarm.utils.UiState.*
 import com.example.familyalarm.utils.showErrorWithDisappearance
 import kotlinx.coroutines.launch
 
+@LogLifecykle
 class ResetPasswordFragment : Fragment() {
 
     private var _binding: ResetPasswordFragmentBinding? = null
@@ -38,14 +41,12 @@ class ResetPasswordFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        Log.d("ResetPasswordFragment", "onCreateView: ResetFragment $this")
         _binding = ResetPasswordFragmentBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
 
         lifecycleScope.launch {
             observeVmState()
@@ -65,15 +66,15 @@ class ResetPasswordFragment : Fragment() {
                 when (it) {
                     Default -> {
                         binding.progressBar.isVisible = false
-                        binding.buttonReset.isEnabled = true
+                        binding.root.allViews.forEach {view-> view.isEnabled = true }
                     }
                     Loading -> {
                         binding.progressBar.isVisible = true
-                        binding.buttonReset.isEnabled = false
+                        binding.root.allViews.forEach {view-> view.isEnabled = false }
                     }
                     is Success -> {
                         binding.progressBar.isVisible = false
-                        binding.buttonReset.isEnabled = true
+                        binding.root.allViews.forEach {view-> view.isEnabled = true }
                         Toast.makeText(
                             requireContext(),
                             getString(R.string.sended),
@@ -83,7 +84,7 @@ class ResetPasswordFragment : Fragment() {
                     }
                     is Failure -> {
                         binding.progressBar.isVisible = false
-                        binding.buttonReset.isEnabled = true
+                        binding.root.allViews.forEach {view-> view.isEnabled = true }
                         showErrorWithDisappearance(
                             binding.textviewErrors, it.exceptionMessage, 5000
                         )
@@ -94,14 +95,8 @@ class ResetPasswordFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        Log.d("ResetPasswordFragment", "onDestroyView: ResetFragment $this")
         super.onDestroyView()
         _binding = null
-    }
-
-    override fun onDestroy() {
-        Log.d("ResetPasswordFragment", "onDestroyView: ResetFragment $this")
-        super.onDestroy()
     }
 
     private fun resetPassword(){

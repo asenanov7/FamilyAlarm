@@ -7,19 +7,25 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import androidx.core.view.allViews
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.chesire.lifecyklelog.LogLifecykle
 import com.example.familyalarm.databinding.LoginFragmentBinding
 import com.example.familyalarm.presentation.contract.navigator
 import com.example.familyalarm.presentation.viewmodels.LoginVM
 import com.example.familyalarm.utils.UiState.*
 import com.example.familyalarm.utils.showErrorWithDisappearance
+import com.example.familyalarm.utils.throwEx
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+@LogLifecykle
 class LoginFragment : Fragment() {
 
     private val vm by lazy { ViewModelProvider(this)[LoginVM::class.java] }
@@ -34,7 +40,6 @@ class LoginFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        Log.d("LoginFragment", "onCreateView: LoginFragment $this")
         _binding = LoginFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -48,6 +53,7 @@ class LoginFragment : Fragment() {
 
         binding.buttonSignUp.setOnClickListener {
             hideKeyboard()
+            Log.d("LOGIN", "current auth id = ${FirebaseAuth.getInstance().currentUser?.uid?:"null"}")
             login()
         }
 
@@ -97,28 +103,37 @@ class LoginFragment : Fragment() {
                 Log.d("LoginFragment", "loginVmState: $it")
                 when (it) {
                     Default -> {
+                        binding.root.allViews.forEach {view-> view.isEnabled = true }
                         binding.progressBar.isVisible = false
-                        binding.buttonSignUp.isEnabled = true
-                        binding.textViewRegister.isEnabled = true
-                        binding.forgotPass.isEnabled = true
                     }
                     Loading -> {
                         binding.progressBar.isVisible = true
-                        binding.buttonSignUp.isEnabled = false
-                        binding.textViewRegister.isEnabled = false
-                        binding.forgotPass.isEnabled = false
+                        binding.root.allViews.forEach {view-> view.isEnabled = false }
                     }
                     is Success -> {
                         navigator().shouldCloseFragment()
-                        navigator().shouldLaunchFragment(
-                            MainFragment.newInstance(), MainFragment.NAME, false
-                        )
+                        vm.checkIsParentOrChild()
+                        vm.isParent.collectLatest {isParent->
+                            when(isParent){
+                                true ->  navigator().shouldLaunchFragment(
+                                    ParentMainFragment.newInstance(),
+                                    ParentMainFragment.NAME,
+                                    false
+                                )
+                                false ->  navigator().shouldLaunchFragment(
+                                    ChildMainFragment.newInstance(),
+                                    ChildMainFragment.NAME,
+                                    false
+                                )
+                                else -> {
+                                    throwEx(observeVmState())
+                                }
+                            }
+                        }
                     }
                     is Failure -> {
                         binding.progressBar.isVisible = false
-                        binding.buttonSignUp.isEnabled = true
-                        binding.textViewRegister.isEnabled = true
-                        binding.forgotPass.isEnabled = true
+                        binding.root.allViews.forEach { view-> view.isEnabled = true }
                             showErrorWithDisappearance(
                                 binding.textviewErrors, it.exceptionMessage, 5000
                             )
@@ -130,15 +145,10 @@ class LoginFragment : Fragment() {
 
 
     override fun onDestroyView() {
-        Log.d("LoginFragment", "onDestroyView: LoginFragment $this")
         super.onDestroyView()
         _binding = null
     }
 
-    override fun onDestroy() {
-        Log.d("LoginFragment", "onDestroy: LoginFragment $this")
-        super.onDestroy()
-    }
 
     companion object {
 

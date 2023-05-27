@@ -5,7 +5,7 @@ import com.example.familyalarm.domain.repositories.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.tasks.await
 
-class AuthRepositoryImpl() : AuthRepository {
+object AuthRepositoryImpl : AuthRepository {
 
     private val auth by lazy { FirebaseAuth.getInstance() }
 
