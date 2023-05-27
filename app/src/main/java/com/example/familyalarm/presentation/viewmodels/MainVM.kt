@@ -55,7 +55,7 @@ class MainVM(application: Application) : AndroidViewModel(application) {
         return getUserInfoUseCase(id)
     }
 
-    fun deleteChild(userId: String) {
+    suspend fun deleteChild(userId: String) {
         Firebase.auth.currentUser?.let {
             deleteChildUseCase(userId, it.uid)
         }

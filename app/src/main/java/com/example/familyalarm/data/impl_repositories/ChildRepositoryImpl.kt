@@ -157,17 +157,17 @@ object ChildRepositoryImpl : ChildRepository {
         val childUserID = Firebase.auth.currentUser!!.uid
         val userChild = getUserChild(childUserID)
 
-        scope.launch {
-            if (userChild?.currentGroupId != null) {
-                parentRepositoryImpl.deleteChild(
-                    userId = childUserID,
-                    parentId = getUserChild(childUserID)?.currentGroupId ?:
-                    throw Exception("Delete user From current parent error, currentParent == null"
+
+            scope.launch {
+                if (userChild?.currentGroupId != null) {
+                    parentRepositoryImpl.deleteChild(
+                        userId = childUserID,
+                        parentId = userChild.currentGroupId
                     )
-                )
-            }
-        }.join()
-        updateChildCurrentGroupId(childUserID, parentId)
+                }
+            }.join()
+            childsRef.child(childUserID).child("currentGroupId").setValue(parentId)
+
         scope.launch {
             removeInviteAfterAccept(childUserID, parentId)
 

@@ -80,15 +80,14 @@ object ParentRepositoryImpl : ParentRepository {
     }
 
 
-    override fun deleteChild(userId: String, parentId: String) {
+    override suspend fun deleteChild(userId: String, parentId: String) {
             scope.launch {
                 val oldIdList = getOldChildIdsList(parentId)
-                val newIdList = oldIdList.toMutableList()
-                    .apply { remove(userId) }
+                val newIdList = oldIdList.toMutableList().apply { remove(userId) }
 
                 setNewChildList(parentId, newIdList)
                 updateChildCurrentGroupId(userId, null)
-            }
+            }.join()
     }
 
 

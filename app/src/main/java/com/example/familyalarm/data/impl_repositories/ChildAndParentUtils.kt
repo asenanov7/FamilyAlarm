@@ -52,6 +52,7 @@ class ChildAndParentUtils {
                 if (it.currentGroupId == groupId) {
                     throw Exception("У пользователя oldгруппа == новой присваеваемой")
                 }
+
                 GeneralRepositoryImpl.childsRef.child(userChildId).child("currentGroupId")
                     .setValue(groupId)
             }

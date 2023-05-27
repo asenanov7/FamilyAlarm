@@ -8,7 +8,7 @@ interface ParentRepository {
 
     suspend fun inviteChild(userId: String): Boolean
 
-    fun deleteChild(userId: String, parentId: String)
+    suspend fun deleteChild(userId: String, parentId: String)
 
     suspend fun findChildByHazyName(name: String): Flow<List<UserChild>>
 

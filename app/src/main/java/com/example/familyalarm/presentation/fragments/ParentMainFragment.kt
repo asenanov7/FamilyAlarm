@@ -208,7 +208,9 @@ class ParentMainFragment : Fragment() {
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 adapter.currentList[viewHolder.adapterPosition].id?.let {
-                    vm.deleteChild(it)
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        vm.deleteChild(it)
+                    }
                 }
             }
         }
