@@ -14,6 +14,8 @@ import com.example.familyalarm.domain.entities.UserParent
 import com.example.familyalarm.domain.repositories.ChildRepository
 import com.example.familyalarm.utils.FirebaseTables
 import com.example.familyalarm.utils.FirebaseTables.PARENT_CHILDRENS_CHILD_TABLE
+import com.example.familyalarm.utils.throwEx
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -25,14 +27,20 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 object ChildRepositoryImpl : ChildRepository {
 
     private val scope = CoroutineScope(Dispatchers.IO)
     private val parentRepositoryImpl = ParentRepositoryImpl
 
-    private var needUpdateChild = MutableSharedFlow<Unit>()
+    private var needUpdateChilds = MutableSharedFlow<Unit>()
+    private var currentGroupChanged = MutableSharedFlow<Unit>()
+
     private var childs = emptyList<UserChild>()
+    private var currentGroupId: String? = null
+    private var oldCurrentGroupId: String? = null
+
 
     private val childsListener = object : SingleFirebaseListener<UserChild>() {
 
@@ -50,7 +58,7 @@ object ChildRepositoryImpl : ChildRepository {
                         }
                 }
                 childs = listOfChilds
-                needUpdateChild.emit(Unit)
+                needUpdateChilds.emit(Unit)
             }
         }
 
@@ -58,6 +66,63 @@ object ChildRepositoryImpl : ChildRepository {
             throw Exception("Canceled ChildOnParentListener in ParentRepositoryImpl")
         }
     }
+    private val currentGroupIdListener = object  : SingleFirebaseListener<UserChild>(){
+        override fun onDataChangeCustom(snapshot: DataSnapshot) {
+            Log.d("GROUPLISTENER", "before oldCurrentGroupId = $oldCurrentGroupId ")
+            Log.d("GROUPLISTENER", "before currentGroupId = $currentGroupId ")
+            oldCurrentGroupId = currentGroupId
+            currentGroupId = snapshot.getValue<String>()
+            scope.launch { currentGroupChanged.emit(Unit) }
+            Log.d("GROUPLISTENER", "after oldCurrentGroupId = $oldCurrentGroupId ")
+            Log.d("GROUPLISTENER", "after currentGroupId = $currentGroupId ")
+        }
+
+        override fun onCanceledCustom(error: DatabaseError) {
+            throwEx(onCanceledCustom(error))
+        }
+    }
+
+
+    override val getChilds: Flow<List<UserChild>> = flow {
+        scope.launch {
+            oldCurrentGroupId = getUserChild(Firebase.auth.currentUser!!.uid)!!.currentGroupId
+            currentGroupId = getUserChild(Firebase.auth.currentUser!!.uid)!!.currentGroupId
+        }.join()
+        val childId = Firebase.auth.currentUser!!.uid
+        val ref = childsRef.child(childId).child("currentGroupId")
+        currentGroupIdListener.attachListener(ref)
+
+        scope.launch {
+            currentGroupChanged.collect {
+                Log.d("COLLECTING", "$it")
+                scope.launch {
+                        if (childsListener.isActive) {
+                            childsListener.detachListener(
+                                parentsRef,
+                                oldCurrentGroupId ?: "",
+                                PARENT_CHILDRENS_CHILD_TABLE
+                            )
+                            childsListener.attachListener(
+                                parentsRef,
+                                currentGroupId ?: "",
+                                PARENT_CHILDRENS_CHILD_TABLE
+                            )
+                        } else {
+                            childsListener.attachListener(
+                                parentsRef,
+                                currentGroupId ?: "",
+                                PARENT_CHILDRENS_CHILD_TABLE
+                            )
+                        }
+                }.join()
+                needUpdateChilds.emit(Unit)
+            }
+        }
+        needUpdateChilds.collect{
+            emit(childs)
+        }
+
+    }.stateIn(scope = scope, started = SharingStarted.Lazily, emptyList())
 
 
     override suspend fun getInvitations(userId: String): Flow<List<UserParent>> {
@@ -113,18 +178,5 @@ object ChildRepositoryImpl : ChildRepository {
         }
     }
 
-    override val getChilds: Flow<List<UserChild>> = flow {
-        val child = getUserChild(Firebase.auth.currentUser!!.uid)
-        val parentId = child?.currentGroupId
 
-        if (!childsListener.isActive) {
-            childsListener.attachListener(parentsRef, parentId!!, PARENT_CHILDRENS_CHILD_TABLE)
-            Log.d("ARSEN", " childsListener.attachListener")
-        }
-
-        needUpdateChild.collect {
-            emit(childs)
-        }
-    }
-        .stateIn(scope = scope, started = SharingStarted.Lazily, emptyList())
 }
