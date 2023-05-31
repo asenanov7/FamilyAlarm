@@ -149,11 +149,11 @@ class ChildRepositoryImpl private constructor() : ChildRepository {
         val childUserID = Firebase.auth.currentUser!!.uid
         val userChild = getUserChild(childUserID)
 
-
+        //delete user From oldParent
         scope.launch {
             if (userChild?.currentGroupId != null) {
                 scope.launch {
-                    val oldIdList = getOldChildIdsList(parentId)
+                    val oldIdList = getOldChildIdsList(userChild.currentGroupId)
                     val newIdList = oldIdList.toMutableList().apply { remove(childUserID) }
 
                     setNewChildList(parentId, newIdList)
@@ -162,10 +162,10 @@ class ChildRepositoryImpl private constructor() : ChildRepository {
             }
         }.join()
 
-
+        //update currentParentId
         CHILDS_REF.child(childUserID).child("currentGroupId").setValue(parentId)
 
-
+        //add user in newParent
         scope.launch {
             removeInviteAfterAccept(childUserID, parentId)
 

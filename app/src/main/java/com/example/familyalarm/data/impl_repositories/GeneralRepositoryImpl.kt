@@ -99,8 +99,8 @@ import kotlinx.coroutines.tasks.await
         }
 
         fun destroy(){
-            Log.d("FIX_LISTENERS_BUG", "destroy: ${CHILDS_REF.removeEventListener(INSTANCE?.childListener!!)}")
-            Log.d("FIX_LISTENERS_BUG", "destroy: ${PARENTS_REF.removeEventListener(INSTANCE?.parentListener!!)}")
+            Log.d("FIX_LISTENERS_BUG", "destroy: $CHILDS_REF")
+            Log.d("FIX_LISTENERS_BUG", "destroy: $PARENTS_REF")
             CHILDS_REF.removeEventListener(INSTANCE?.childListener!!)
             PARENTS_REF.removeEventListener(INSTANCE?.parentListener!!)
             INSTANCE = null
