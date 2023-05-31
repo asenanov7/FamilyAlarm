@@ -156,14 +156,15 @@ class ChildRepositoryImpl private constructor() : ChildRepository {
                     val oldIdList = getOldChildIdsList(userChild.currentGroupId)
                     val newIdList = oldIdList.toMutableList().apply { remove(childUserID) }
 
-                    setNewChildList(parentId, newIdList)
-                    ChildAndParentUtils.updateChildCurrentGroupId(childUserID, parentId)
+                    setNewChildList(userChild.currentGroupId, newIdList)
+
                 }.join()
             }
         }.join()
 
         //update currentParentId
-        CHILDS_REF.child(childUserID).child("currentGroupId").setValue(parentId)
+        //Попробую убрать CHILDS_REF.child(childUserID).child("currentGroupId").setValue(parentId)
+        ChildAndParentUtils.updateChildCurrentGroupId(childUserID, parentId)
 
         //add user in newParent
         scope.launch {
