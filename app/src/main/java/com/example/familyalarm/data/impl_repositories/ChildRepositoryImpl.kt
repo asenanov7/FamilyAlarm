@@ -163,7 +163,6 @@ class ChildRepositoryImpl private constructor() : ChildRepository {
         }.join()
 
         //update currentParentId
-        //Попробую убрать CHILDS_REF.child(childUserID).child("currentGroupId").setValue(parentId)
         ChildAndParentUtils.updateChildCurrentGroupId(childUserID, parentId)
 
         //add user in newParent

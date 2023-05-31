@@ -54,7 +54,7 @@ class ChildAndParentUtils {
                 if (it.currentGroupId == groupId) {
                     throw Exception("У пользователя oldгруппа == новой присваеваемой")
                 }
-
+               //можно убрать верхнюю часть функции
                 CHILDS_REF.child(userChildId).child("currentGroupId")
                     .setValue(groupId)
             }
