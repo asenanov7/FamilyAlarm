@@ -23,10 +23,10 @@ import kotlinx.coroutines.flow.asStateFlow
 class RegisterVM(application: Application) : AndroidViewModel(application) {
 
     private val authRepository = AuthRepositoryImpl
-    private val repositoryImpl = GeneralRepositoryImpl
+    private val generalRepositoryImpl = GeneralRepositoryImpl.create()
     private val registerUseCase = RegisterUseCase(repository = authRepository)
-    private val createParentUseCase = CreateParentUseCase(generalRepository = repositoryImpl)
-    private val createChildUseCase = CreateChildUseCase(generalRepository = repositoryImpl)
+    private val createParentUseCase = CreateParentUseCase(generalRepository = generalRepositoryImpl)
+    private val createChildUseCase = CreateChildUseCase(generalRepository = generalRepositoryImpl)
     private val auth = FirebaseAuth.getInstance()
 
     private val _stateFlow: MutableStateFlow<UiState<Boolean>> = MutableStateFlow(Default)

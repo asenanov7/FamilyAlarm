@@ -36,8 +36,7 @@ class ChildMainFragment : Fragment() {
     private val binding: ChildMainFragmentBinding
         get() = _binding ?: throw Exception("ChildMainFragment == null")
 
-    private val vm by lazy { ViewModelProvider(this)[MainChildVM::class.java] }
-    private val vmStore by lazy { ViewModelStore() }
+    private val vm by lazy { ViewModelProvider(this) [MainChildVM::class.java] }
 
     private val adapter by lazy { UsersAdapter() }
 
@@ -55,7 +54,6 @@ class ChildMainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        vmStore.put(vm.toString(), vm)
 
         viewLifecycleOwner.lifecycleScope.launch {
             getChildsAndSubmitInAdapter()
@@ -70,10 +68,6 @@ class ChildMainFragment : Fragment() {
         _binding = null
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        vmStore.clear()
-    }
 
 
     private suspend fun getChildsAndSubmitInAdapter() {
@@ -103,8 +97,6 @@ class ChildMainFragment : Fragment() {
                     is UiState.Success -> {
                         navigator().shouldCloseFragment()
 
-                        vm.detachAllListeners()
-                        vmStore.clear()
 
                         navigator().shouldLaunchFragment(
                             LoginFragment.newInstance(),

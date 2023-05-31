@@ -17,8 +17,6 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.chesire.lifecyklelog.LogLifecykle
 import com.example.familyalarm.R
-import com.example.familyalarm.data.impl_repositories.ParentRepositoryImpl
-import com.example.familyalarm.data.listeners.SingleFirebaseListener
 import com.example.familyalarm.databinding.ParentMainFragmentBinding
 import com.example.familyalarm.domain.entities.UserChild
 import com.example.familyalarm.presentation.contract.navigator
@@ -26,12 +24,9 @@ import com.example.familyalarm.presentation.recyclerview.UsersAdapter
 import com.example.familyalarm.presentation.viewmodels.MainVM
 import com.example.familyalarm.utils.UiState
 import com.example.familyalarm.utils.uiLifeCycleScope
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.io.Closeable
-import kotlin.properties.Delegates
+
 
 @LogLifecykle
 class ParentMainFragment : Fragment() {
@@ -40,7 +35,6 @@ class ParentMainFragment : Fragment() {
     private val binding: ParentMainFragmentBinding
         get() = _binding ?: throw Exception("ParentMainFragment == null")
 
-    private val vmStore by lazy { ViewModelStore() }
     private val vm by lazy { ViewModelProvider(this)[MainVM::class.java] }
 
     private val adapter by lazy { UsersAdapter() }
@@ -59,8 +53,6 @@ class ParentMainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        vmStore.put(vm.toString(), vm)
 
         viewLifecycleOwner.lifecycleScope.launch {
             getChildsAndSubmitInAdapter()
@@ -88,10 +80,6 @@ class ParentMainFragment : Fragment() {
             }
         }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        vmStore.clear()
-    }
 
 
 
@@ -109,9 +97,6 @@ class ParentMainFragment : Fragment() {
                         }
                         is UiState.Success -> {
                             navigator().shouldCloseFragment()
-
-                             vmStore.clear()
-                             vm.detachAllListeners()
 
                             navigator().shouldLaunchFragment(
                                 LoginFragment.newInstance(),

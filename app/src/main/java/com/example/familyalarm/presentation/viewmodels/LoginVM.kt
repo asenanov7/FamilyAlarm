@@ -2,12 +2,14 @@ package com.example.familyalarm.presentation.viewmodels
 
 import android.app.Application
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.familyalarm.data.impl_repositories.AuthRepositoryImpl
 import com.example.familyalarm.data.impl_repositories.GeneralRepositoryImpl
 import com.example.familyalarm.data.impl_repositories.ParentRepositoryImpl
 import com.example.familyalarm.domain.entities.User
+import com.example.familyalarm.domain.entities.UserChild
 import com.example.familyalarm.domain.entities.UserParent
 import com.example.familyalarm.domain.usecases.auth.LoginUseCase
 import com.example.familyalarm.utils.UiState
@@ -16,6 +18,8 @@ import com.example.familyalarm.utils.getErrorMessageFromFirebaseErrorCode
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -61,14 +65,14 @@ class LoginVM(application: Application) : AndroidViewModel(application) {
     }
 
     suspend fun checkIsParentOrChild(){
-        var user: User? =null
+        var user: User? = null
         viewModelScope.launch {
-           user = GeneralRepositoryImpl.getUserInfo(FirebaseAuth.getInstance().currentUser!!.uid)
+            user = GeneralRepositoryImpl.create().getUserInfo(Firebase.auth.uid!!)
         }.join()
 
         if (user is UserParent){
             isParent.emit(true)
-        }else{
+        }else if (user is UserChild){
             isParent.emit(false)
         }
     }

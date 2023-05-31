@@ -115,16 +115,21 @@ class LoginFragment : Fragment() {
                         vm.checkIsParentOrChild()
                         vm.isParent.collectLatest {isParent->
                             when(isParent){
-                                true ->  navigator().shouldLaunchFragment(
+                                true ->{
+                                    navigator().shouldLaunchFragment(
                                     ParentMainFragment.newInstance(),
                                     ParentMainFragment.NAME,
                                     false
-                                )
-                                false ->  navigator().shouldLaunchFragment(
-                                    ChildMainFragment.newInstance(),
-                                    ChildMainFragment.NAME,
-                                    false
-                                )
+                                    )
+                                }
+
+                                false -> {
+                                    navigator().shouldLaunchFragment(
+                                        ChildMainFragment.newInstance(),
+                                        ChildMainFragment.NAME,
+                                        false
+                                    )
+                                }
                                 else -> {
                                     throwEx(observeVmState())
                                 }

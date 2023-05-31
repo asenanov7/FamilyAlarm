@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 
 class SearchVM : ViewModel() {
 
-    private val parentRepositoryImpl = ParentRepositoryImpl
+    private val parentRepositoryImpl = ParentRepositoryImpl.create()
     private val findUsersByHazyNameUseCase = FindChildByHazyNameUseCase(parentRepositoryImpl)
     private val inviteChildUseCase = InviteChildUseCase(parentRepositoryImpl)
 
@@ -22,4 +22,5 @@ class SearchVM : ViewModel() {
     suspend fun invite(userId: String): Boolean{
         return inviteChildUseCase(userId)
     }
+
 }

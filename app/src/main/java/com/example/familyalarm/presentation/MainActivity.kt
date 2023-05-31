@@ -7,11 +7,13 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import com.example.familyalarm.R
+import com.example.familyalarm.data.impl_repositories.ChildRepositoryImpl
 import com.example.familyalarm.data.impl_repositories.GeneralRepositoryImpl
 import com.example.familyalarm.data.impl_repositories.ParentRepositoryImpl
 import com.example.familyalarm.databinding.ActivityMainBinding
 import com.example.familyalarm.domain.entities.User
 import com.example.familyalarm.domain.entities.UserParent
+import com.example.familyalarm.domain.repositories.GeneralRepository
 import com.example.familyalarm.presentation.contract.Navigator
 import com.example.familyalarm.presentation.fragments.ChildMainFragment
 import com.example.familyalarm.presentation.fragments.LoginFragment
@@ -62,14 +64,6 @@ class MainActivity : AppCompatActivity(), Navigator {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        /*    auth.addAuthStateListener {
-                if (auth.currentUser == null) {
-                    Log.d("SENANOV", "currentUser:==null : launch LoginFragment ")
-                    //fragmentManager.popBackStackImmediate(LoginFragment.NAME, 0) //Удалить все фрагменты кроме Логина ТЕСТИРОВАТЬ
-                    shouldLaunchFragment(LoginFragment.newInstance(), LoginFragment.NAME, false)
-                } else {*/
-
-
         if (auth.currentUser == null) {
             Log.d("SENANOV", "auth.currentUser == null ")
             if (savedInstanceState==null) {
@@ -80,11 +74,10 @@ class MainActivity : AppCompatActivity(), Navigator {
                 lifecycleScope.launch {
                     var user: User? =null
                     lifecycleScope.launch {
-                        user = GeneralRepositoryImpl.getUserInfo(FirebaseAuth.getInstance().currentUser!!.uid)
+                        user = GeneralRepositoryImpl.create().getUserInfo(FirebaseAuth.getInstance().currentUser!!.uid)
                     }.join()
 
-                    val isParent = user is UserParent
-                    if (isParent) {
+                    if (user is UserParent) {
                         shouldLaunchFragment(
                             ParentMainFragment.newInstance(),
                             ParentMainFragment.NAME,
@@ -98,10 +91,6 @@ class MainActivity : AppCompatActivity(), Navigator {
                         )
                     }
                 }
-                Log.d(
-                    "SENANOV",
-                    "currentUser not null - savedInstanceState == null : laucnh MainFragment"
-                )
             } else {
                 //Может вообще не нужно (Кажись андроид сам восстанавливает последний фрагмент)
                 val fragmentId = savedInstanceState.getInt("Fragment")
@@ -114,6 +103,14 @@ class MainActivity : AppCompatActivity(), Navigator {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("FIX_LISTENERS_BUG", "onDestroy")
+        //GeneralRepositoryImpl.destroy()
+        //ChildRepositoryImpl.destroy()
+        //ParentRepositoryImpl.destroy()
     }
 }
 

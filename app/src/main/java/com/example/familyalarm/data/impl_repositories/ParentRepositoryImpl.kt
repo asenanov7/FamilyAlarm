@@ -6,17 +6,15 @@ import com.example.familyalarm.data.impl_repositories.ChildAndParentUtils.Compan
 import com.example.familyalarm.data.impl_repositories.ChildAndParentUtils.Companion.getUserChild
 import com.example.familyalarm.data.impl_repositories.ChildAndParentUtils.Companion.setNewChildList
 import com.example.familyalarm.data.impl_repositories.ChildAndParentUtils.Companion.updateChildCurrentGroupId
-import com.example.familyalarm.data.impl_repositories.GeneralRepositoryImpl.childsRef
-import com.example.familyalarm.data.impl_repositories.GeneralRepositoryImpl.parentsRef
-import com.example.familyalarm.data.listeners.SingleFirebaseListener
-import com.example.familyalarm.domain.entities.User
 import com.example.familyalarm.domain.entities.UserChild
-import com.example.familyalarm.domain.entities.UserParent
 import com.example.familyalarm.domain.repositories.ParentRepository
-import com.example.familyalarm.utils.FirebaseTables.PARENT_CHILDRENS_CHILD_TABLE
+import com.example.familyalarm.utils.FirebaseTables.Companion.CHILDS_REF
+import com.example.familyalarm.utils.FirebaseTables.Companion.PARENTS_REF
+import com.example.familyalarm.utils.FirebaseTables.Companion.PARENT_CHILDRENS_CHILD_TABLE
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
@@ -25,15 +23,17 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
-object ParentRepositoryImpl : ParentRepository {
+class ParentRepositoryImpl private constructor() : ParentRepository {
+
     private val scope = CoroutineScope(Dispatchers.IO)
     private var needUpdateChild = MutableSharedFlow<Unit>()
     private var childs = emptyList<UserChild>()
+    private val parentId = Firebase.auth.uid!!
 
-    private val childsListener = object : SingleFirebaseListener<UserChild>() {
+    private val childsListener = object : ValueEventListener {
 
-        override fun onDataChangeCustom(snapshot: DataSnapshot) {
-            Log.d("ARSEN", "CHANGED $this")
+        override fun onDataChange(snapshot: DataSnapshot) {
+            Log.d("FIX_LISTENERS_BUG", "CHANGED on ${this@ParentRepositoryImpl} listener = $this")
             scope.launch {
                 val listOfChilds = mutableListOf<UserChild>()
                 for (item in snapshot.children) {
@@ -48,24 +48,22 @@ object ParentRepositoryImpl : ParentRepository {
             }
         }
 
-        override fun onCanceledCustom(error: DatabaseError) {
+        override fun onCancelled(error: DatabaseError) {
             throw Exception("Canceled ChildOnParentListener in ParentRepositoryImpl")
         }
     }
 
+
     override val childsFLOW: Flow<List<UserChild>> = flow {
-        val parentId = Firebase.auth.currentUser!!.uid
 
-        if (!childsListener.isActive) {
-            childsListener.attachListener(parentsRef, parentId, PARENT_CHILDRENS_CHILD_TABLE)
-            Log.d("ARSEN", " childsListener.attachListener")
-        }
+        PARENTS_REF.child(parentId).child(PARENT_CHILDRENS_CHILD_TABLE)
+            .addValueEventListener(childsListener)
 
-        needUpdateChild.collect{
+        needUpdateChild.collect {
             emit(childs)
         }
-    }
-        .stateIn(scope = scope, started = SharingStarted.Lazily, emptyList())
+
+    }.stateIn(scope = scope, started = SharingStarted.Lazily, emptyList())
 
     override suspend fun inviteChild(userId: String): Boolean {
         val parentId = Firebase.auth.currentUser!!.uid
@@ -81,19 +79,19 @@ object ParentRepositoryImpl : ParentRepository {
 
 
     override suspend fun deleteChild(userId: String, parentId: String) {
-            scope.launch {
-                val oldIdList = getOldChildIdsList(parentId)
-                val newIdList = oldIdList.toMutableList().apply { remove(userId) }
+        scope.launch {
+            val oldIdList = getOldChildIdsList(parentId)
+            val newIdList = oldIdList.toMutableList().apply { remove(userId) }
 
-                setNewChildList(parentId, newIdList)
-                updateChildCurrentGroupId(userId, null)
-            }.join()
+            setNewChildList(parentId, newIdList)
+            updateChildCurrentGroupId(userId, null)
+        }.join()
     }
 
 
-    override suspend fun findChildByHazyName(name: String): Flow<List<UserChild>>  = flow{
+    override suspend fun findChildByHazyName(name: String): Flow<List<UserChild>> = flow {
 
-        val childrensMap = childsRef.get().await().children
+        val childrensMap = CHILDS_REF.get().await().children
         val listContainsChild = mutableListOf<UserChild>()
         for (childItem in childrensMap) {
             val child = childItem.getValue(UserChild::class.java)
@@ -109,6 +107,32 @@ object ParentRepositoryImpl : ParentRepository {
         emit(listContainsChild)
     }
 
+    companion object {
 
+        private var INSTANCE: ParentRepositoryImpl? = null
+        private val LOCK = Any()
+
+        fun create(): ParentRepositoryImpl {
+            INSTANCE?.let { return it }
+
+            synchronized(LOCK) {
+                INSTANCE?.let { return it }
+                val parentRepImpl = ParentRepositoryImpl()
+                INSTANCE = parentRepImpl
+                return parentRepImpl
+            }
+        }
+
+        fun destroy() {
+            Log.d("FIX_LISTENERS_BUG", "destroy: ${ 
+                PARENTS_REF.child(INSTANCE?.parentId?:"").child(PARENT_CHILDRENS_CHILD_TABLE)}"
+            )
+            PARENTS_REF.child(INSTANCE?.parentId?:"").child(PARENT_CHILDRENS_CHILD_TABLE)
+                .removeEventListener(INSTANCE?.childsListener!!)
+
+
+            INSTANCE = null
+        }
+    }
 
 }
